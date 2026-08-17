@@ -2,11 +2,12 @@
   "name": "peppa-pig-happy-mrs-chicken",
   "version": "2.0.0",
   "description": "Peppa Pig: Happy Mrs Chicken - TypeScript + React + Vite Modular Game Suite",
-  "type": "module",
+  "homepage": "https://deepak7mahto.github.io/happy-mrs-chicken/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "keywords": [
     "peppa-pig",
@@ -28,6 +29,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "gh-pages": "^6.3.0",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   }
