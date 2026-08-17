@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Happy Mrs Chicken">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Happy%20Mrs%20Chicken%22%2C%22short_name%22%3A%22MrsChicken%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22landscape%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%7D">
   <title>Peppa Pig: Happy Mrs Chicken</title>
   <style>
     /* ==========================================================================
@@ -27,6 +34,8 @@
       justify-content: center;
       align-items: center;
       touch-action: none;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: auto;
       font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
@@ -47,6 +56,35 @@
       height: 100vh;
       background-color: #1e293b;
       cursor: pointer;
+      touch-action: none;
+    }
+
+    /* Mobile Portrait Landscape Reminder Pill */
+    #rotate-hint {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid rgba(254, 240, 138, 0.7);
+      color: #fef08a;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.2px;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      pointer-events: none;
+      animation: pulseHint 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseHint {
+      0%, 100% { opacity: 0.95; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
     }
 
     /* Accessibility / Testing DOM Overlays (Hidden offscreen or pointer-through) */
@@ -61,6 +99,7 @@
 <body>
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
+    <div id="rotate-hint">📱 Rotate to Landscape for best view 🔄</div>
     <!-- DOM elements to satisfy semantic queries and accessibility -->
     <div class="mode-card-container">
       <button class="mode-card" data-mode="EGG_LAYING" aria-label="Happy Mrs Chicken Classic Mode" tabindex="-1">Classic Mode</button>
@@ -68,6 +107,7 @@
       <button class="mode-card" data-mode="CHICK_MAZE" aria-label="Chick Maze Mode" tabindex="-1">Chick Maze</button>
       <button class="mode-card" data-mode="DADDY_PIG" aria-label="Daddy Pig Challenge Mode" tabindex="-1">Daddy Pig Challenge</button>
       <button id="audio-toggle-btn" aria-label="Toggle Audio" tabindex="-1">Mute/Unmute</button>
+      <button id="fullscreen-toggle-btn" aria-label="Toggle Fullscreen" tabindex="-1">Fullscreen</button>
     </div>
   </div>
 
@@ -201,6 +241,46 @@
         return { scaleX, scaleY: clampedY };
       }
     };
+
+    /**
+     * Mobile Vibration & Tactile Feedback Subsystem
+     */
+    const Haptics = {
+      tap() {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate(10); } catch (_) {}
+        }
+      },
+      medium() {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate(22); } catch (_) {}
+        }
+      },
+      heavy() {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate(35); } catch (_) {}
+        }
+      },
+      fanfare() {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate([20, 40, 20, 40, 30]); } catch (_) {}
+        }
+      }
+    };
+
+    function updateMobileOrientationHint() {
+      const hint = document.getElementById('rotate-hint');
+      if (!hint) return;
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+      if (isPortrait && isMobile) {
+        hint.style.display = 'flex';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
+    window.addEventListener('resize', updateMobileOrientationHint);
+    window.addEventListener('orientationchange', updateMobileOrientationHint);
 
     /**
      * Procedural Vector Drawing Functions
@@ -2622,6 +2702,7 @@
       }
 
       handleTap(x, y) {
+        // Audio Mute Toggle (910, 35)
         const dx = x - 910;
         const dy = y - 35;
         if (dx * dx + dy * dy <= 50 * 50) {
@@ -2629,6 +2710,17 @@
           this.game.storage.setMuted(newMute);
           window.__AUDIO_ENGINE__.setMuted(newMute);
           window.__AUDIO_ENGINE__.playSFX('click');
+          Haptics.tap();
+          return true;
+        }
+
+        // Fullscreen Toggle (845, 35)
+        const fdx = x - 845;
+        const fdy = y - 35;
+        if (fdx * fdx + fdy * fdy <= 30 * 30) {
+          this.game.toggleFullscreen();
+          window.__AUDIO_ENGINE__.playSFX('click');
+          Haptics.tap();
           return true;
         }
 
@@ -2636,6 +2728,7 @@
           if (x >= card.x - card.w / 2 && x <= card.x + card.w / 2 &&
               y >= card.y - card.h / 2 && y <= card.y + card.h / 2) {
             window.__AUDIO_ENGINE__.playSFX('click');
+            Haptics.medium();
             this.game.sceneManager.changeScene(card.id);
             return true;
           }
@@ -2745,6 +2838,23 @@
         ctx.textBaseline = 'middle';
         ctx.fillText(this.game.storage.isMuted() ? '🔇' : '🔊', 0, 2);
         ctx.restore();
+
+        // Fullscreen Toggle Button (Top-Right: 845, 35)
+        ctx.save();
+        ctx.translate(845, 35);
+        ctx.fillStyle = '#81D4FA';
+        ctx.strokeStyle = '#0288D1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = '#01579B';
+        ctx.font = 'bold 18px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('⛶', 0, 1);
+        ctx.restore();
       }
     }
 
@@ -2794,6 +2904,7 @@
 
         window.__AUDIO_ENGINE__.playSFX('cluck');
         window.__AUDIO_ENGINE__.playSFX('eggPop');
+        Haptics.tap();
         this.particles.spawnFeathers(this.chicken.x, this.chicken.y, 2);
       }
 
@@ -2802,8 +2913,9 @@
 
         // Header back button tap
         const ptr = input.primaryPointer;
-        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 115 && ptr.y <= 65) {
           this.game.storage.saveHighScore('eggLaying', this.score);
+          Haptics.tap();
           this.game.sceneManager.changeScene('MENU');
           return;
         }
@@ -2862,6 +2974,7 @@
               egg.state = 'HATCH_BURST';
               this.particles.spawnEggCrack(egg.x, egg.y, 8);
               window.__AUDIO_ENGINE__.playSFX('hatch');
+              Haptics.heavy();
 
               // Spawn scampering chick
               this.chicks.push({
@@ -3017,6 +3130,7 @@
         this.peppa.isJumping = true;
         this.peppa.jumpV = -460;
         this.peppa.squish = 1.25;
+        Haptics.tap();
       }
 
       update(dt, input) {
@@ -3027,8 +3141,9 @@
 
         // Back button
         const ptr = input.primaryPointer;
-        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 115 && ptr.y <= 65) {
           this.game.storage.saveHighScore('muddyPuddles', this.score);
+          Haptics.tap();
           this.game.sceneManager.changeScene('MENU');
           return;
         }
@@ -3094,6 +3209,7 @@
                 this.particles.spawnMudSplash(pud.x, pud.y, 20, pud.type === 'GOLDEN');
                 this.particles.spawnScorePopup(pud.x, pud.y - 30, `+${pts * centerBonus * this.multiplier}`);
                 window.__AUDIO_ENGINE__.playSFX('splash');
+                Haptics.heavy();
                 this.puddles.splice(i, 1);
                 break;
               }
@@ -3212,6 +3328,7 @@
         if (this.seeds.length >= 5) this.seeds.shift();
         this.seeds.push({ x, y, remaining: 1 });
         window.__AUDIO_ENGINE__.playSFX('seedDrop');
+        Haptics.tap();
       }
 
       update(dt, input) {
@@ -3219,8 +3336,9 @@
 
         // Back button
         const ptr = input.primaryPointer;
-        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 115 && ptr.y <= 65) {
           this.game.storage.saveHighScore('chickMaze', this.coopSavedCount);
+          Haptics.tap();
           this.game.sceneManager.changeScene('MENU');
           return;
         }
@@ -3296,6 +3414,7 @@
             this.score += 100;
             this.particles.spawnSparkles(coopDoor.x, coopDoor.y, 12);
             window.__AUDIO_ENGINE__.playSFX('fanfare');
+            Haptics.medium();
             this.chicks.splice(i, 1);
 
             if (this.chicks.length === 0) {
@@ -3408,6 +3527,7 @@
 
         window.__AUDIO_ENGINE__.playSFX('cluck');
         window.__AUDIO_ENGINE__.playSFX('eggPop');
+        Haptics.tap();
 
         if (this.fever >= 65) {
           this.particles.spawnSteam(740, 240);
@@ -3419,6 +3539,7 @@
         if (this.fever >= 100 && !this.isOverheating) {
           this.isOverheating = true;
           window.__AUDIO_ENGINE__.playSFX('crash');
+          Haptics.fanfare();
           this.game.storage.saveHighScore('daddyPig', this.score);
         }
       }
@@ -3434,8 +3555,9 @@
 
         // Back button
         const ptr = input.primaryPointer;
-        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 115 && ptr.y <= 65) {
           this.game.storage.saveHighScore('daddyPig', this.score);
+          Haptics.tap();
           this.game.sceneManager.changeScene('MENU');
           return;
         }
@@ -3687,7 +3809,28 @@
 
       init() {
         this.display.syncResize();
+        if (typeof updateMobileOrientationHint === 'function') {
+          updateMobileOrientationHint();
+        }
         this.gameLoop.start();
+      }
+
+      toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            } else if (document.documentElement.webkitRequestFullscreen) {
+              document.documentElement.webkitRequestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen().catch(() => {});
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            }
+          }
+        } catch (_) {}
       }
 
       update(dt, isPaused = false) {
@@ -3772,6 +3915,13 @@
             const newMute = !self.storage.isMuted();
             self.storage.setMuted(newMute);
             window.__AUDIO_ENGINE__.setMuted(newMute);
+          });
+        }
+
+        const fullscreenBtn = document.getElementById('fullscreen-toggle-btn');
+        if (fullscreenBtn) {
+          fullscreenBtn.addEventListener('click', () => {
+            self.toggleFullscreen();
           });
         }
 
