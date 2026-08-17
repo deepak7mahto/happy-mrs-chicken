@@ -1,6 +1,6 @@
 /**
  * Master Graphics Barrel
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 // Characters subsystem

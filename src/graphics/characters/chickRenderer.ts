@@ -1,6 +1,6 @@
 /**
  * Baby Chick Procedural Vector Renderer
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { PALETTE } from '../palette';

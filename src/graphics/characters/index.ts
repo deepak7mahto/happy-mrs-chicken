@@ -1,48 +1,44 @@
 /**
  * Character Vector Graphics Barrel & Dispatcher
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { CharacterId, CharacterRenderFunc, CharacterRenderOptions } from '../../types/characters';
-import { drawMrsChicken, renderChicken, renderMrsChicken, drawChicken } from './chickenRenderer';
-import { drawPeppaPig, renderPeppa, renderPeppaPig, drawPeppa } from './peppaRenderer';
-import { drawGeorgePig, renderGeorge, renderGeorgePig, drawGeorge } from './georgeRenderer';
-import { drawDaddyPig, renderDaddyPig, renderDaddy, drawDaddy } from './daddyPigRenderer';
-import { drawMummyPig, renderMummyPig, renderMummy, drawMummy } from './mummyPigRenderer';
-import { drawGrandpaPig, renderGrandpaPig, renderGrandpa, drawGrandpa } from './grandpaPigRenderer';
-import { drawSuzySheep, renderSuzySheep, renderSuzy, drawSuzy } from './suzySheepRenderer';
+import { drawMrsClucky, drawMrsChicken, renderChicken, renderMrsChicken, renderMrsClucky, drawChicken } from './chickenRenderer';
+import { drawTrishu, renderTrishu, drawTrishuGirl } from './trishuRenderer';
+import { drawLeo, renderLeo, drawLeoBoy } from './leoRenderer';
+import { drawDad, renderDad, drawDadFather } from './dadRenderer';
+import { drawMom, renderMom, drawMomMother } from './momRenderer';
+import { drawGrandpa, renderGrandpa, drawGrandpaGardener } from './grandpaRenderer';
+import { drawMimi, renderMimi, drawMimiBunny } from './mimiRenderer';
 import { drawBabyChick, renderChick, renderBabyChick, drawChick } from './chickRenderer';
 
 // Individual Renderer Function Exports
 export {
+  drawMrsClucky,
   drawMrsChicken,
   renderChicken,
   renderMrsChicken,
+  renderMrsClucky,
   drawChicken,
-  drawPeppaPig,
-  renderPeppa,
-  renderPeppaPig,
-  drawPeppa,
-  drawGeorgePig,
-  renderGeorge,
-  renderGeorgePig,
-  drawGeorge,
-  drawDaddyPig,
-  renderDaddyPig,
-  renderDaddy,
-  drawDaddy,
-  drawMummyPig,
-  renderMummyPig,
-  renderMummy,
-  drawMummy,
-  drawGrandpaPig,
-  renderGrandpaPig,
-  renderGrandpa,
+  drawTrishu,
+  renderTrishu,
+  drawTrishuGirl,
+  drawLeo,
+  renderLeo,
+  drawLeoBoy,
+  drawDad,
+  renderDad,
+  drawDadFather,
+  drawMom,
+  renderMom,
+  drawMomMother,
   drawGrandpa,
-  drawSuzySheep,
-  renderSuzySheep,
-  renderSuzy,
-  drawSuzy,
+  renderGrandpa,
+  drawGrandpaGardener,
+  drawMimi,
+  renderMimi,
+  drawMimiBunny,
   drawBabyChick,
   renderChick,
   renderBabyChick,
@@ -51,13 +47,13 @@ export {
 
 // Character Roster Registry Map
 export const CHARACTER_RENDERERS: Record<CharacterId, CharacterRenderFunc<any>> = {
-  chicken: drawMrsChicken,
-  peppa: drawPeppaPig,
-  george: drawGeorgePig,
-  daddy: drawDaddyPig,
-  mummy: drawMummyPig,
-  grandpa: drawGrandpaPig,
-  suzy: drawSuzySheep,
+  chicken: drawMrsClucky,
+  trishu: drawTrishu,
+  leo: drawLeo,
+  dad: drawDad,
+  mom: drawMom,
+  grandpa: drawGrandpa,
+  mimi: drawMimi,
   chick: drawBabyChick
 };
 

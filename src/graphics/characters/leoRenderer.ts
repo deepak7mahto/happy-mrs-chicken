@@ -1,19 +1,19 @@
 /**
- * George Pig & Mr. Dinosaur Procedural Vector Renderer (Show-Accurate Cartoon Geometry)
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Leo (Little Brother) Procedural Vector Renderer
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
 import { PALETTE } from '../palette';
-import { GeorgeOptions } from '../../types/characters';
+import { LeoOptions } from '../../types/characters';
 import { preserveVolume, getJawRotationAngle } from '../animations';
 
-export function drawGeorgePig(
+export function drawLeo(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   scale: number = 1.0,
-  options: GeorgeOptions = {}
+  options: LeoOptions = {}
 ): void {
   const animState = options.animState;
   const jumpY = options.jumpY ?? animState?.jumpY ?? 0;
@@ -35,170 +35,145 @@ export function drawGeorgePig(
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // 1. Curled Tail
-  ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(-16, 20);
-  ctx.bezierCurveTo(-24, 18, -26, 8, -18, 8);
-  ctx.bezierCurveTo(-12, 8, -14, 16, -22, 14);
-  ctx.stroke();
-
-  // 2. Shoes & Legs (Blue Boots)
+  // 1. Shoes & Legs (Blue Sneakers)
   ctx.fillStyle = '#1565C0';
   ctx.strokeStyle = '#0D47A1';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2.8;
   ctx.beginPath();
-  ctx.roundRect(-16, 36, 14, 10, 4);
-  ctx.roundRect(3, 36, 14, 10, 4);
+  ctx.roundRect(-14, 34, 12, 10, 3.5);
+  ctx.roundRect(2, 34, 12, 10, 3.5);
   ctx.fill();
   ctx.stroke();
 
-  ctx.strokeStyle = PALETTE.GEORGE_SKIN;
+  ctx.strokeStyle = PALETTE.LEO_SKIN;
   ctx.lineWidth = 3.5;
   ctx.beginPath();
-  ctx.moveTo(-9, 28);
-  ctx.lineTo(-9, 37);
-  ctx.moveTo(9, 28);
-  ctx.lineTo(9, 37);
+  ctx.moveTo(-8, 26);
+  ctx.lineTo(-8, 35);
+  ctx.moveTo(8, 26);
+  ctx.lineTo(8, 35);
   ctx.stroke();
 
-  // 3. Toddler Blue Shirt
-  ctx.fillStyle = PALETTE.GEORGE_SHIRT;
-  ctx.strokeStyle = PALETTE.GEORGE_SHIRT_OUTLINE;
-  ctx.lineWidth = 4;
+  // 2. Toddler Blue Overalls / Shirt
+  ctx.fillStyle = PALETTE.LEO_SHIRT;
+  ctx.strokeStyle = PALETTE.LEO_SHIRT_OUTLINE;
+  ctx.lineWidth = 3.5;
   ctx.beginPath();
-  ctx.moveTo(-12, 0);
-  ctx.lineTo(12, 0);
-  ctx.quadraticCurveTo(20, 16, 24, 30);
-  ctx.quadraticCurveTo(0, 32, -24, 30);
-  ctx.quadraticCurveTo(-20, 16, -12, 0);
+  ctx.moveTo(-11, 2);
+  ctx.lineTo(11, 2);
+  ctx.quadraticCurveTo(18, 16, 16, 28);
+  ctx.lineTo(-16, 28);
+  ctx.quadraticCurveTo(-18, 16, -11, 2);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
 
-  // 4. Back Arm
-  ctx.strokeStyle = PALETTE.GEORGE_SKIN;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(-12, 10);
-  ctx.lineTo(-22 + Math.sin(armWave) * 4, 4);
-  ctx.stroke();
-
-  // 5. Ears
-  ctx.fillStyle = PALETTE.GEORGE_SKIN;
-  ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+  // 3. Back Arm
+  ctx.strokeStyle = PALETTE.LEO_SKIN;
   ctx.lineWidth = 3.5;
-
   ctx.beginPath();
-  ctx.ellipse(-14, -40, 4.5, 9, -0.15, 0, Math.PI * 2);
+  ctx.moveTo(-11, 10);
+  ctx.lineTo(-20 + Math.sin(armWave) * 4, 6);
+  ctx.stroke();
+
+  // 4. Neck & Head
+  ctx.fillStyle = PALETTE.LEO_SKIN;
+  ctx.strokeStyle = PALETTE.LEO_OUTLINE;
+  ctx.lineWidth = 3.2;
+  ctx.beginPath();
+  ctx.arc(0, -9, 17, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
+  // 5. Short Toddler Hair (Dark Brown)
+  ctx.fillStyle = '#5D4037';
+  ctx.strokeStyle = '#3E2723';
+  ctx.lineWidth = 2.8;
   ctx.beginPath();
-  ctx.ellipse(-4, -40, 4.5, 9, 0.1, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // 6. Canonical Hairdryer Head & Snout Contour (Toddler Size)
-  ctx.fillStyle = PALETTE.GEORGE_SKIN;
-  ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(-8, -34);
-  ctx.quadraticCurveTo(10, -34, 30, -29);
-  ctx.quadraticCurveTo(36, -27, 36, -21);
-  ctx.quadraticCurveTo(36, -15, 30, -13);
-  ctx.quadraticCurveTo(12, -13, 4, -3);
-  ctx.quadraticCurveTo(-3, 5, -18, 3);
-  ctx.quadraticCurveTo(-34, 1, -34, -15);
-  ctx.quadraticCurveTo(-34, -34, -8, -34);
+  ctx.moveTo(-16, -12);
+  ctx.quadraticCurveTo(-12, -26, 0, -26);
+  ctx.quadraticCurveTo(12, -26, 16, -12);
+  ctx.quadraticCurveTo(8, -19, 0, -19);
+  ctx.quadraticCurveTo(-8, -19, -16, -12);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
 
-  // Snout Oval
+  // 6. Cheeks
+  ctx.fillStyle = PALETTE.LEO_CHEEK;
   ctx.beginPath();
-  ctx.ellipse(30, -21, 3.5, 7, 0.12, 0, Math.PI * 2);
-  ctx.fillStyle = PALETTE.GEORGE_SKIN;
-  ctx.fill();
-  ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // Nostrils
-  ctx.fillStyle = PALETTE.GEORGE_OUTLINE;
-  ctx.beginPath();
-  ctx.arc(29, -23, 1.6, 0, Math.PI * 2);
-  ctx.arc(31, -19, 1.6, 0, Math.PI * 2);
+  ctx.arc(-9, -5, 3.5, 0, Math.PI * 2);
+  ctx.arc(9, -5, 3.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // Rosy Cheek
-  ctx.fillStyle = PALETTE.GEORGE_CHEEK;
-  ctx.beginPath();
-  ctx.arc(-14, -9, 9, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Eyes & Blinking
-  if (eyeBlink) {
-    ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+  // 7. Eyes / Tears
+  if (isCrying) {
+    ctx.strokeStyle = PALETTE.BLACK;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(3, -29, 4, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(14, -27, 4, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.stroke();
-  } else {
-    ctx.fillStyle = PALETTE.WHITE;
-    ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.arc(3, -29, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(14, -27, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = PALETTE.BLACK;
-    ctx.beginPath();
-    ctx.arc(4, -29, 2.2, 0, Math.PI * 2);
-    ctx.arc(15, -27, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Mouth (Happy or Crying)
-  if (isCrying) {
-    ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(10, -4, 8, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.moveTo(-9, -10); ctx.lineTo(-4, -13); ctx.lineTo(-9, -16);
+    ctx.moveTo(9, -10); ctx.lineTo(4, -13); ctx.lineTo(9, -16);
     ctx.stroke();
 
     // Teardrops
     ctx.fillStyle = '#4FC3F7';
     ctx.beginPath();
-    ctx.arc(-2, -18, 3, 0, Math.PI * 2);
-    ctx.arc(14, -18, 3, 0, Math.PI * 2);
+    ctx.arc(-14, -6, 3, 0, Math.PI * 2);
+    ctx.arc(-17, 2, 2.5, 0, Math.PI * 2);
+    ctx.arc(14, -6, 3, 0, Math.PI * 2);
+    ctx.arc(17, 2, 2.5, 0, Math.PI * 2);
     ctx.fill();
-  } else {
-    ctx.strokeStyle = PALETTE.PEPPA_DRESS_OUTLINE;
-    ctx.lineWidth = 3;
+  } else if (eyeBlink) {
+    ctx.strokeStyle = PALETTE.BLACK;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(10, -9, 8, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.arc(-6, -10, 3, Math.PI, 0, false);
+    ctx.moveTo(3, -10);
+    ctx.arc(6, -10, 3, Math.PI, 0, false);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.ellipse(-6, -10, 4, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(6, -10, 4, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = PALETTE.BLACK;
+    ctx.beginPath();
+    ctx.arc(-5, -10, 2.2, 0, Math.PI * 2);
+    ctx.arc(5, -10, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(-6, -11.5, 0.9, 0, Math.PI * 2);
+    ctx.arc(4, -11.5, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 8. Mouth
+  ctx.strokeStyle = PALETTE.BLACK;
+  ctx.lineWidth = 2.2;
+  if (isCrying) {
+    ctx.fillStyle = '#D32F2F';
+    ctx.beginPath();
+    ctx.arc(0, -2, 4.5, 0, Math.PI, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, -4, 4, 0.2, Math.PI - 0.2, false);
     ctx.stroke();
   }
 
-  // 7. Front Arm & Mr. Dinosaur
+  // 9. Green Plush Dinosaur Toy Held in Hand
   if (holdingDino) {
     ctx.save();
-    ctx.translate(18, 8);
+    ctx.translate(14, 10);
+    ctx.scale(0.85, 0.85);
 
-    // Mr. Dinosaur Torso & Tail
+    // Dino Torso & Tail
     ctx.fillStyle = PALETTE.DINOSAUR_GREEN;
     ctx.strokeStyle = PALETTE.DINOSAUR_OUTLINE;
     ctx.lineWidth = 2.2;
@@ -212,7 +187,7 @@ export function drawGeorgePig(
     ctx.fill();
     ctx.stroke();
 
-    // Back Spines
+    // 4 Back Spines
     ctx.fillStyle = PALETTE.DINOSAUR_OUTLINE;
     for (let i = 0; i < 4; i++) {
       ctx.beginPath();
@@ -296,25 +271,24 @@ export function drawGeorgePig(
 
     ctx.restore();
 
-    // George Front Arm Gripping Dino
-    ctx.strokeStyle = PALETTE.GEORGE_SKIN;
-    ctx.lineWidth = 3;
+    // Front Arm Holding Dino
+    ctx.strokeStyle = PALETTE.LEO_SKIN;
+    ctx.lineWidth = 3.2;
     ctx.beginPath();
-    ctx.moveTo(12, 6);
-    ctx.lineTo(18, 10);
+    ctx.moveTo(8, 8);
+    ctx.lineTo(15, 12);
     ctx.stroke();
   } else {
-    ctx.strokeStyle = PALETTE.GEORGE_SKIN;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = PALETTE.LEO_SKIN;
+    ctx.lineWidth = 3.2;
     ctx.beginPath();
-    ctx.moveTo(12, 6);
-    ctx.lineTo(22 - Math.sin(armWave) * 4, 0);
+    ctx.moveTo(8, 8);
+    ctx.lineTo(18 - Math.sin(armWave) * 4, 2);
     ctx.stroke();
   }
 
   ctx.restore();
 }
 
-export const renderGeorge = drawGeorgePig;
-export const renderGeorgePig = drawGeorgePig;
-export const drawGeorge = drawGeorgePig;
+export const renderLeo = drawLeo;
+export const drawLeoBoy = drawLeo;

@@ -1,6 +1,6 @@
 /**
- * Happy Mrs Chicken Procedural Vector Renderer
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mrs Clucky Procedural Vector Renderer
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { PALETTE } from '../palette';
@@ -167,6 +167,8 @@ export function drawMrsChicken(
   ctx.restore();
 }
 
+export const drawMrsClucky = drawMrsChicken;
+export const renderMrsClucky = drawMrsChicken;
 export const renderChicken = drawMrsChicken;
 export const renderMrsChicken = drawMrsChicken;
 export const drawChicken = drawMrsChicken;
