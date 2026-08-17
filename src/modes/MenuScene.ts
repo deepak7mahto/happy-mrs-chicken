@@ -27,53 +27,41 @@ export class MenuScene extends BaseScene {
     });
   }
 
-  getModeCards(isPortrait: boolean): ModeCardDef[] {
+  getModeCards(display: DisplayManager): ModeCardDef[] {
+    const isPortrait = display.isPortrait;
+    const vWidth = display.vWidth;
+    const vHeight = display.vHeight;
+
     if (isPortrait) {
+      const cardW = Math.min(480, vWidth - 40);
+      const titleY = Math.max(80, Math.min(110, vHeight * 0.12));
+      const startY = titleY + 75;
+      const availableHeight = vHeight - startY - 40;
+      const cardH = Math.min(130, Math.max(95, availableHeight / 4.4));
+      const gap = Math.min(24, (availableHeight - cardH * 4) / 3);
+
       return [
-        { id: 'EGG_LAYING', title: 'Happy Mrs Chicken', sub: 'Lay eggs & hatch cute chicks!', x: 270, y: 250, w: 460, h: 120, color: '#FFF9C4', badge: 'Classic' },
-        { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash with Peppa!', x: 270, y: 395, w: 460, h: 120, color: '#FFCDD2', badge: 'Splash' },
-        { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide baby chicks to the coop!', x: 270, y: 540, w: 460, h: 120, color: '#C8E6C9', badge: 'Puzzle' },
-        { id: 'DADDY_PIG', title: 'Daddy Pig Challenge', sub: 'Hyper-speed egg frenzy test!', x: 270, y: 685, w: 460, h: 120, color: '#B2EBF2', badge: 'Frenzy' }
+        { id: 'EGG_LAYING', title: 'Happy Mrs Chicken', sub: 'Tap anywhere to fly & lay eggs!', x: vWidth / 2, y: startY + cardH * 0.5, w: cardW, h: cardH, color: '#FFF9C4', badge: 'Classic' },
+        { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash with Peppa!', x: vWidth / 2, y: startY + cardH * 1.5 + gap, w: cardW, h: cardH, color: '#FFCDD2', badge: 'Splash' },
+        { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide baby chicks to the coop!', x: vWidth / 2, y: startY + cardH * 2.5 + gap * 2, w: cardW, h: cardH, color: '#C8E6C9', badge: 'Puzzle' },
+        { id: 'DADDY_PIG', title: 'Daddy Pig Challenge', sub: 'Hyper-speed egg frenzy test!', x: vWidth / 2, y: startY + cardH * 3.5 + gap * 3, w: cardW, h: cardH, color: '#B2EBF2', badge: 'Frenzy' }
       ];
     }
 
+    const cardW = 390;
+    const cardH = 140;
+    const cx1 = vWidth * 0.28;
+    const cx2 = vWidth * 0.72;
     return [
-      { id: 'EGG_LAYING', title: 'Happy Mrs Chicken', sub: 'Lay eggs & hatch cute chicks!', x: 260, y: 220, w: 380, h: 140, color: '#FFF9C4', badge: 'Classic' },
-      { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash with Peppa!', x: 700, y: 220, w: 380, h: 140, color: '#FFCDD2', badge: 'Splash' },
-      { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide baby chicks to the coop!', x: 260, y: 400, w: 380, h: 140, color: '#C8E6C9', badge: 'Puzzle' },
-      { id: 'DADDY_PIG', title: 'Daddy Pig Challenge', sub: 'Hyper-speed egg frenzy test!', x: 700, y: 400, w: 380, h: 140, color: '#B2EBF2', badge: 'Frenzy' }
+      { id: 'EGG_LAYING', title: 'Happy Mrs Chicken', sub: 'Tap anywhere to fly & lay eggs!', x: cx1, y: 220, w: cardW, h: cardH, color: '#FFF9C4', badge: 'Classic' },
+      { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash with Peppa!', x: cx2, y: 220, w: cardW, h: cardH, color: '#FFCDD2', badge: 'Splash' },
+      { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide baby chicks to the coop!', x: cx1, y: 395, w: cardW, h: cardH, color: '#C8E6C9', badge: 'Puzzle' },
+      { id: 'DADDY_PIG', title: 'Daddy Pig Challenge', sub: 'Hyper-speed egg frenzy test!', x: cx2, y: 395, w: cardW, h: cardH, color: '#B2EBF2', badge: 'Frenzy' }
     ];
   }
 
   handleTap(x: number, y: number): boolean {
-    const isPortrait = this.game.display.isPortrait;
-    const cards = this.getModeCards(isPortrait);
-
-    // Audio Button Hitbox
-    const audioX = isPortrait ? 480 : 910;
-    const audioY = isPortrait ? 45 : 35;
-    const adx = x - audioX;
-    const ady = y - audioY;
-    if (adx * adx + ady * ady <= 50 * 50) {
-      const newMute = !this.game.storage.isMuted();
-      this.game.storage.setMuted(newMute);
-      soundEngine.setMuted(newMute);
-      soundEngine.playSFX('click');
-      Haptics.tap();
-      return true;
-    }
-
-    // Fullscreen Button Hitbox
-    const fsX = isPortrait ? 415 : 845;
-    const fsY = isPortrait ? 45 : 35;
-    const fdx = x - fsX;
-    const fdy = y - fsY;
-    if (fdx * fdx + fdy * fdy <= 35 * 35) {
-      this.game.toggleFullscreen();
-      soundEngine.playSFX('click');
-      Haptics.tap();
-      return true;
-    }
+    const cards = this.getModeCards(this.game.display);
 
     // Mode Card Tap Detection
     for (const card of cards) {
@@ -106,27 +94,32 @@ export class MenuScene extends BaseScene {
     // Title Banner
     ctx.save();
     const titleBob = Math.sin(this.time * 2.5) * 4;
-    const titleX = isPortrait ? 270 : 480;
-    const titleY = (isPortrait ? 110 : 75) + titleBob;
+    const titleX = display.vWidth / 2;
+    const titleY = (isPortrait ? Math.max(70, Math.min(100, display.vHeight * 0.1)) : 70) + titleBob;
     ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '32px' : '44px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '32px' : '42px'} "Comic Sans MS", cursive, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     ctx.strokeStyle = '#3E2723';
     ctx.lineWidth = isPortrait ? 6 : 8;
-    ctx.strokeText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+    ctx.strokeText('Happy Mrs Chicken', 0, 0);
     ctx.fillStyle = '#FFE600';
-    ctx.fillText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+    ctx.fillText('Happy Mrs Chicken', 0, 0);
     ctx.restore();
 
     // Mode Cards
-    const cards = this.getModeCards(isPortrait);
+    const cards = this.getModeCards(display);
     for (const card of cards) {
       ctx.save();
       ctx.translate(card.x, card.y);
 
-      // Card Background
+      // Card Background with drop shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(-card.w / 2, -card.h / 2 + 5, card.w, card.h, 20);
+      ctx.fill();
+
       ctx.fillStyle = card.color;
       ctx.strokeStyle = '#37474F';
       ctx.lineWidth = 4;
@@ -144,7 +137,7 @@ export class MenuScene extends BaseScene {
 
       ctx.fillStyle = '#E53935';
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 110, -card.h / 2 - 12, 100, 26, 13);
+      ctx.roundRect(card.w / 2 - 110, -card.h / 2 - 10, 100, 24, 12);
       ctx.fill();
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 2;
@@ -153,33 +146,33 @@ export class MenuScene extends BaseScene {
       ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
-      ctx.fillText(`Best: ${bestScore}`, card.w / 2 - 60, -card.h / 2 + 3);
+      ctx.fillText(`Best: ${bestScore}`, card.w / 2 - 60, -card.h / 2 + 5);
 
       // Text Labels
       ctx.textAlign = 'left';
-      ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
       ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, -card.w / 2 + 20, -10);
+      ctx.fillText(card.title, -card.w / 2 + 18, -10);
 
-      ctx.font = '14px "Comic Sans MS", sans-serif';
+      ctx.font = '13px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#455A64';
-      ctx.fillText(card.sub, -card.w / 2 + 20, 18);
+      ctx.fillText(card.sub, -card.w / 2 + 18, 16);
 
       // Character Preview Icons
       if (card.id === 'EGG_LAYING') {
-        drawMrsChicken(ctx, card.w / 2 - 50, 10, 0.45, {
+        drawMrsChicken(ctx, card.w / 2 - 45, 8, 0.45, {
           squash: 1.0 + Math.sin(this.time * 4) * 0.1,
           flap: Math.sin(this.time * 6) * 0.2
         });
       } else if (card.id === 'MUDDY_PUDDLES') {
-        drawPeppaPig(ctx, card.w / 2 - 45, 10, 0.45, { jumpY: Math.sin(this.time * 5) * 8 });
+        drawPeppaPig(ctx, card.w / 2 - 42, 8, 0.45, { jumpY: Math.sin(this.time * 5) * 8 });
       } else if (card.id === 'CHICK_MAZE') {
-        drawBabyChick(ctx, card.w / 2 - 45, 15, 0.65, {
+        drawBabyChick(ctx, card.w / 2 - 42, 12, 0.65, {
           walkCycle: this.time * 8,
           isPeeping: Math.sin(this.time * 3) > 0.5
         });
       } else if (card.id === 'DADDY_PIG') {
-        drawDaddyPig(ctx, card.w / 2 - 45, 0, 0.45, {
+        drawDaddyPig(ctx, card.w / 2 - 42, 0, 0.45, {
           panicStage: Math.floor(this.time % 4),
           time: this.time
         });
@@ -187,44 +180,6 @@ export class MenuScene extends BaseScene {
 
       ctx.restore();
     }
-
-    // Audio & Fullscreen Buttons
-    const audioX = isPortrait ? 480 : 910;
-    const audioY = isPortrait ? 45 : 35;
-    ctx.save();
-    ctx.translate(audioX, audioY);
-    ctx.fillStyle = '#FFD54F';
-    ctx.strokeStyle = '#FFA000';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(0, 0, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#212121';
-    ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(this.game.storage.isMuted() ? '🔇' : '🔊', 0, 2);
-    ctx.restore();
-
-    const fsX = isPortrait ? 415 : 845;
-    const fsY = isPortrait ? 45 : 35;
-    ctx.save();
-    ctx.translate(fsX, fsY);
-    ctx.fillStyle = '#81D4FA';
-    ctx.strokeStyle = '#0288D1';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(0, 0, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#01579B';
-    ctx.font = 'bold 18px "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('⛶', 0, 1);
-    ctx.restore();
   }
 }
+

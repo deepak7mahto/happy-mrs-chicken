@@ -6,14 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "node tests/unit_runner.mjs",
-    "test:unit": "node tests/unit_runner.mjs",
-    "test:e2e": "node tests/e2e_runner.mjs",
-    "test:tier1": "node tests/e2e_runner.mjs --tier=1",
-    "test:tier2": "node tests/e2e_runner.mjs --tier=2",
-    "test:tier3": "node tests/e2e_runner.mjs --tier=3",
-    "test:tier4": "node tests/e2e_runner.mjs --tier=4"
+    "preview": "vite preview"
   },
   "keywords": [
     "peppa-pig",

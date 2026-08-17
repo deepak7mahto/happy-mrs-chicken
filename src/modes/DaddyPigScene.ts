@@ -42,8 +42,8 @@ export class DaddyPigScene extends BaseScene {
     Haptics.tap();
 
     const isPortrait = this.game.display.isPortrait;
-    const pigX = isPortrait ? 270 : 740;
-    const pigY = isPortrait ? 380 : 240;
+    const pigX = isPortrait ? this.game.display.vWidth / 2 : this.game.display.vWidth * 0.75;
+    const pigY = isPortrait ? this.game.display.vHeight * 0.38 : 240;
 
     if (this.fever >= 65) {
       this.particles.spawnSteam(pigX, pigY);
@@ -69,18 +69,13 @@ export class DaddyPigScene extends BaseScene {
       this.multiplier = this.fever >= 95 ? 10 : (this.fever >= 70 ? 5 : (this.fever >= 40 ? 2 : 1));
     }
 
-    // Header Back button (only on deliberate physical pointer click in top-left)
-    const ptr = input.primaryPointer;
-    if (ptr && ptr.isDown && input.isActionJustPressed() && input.pointers.size > 0 && ptr.x <= 120 && ptr.y <= 70) {
-      this.game.storage.saveHighScore('daddyPig', this.score);
-      Haptics.tap();
-      this.game.changeScene('MENU');
-      return;
-    }
-
     // Toddler Tap anywhere on screen triggers rapid frenzy
     if (input.isActionJustPressed()) {
-      this.tap();
+      if (this.isOverheating) {
+        this.enter();
+      } else {
+        this.tap();
+      }
     }
 
     this.particles.update(dt);
@@ -88,55 +83,58 @@ export class DaddyPigScene extends BaseScene {
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
     const isPortrait = display.isPortrait;
-    drawLandscapeSkyHills(ctx, display.vWidth, display.vHeight, this.time);
+    const vWidth = display.vWidth;
+    const vHeight = display.vHeight;
+
+    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
     // Overheat Blue Screen Cutscene
     if (this.isOverheating) {
       ctx.fillStyle = '#0D47A1';
-      ctx.fillRect(0, 0, display.vWidth, display.vHeight);
+      ctx.fillRect(0, 0, vWidth, vHeight);
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 36px "Comic Sans MS", sans-serif';
+      ctx.font = `bold ${isPortrait ? '28px' : '36px'} "Comic Sans MS", sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('💻 COMPUTER CRASH! 💥', display.vWidth / 2, display.vHeight * 0.35);
+      ctx.fillText('💻 COMPUTER CRASH! 💥', vWidth / 2, vHeight * 0.35);
 
-      ctx.font = '22px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFEB3B';
-      ctx.fillText(`Final High Score: ${this.score}!`, display.vWidth / 2, display.vHeight * 0.48);
+      ctx.fillText(`Final High Score: ${this.score}!`, vWidth / 2, vHeight * 0.46);
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '18px "Comic Sans MS", sans-serif';
-      ctx.fillText('Daddy Pig broke the computer again!', display.vWidth / 2, display.vHeight * 0.58);
+      ctx.font = '16px "Comic Sans MS", sans-serif';
+      ctx.fillText('Daddy Pig broke the computer again!', vWidth / 2, vHeight * 0.54);
 
       // Back to Menu Button
       ctx.fillStyle = '#E53935';
       ctx.beginPath();
-      ctx.roundRect(display.vWidth / 2 - 100, display.vHeight * 0.68, 200, 50, 15);
+      ctx.roundRect(vWidth / 2 - 100, vHeight * 0.64, 200, 50, 15);
       ctx.fill();
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-      ctx.fillText('Play Again', display.vWidth / 2, display.vHeight * 0.68 + 32);
+      ctx.fillText('Play Again', vWidth / 2, vHeight * 0.64 + 32);
       return;
     }
 
     // Daddy Pig Character
-    const pigX = isPortrait ? 270 : 740;
-    const pigY = isPortrait ? 380 : 260;
+    const pigX = isPortrait ? vWidth / 2 : vWidth * 0.75;
+    const pigY = isPortrait ? vHeight * 0.38 : 260;
     const panicStage = this.fever >= 90 ? 3 : (this.fever >= 65 ? 2 : (this.fever >= 35 ? 1 : 0));
     drawDaddyPig(ctx, pigX, pigY, isPortrait ? 1.25 : 1.1, { panicStage, time: this.time });
 
     this.particles.render(ctx);
 
     // Fever Bar
-    const barX = isPortrait ? 90 : 240;
-    const barY = isPortrait ? 600 : 470;
-    const barW = isPortrait ? 360 : 480;
-    const barH = 28;
+    const barW = Math.min(420, vWidth - 60);
+    const barX = (vWidth - barW) / 2;
+    const barY = isPortrait ? vHeight * 0.62 : 470;
+    const barH = 30;
 
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.beginPath();
-    ctx.roundRect(barX, barY, barW, barH, 14);
+    ctx.roundRect(barX, barY, barW, barH, 15);
     ctx.fill();
 
     const feverGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
@@ -152,7 +150,7 @@ export class DaddyPigScene extends BaseScene {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 14px "Comic Sans MS", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`⚡ FRENZY: ${this.multiplier}x MULTIPLIER ⚡`, barX + barW / 2, barY + 19);
+    ctx.fillText(`⚡ FRENZY: ${this.multiplier}x MULTIPLIER ⚡`, barX + barW / 2, barY + 20);
     ctx.restore();
 
     // Tap Prompt for Kids
@@ -160,28 +158,22 @@ export class DaddyPigScene extends BaseScene {
       ctx.fillStyle = '#FFE600';
       ctx.font = '900 24px "Comic Sans MS", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('👉 TAP RAPIDLY! 👈', 270, 720);
+      ctx.fillText('👉 TAP RAPIDLY! 👈', vWidth / 2, Math.min(vHeight - 50, barY + 70));
     }
 
-    // Top HUD
+    // Score Badge
+    const scoreX = vWidth / 2;
+    const scoreY = Math.max(20, Math.min(30, vHeight * 0.03));
     ctx.save();
-    ctx.fillStyle = '#E53935';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(20, 15, 75, 38, 12);
-    ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('⬅ Home', 57, 40);
-
-    const scoreX = isPortrait ? 270 : 480;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - 120, 15, 240, 40, 15);
+    ctx.roundRect(scoreX - 120, scoreY, 240, 42, 21);
     ctx.fill();
     ctx.fillStyle = '#FFD54F';
-    ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-    ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, scoreX, 42);
+    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, scoreX, scoreY + 22);
     ctx.restore();
   }
 
@@ -207,3 +199,4 @@ export class DaddyPigScene extends BaseScene {
     };
   }
 }
+

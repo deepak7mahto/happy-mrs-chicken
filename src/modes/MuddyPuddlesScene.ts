@@ -14,7 +14,7 @@ export class MuddyPuddlesScene extends BaseScene {
   public timer: number = 60.0;
   public puddles: PuddleEntity[] = [];
   public particles: ParticleEngine;
-  public peppa = { x: 480, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
+  public peppa = { x: 270, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
   public multiplier: number = 1;
   private spawnTimer: number = 0;
 
@@ -30,9 +30,10 @@ export class MuddyPuddlesScene extends BaseScene {
     this.puddles = [];
     this.particles.clear();
     const isPortrait = this.game.display.isPortrait;
+    const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
     this.peppa = {
-      x: isPortrait ? 270 : 480,
-      y: isPortrait ? 780 : 410,
+      x: this.game.display.vWidth / 2,
+      y: groundY,
       vx: 0,
       jumpY: 0,
       isJumping: false,
@@ -47,13 +48,13 @@ export class MuddyPuddlesScene extends BaseScene {
     if (this.puddles.length >= 5) return;
     const isPortrait = this.game.display.isPortrait;
     const isGolden = Math.random() < 0.15;
-    const minX = isPortrait ? 80 : 150;
-    const maxX = isPortrait ? 460 : 810;
-    const groundY = isPortrait ? 780 : 410;
+    const minX = 70;
+    const maxX = this.game.display.vWidth - 70;
+    const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
 
     this.puddles.push({
       x: minX + Math.random() * (maxX - minX),
-      y: groundY - 30 + Math.random() * 60,
+      y: groundY - 20 + Math.random() * 40,
       rx: isGolden ? 52 : 44 + Math.random() * 16,
       ry: isGolden ? 26 : 22 + Math.random() * 8,
       type: isGolden ? 'GOLDEN' : 'STANDARD',
@@ -76,17 +77,8 @@ export class MuddyPuddlesScene extends BaseScene {
       this.timer = Math.max(0, this.timer - dt);
     }
     const isPortrait = this.game.display.isPortrait;
-    const groundY = isPortrait ? 780 : 410;
+    const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
     this.peppa.y = groundY;
-
-    // Header Back button tap (only on physical deliberate pointer click)
-    const ptr = input.primaryPointer;
-    if (ptr && ptr.isDown && input.isActionJustPressed() && input.pointers.size > 0 && ptr.x <= 120 && ptr.y <= 70) {
-      this.game.storage.saveHighScore('muddyPuddles', this.score);
-      Haptics.tap();
-      this.game.changeScene('MENU');
-      return;
-    }
 
     // Spawner
     this.spawnTimer += dt;
@@ -107,7 +99,7 @@ export class MuddyPuddlesScene extends BaseScene {
     // Toddler Tap / Jump
     if (input.isActionJustPressed()) {
       const p = input.primaryPointer;
-      if (p.inside && p.y > 100 && input.pointers.size > 0) {
+      if (p.inside && p.y > 80 && input.pointers.size > 0) {
         this.peppa.x = p.x;
         this.jump();
       } else {
@@ -116,8 +108,8 @@ export class MuddyPuddlesScene extends BaseScene {
     }
 
     // Peppa Jump Physics
-    const minPeppaX = isPortrait ? 60 : 80;
-    const maxPeppaX = isPortrait ? 480 : 880;
+    const minPeppaX = 50;
+    const maxPeppaX = this.game.display.vWidth - 50;
     this.peppa.x = Math.max(minPeppaX, Math.min(maxPeppaX, this.peppa.x + this.peppa.vx * dt));
 
     if (this.peppa.isJumping) {
@@ -196,25 +188,23 @@ export class MuddyPuddlesScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // HUD
+    // Score & Timer Badge
+    const scoreX = display.vWidth / 2;
+    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
     ctx.save();
-    ctx.fillStyle = '#E53935';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(20, 15, 75, 38, 12);
+    ctx.roundRect(scoreX - 125, scoreY, 250, 42, 21);
     ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('⬅ Home', 57, 40);
+    ctx.strokeStyle = '#FFCDD2';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-    const scoreX = isPortrait ? 270 : 480;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - 120, 15, 240, 40, 15);
-    ctx.fill();
-    ctx.fillStyle = '#FFD54F';
-    ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-    ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, scoreX, 42);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, scoreX, scoreY + 22);
     ctx.restore();
   }
 
@@ -233,3 +223,4 @@ export class MuddyPuddlesScene extends BaseScene {
     return { timer: this.timer, feverMeter: 0, multiplier: this.multiplier, coopSavedCount: 0, isOverheating: false };
   }
 }
+

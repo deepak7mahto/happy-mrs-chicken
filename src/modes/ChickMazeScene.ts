@@ -29,11 +29,13 @@ export class ChickMazeScene extends BaseScene {
     this.time = 0;
     this.chicks = [];
     const isPortrait = this.game.display.isPortrait;
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
 
     for (let i = 0; i < 5; i++) {
       this.chicks.push({
-        x: isPortrait ? 100 + Math.random() * 340 : 100 + Math.random() * 200,
-        y: isPortrait ? 400 + Math.random() * 420 : 200 + Math.random() * 220,
+        x: isPortrait ? 80 + Math.random() * (vWidth - 160) : 100 + Math.random() * 200,
+        y: isPortrait ? 360 + Math.random() * (vHeight - 460) : 200 + Math.random() * 220,
         vx: (Math.random() - 0.5) * 35,
         vy: (Math.random() - 0.5) * 35,
         walkCycle: 0,
@@ -52,16 +54,9 @@ export class ChickMazeScene extends BaseScene {
   update(dt: number, input: InputManager): void {
     this.time += dt;
     const isPortrait = this.game.display.isPortrait;
-    const coopDoor = isPortrait ? { x: 270, y: 180, r: 50 } : { x: 810, y: 160, r: 45 };
-
-    // Header Back button (only if pointer physically pressed in top-left)
-    const ptr = input.primaryPointer;
-    if (ptr && ptr.isDown && input.isActionJustPressed() && input.pointers.size > 0 && ptr.x <= 120 && ptr.y <= 70) {
-      this.game.storage.saveHighScore('chickMaze', this.coopSavedCount);
-      Haptics.tap();
-      this.game.changeScene('MENU');
-      return;
-    }
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    const coopDoor = isPortrait ? { x: vWidth / 2, y: 180, r: 50 } : { x: vWidth - 150, y: 160, r: 45 };
 
     // Tap to drop seed
     if (input.isActionJustPressed()) {
@@ -119,10 +114,10 @@ export class ChickMazeScene extends BaseScene {
       chick.walkCycle += dt * 10;
       chick.facingLeft = chick.vx < 0;
 
-      const minX = 60;
-      const maxX = isPortrait ? 480 : 900;
+      const minX = 40;
+      const maxX = vWidth - 40;
       const minY = 120;
-      const maxY = isPortrait ? 900 : 500;
+      const maxY = vHeight - 40;
       chick.x = Math.max(minX, Math.min(maxX, chick.x));
       chick.y = Math.max(minY, Math.min(maxY, chick.y));
 
@@ -148,8 +143,11 @@ export class ChickMazeScene extends BaseScene {
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
     const isPortrait = display.isPortrait;
+    const vWidth = display.vWidth;
+    const vHeight = display.vHeight;
+
     ctx.fillStyle = '#81C784';
-    ctx.fillRect(0, 0, display.vWidth, display.vHeight);
+    ctx.fillRect(0, 0, vWidth, vHeight);
 
     // Fences
     ctx.fillStyle = PALETTE.FENCE_WOOD;
@@ -157,8 +155,8 @@ export class ChickMazeScene extends BaseScene {
     ctx.lineWidth = 3;
     if (isPortrait) {
       ctx.beginPath();
-      ctx.roundRect(60, 360, 240, 16, 6);
-      ctx.roundRect(240, 580, 240, 16, 6);
+      ctx.roundRect(40, vHeight * 0.38, vWidth * 0.45, 16, 6);
+      ctx.roundRect(vWidth * 0.52, vHeight * 0.62, vWidth * 0.44, 16, 6);
       ctx.fill();
       ctx.stroke();
     } else {
@@ -170,7 +168,7 @@ export class ChickMazeScene extends BaseScene {
     }
 
     // Hen Coop
-    const coopX = isPortrait ? 270 : 810;
+    const coopX = isPortrait ? vWidth / 2 : vWidth - 150;
     const coopY = isPortrait ? 180 : 160;
     ctx.save();
     ctx.translate(coopX, coopY);
@@ -218,25 +216,23 @@ export class ChickMazeScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Top HUD
+    // Score Badge
+    const scoreX = vWidth / 2;
+    const scoreY = Math.max(20, Math.min(30, vHeight * 0.03));
     ctx.save();
-    ctx.fillStyle = '#E53935';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(20, 15, 75, 38, 12);
+    ctx.roundRect(scoreX - 100, scoreY, 200, 42, 21);
     ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('⬅ Home', 57, 40);
+    ctx.strokeStyle = '#C8E6C9';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-    const scoreX = isPortrait ? 270 : 480;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - 100, 15, 200, 40, 15);
-    ctx.fill();
-    ctx.fillStyle = '#FFD54F';
-    ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-    ctx.fillText(`Saved: ${this.coopSavedCount}`, scoreX, 42);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Saved Chicks: ${this.coopSavedCount}`, scoreX, scoreY + 22);
     ctx.restore();
   }
 
@@ -255,3 +251,4 @@ export class ChickMazeScene extends BaseScene {
     return { timer: 0, feverMeter: 0, multiplier: 1, coopSavedCount: this.coopSavedCount, isOverheating: false };
   }
 }
+

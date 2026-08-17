@@ -82,28 +82,21 @@ export class DisplayManager {
 
     this.isPortrait = this._windowHeight > this._windowWidth;
     if (this.isPortrait) {
+      // In portrait: horizontal reference is 540 virtual pixels
+      this._scale = this._windowWidth / 540;
       this.vWidth = 540;
-      this.vHeight = 960;
+      this.vHeight = Math.max(800, Math.round(this._windowHeight / this._scale));
+      this._offsetX = 0;
+      this._offsetY = 0;
     } else {
-      this.vWidth = 960;
+      // In landscape: vertical reference is 540 virtual pixels
+      this._scale = this._windowHeight / 540;
       this.vHeight = 540;
+      this.vWidth = Math.max(960, Math.round(this._windowWidth / this._scale));
+      this._offsetX = 0;
+      this._offsetY = 0;
     }
     this.targetAspect = this.vWidth / this.vHeight;
-
-    const windowAspect = this._windowWidth / Math.max(1, this._windowHeight);
-    let displayWidth: number, displayHeight: number;
-
-    if (windowAspect > this.targetAspect) {
-      displayHeight = this._windowHeight;
-      displayWidth = this._windowHeight * this.targetAspect;
-    } else {
-      displayWidth = this._windowWidth;
-      displayHeight = this._windowWidth / this.targetAspect;
-    }
-
-    this._scale = displayWidth / this.vWidth;
-    this._offsetX = (this._windowWidth - displayWidth) / 2;
-    this._offsetY = (this._windowHeight - displayHeight) / 2;
 
     if (this.canvas) {
       this.canvas.width = Math.max(1, Math.floor(this._windowWidth * this._dpr));
@@ -122,16 +115,7 @@ export class DisplayManager {
     const ctx = this.ctx;
     ctx.save();
     ctx.scale(this._dpr, this._dpr);
-
-    ctx.fillStyle = this.letterboxColor;
-    ctx.fillRect(0, 0, this._windowWidth, this._windowHeight);
-
-    ctx.translate(this._offsetX, this._offsetY);
     ctx.scale(this._scale, this._scale);
-
-    ctx.beginPath();
-    ctx.rect(0, 0, this.vWidth, this.vHeight);
-    ctx.clip();
   }
 
   endFrame(): void {
@@ -140,8 +124,8 @@ export class DisplayManager {
 
   screenToVirtual(screenX: number, screenY: number): { x: number; y: number; inside: boolean } {
     this.checkDimensionChange();
-    const vx = (screenX - this._offsetX) / this._scale;
-    const vy = (screenY - this._offsetY) / this._scale;
+    const vx = screenX / this._scale;
+    const vy = screenY / this._scale;
     const inside = vx >= 0 && vx <= this.vWidth && vy >= 0 && vy <= this.vHeight;
     return { x: vx, y: vy, inside };
   }
@@ -149,8 +133,8 @@ export class DisplayManager {
   virtualToScreen(vx: number, vy: number): { screenX: number; screenY: number } {
     this.checkDimensionChange();
     return {
-      screenX: vx * this._scale + this._offsetX,
-      screenY: vy * this._scale + this._offsetY
+      screenX: vx * this._scale,
+      screenY: vy * this._scale
     };
   }
 }
