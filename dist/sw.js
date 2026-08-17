@@ -1,4 +1,4 @@
-const CACHE_NAME = 'happy-mrs-chicken-v2';
+const CACHE_NAME = 'happy-mrs-chicken-v3-8games';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,10 +6,11 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -28,16 +29,29 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Network first strategy for index.html to ensure users always get the latest game version
+  if (event.request.mode === 'navigate' || event.request.url.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
+          return res;
+        })
+        .catch(() => caches.match(event.request) || caches.match('./index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchRes) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
-            cache.put(event.request, fetchRes.clone());
-          }
-          return fetchRes;
-        });
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).then((fetchRes) => {
+        if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
+          const clone = fetchRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return fetchRes;
       });
-    }).catch(() => caches.match('./index.html'))
+    })
   );
 });
