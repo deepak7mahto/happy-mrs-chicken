@@ -1,6 +1,6 @@
 /**
  * Particle Engine Type Definitions
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 export type ParticleType =

@@ -1,16 +1,16 @@
 /**
  * Character Roster & Animation Types
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 export type CharacterId =
   | 'chicken'
-  | 'peppa'
-  | 'george'
-  | 'daddy'
-  | 'mummy'
+  | 'trishu'
+  | 'leo'
+  | 'dad'
+  | 'mom'
   | 'grandpa'
-  | 'suzy'
+  | 'mimi'
   | 'chick';
 
 export interface CharacterAnimState {
@@ -46,7 +46,7 @@ export interface ChickenOptions {
   animState?: CharacterAnimState;
 }
 
-export interface PeppaOptions {
+export interface TrishuOptions {
   jumpY?: number;
   squish?: number;
   squash?: number;
@@ -58,7 +58,7 @@ export interface PeppaOptions {
   animState?: CharacterAnimState;
 }
 
-export interface GeorgeOptions {
+export interface LeoOptions {
   jumpY?: number;
   squish?: number;
   squash?: number;
@@ -72,7 +72,7 @@ export interface GeorgeOptions {
   animState?: CharacterAnimState;
 }
 
-export interface DaddyPigOptions {
+export interface DadOptions {
   panicStage?: number;
   time?: number;
   eyeBlink?: boolean;
@@ -82,7 +82,7 @@ export interface DaddyPigOptions {
   animState?: CharacterAnimState;
 }
 
-export interface MummyPigOptions {
+export interface MomOptions {
   eyeBlink?: boolean;
   armWave?: number;
   holdingPan?: boolean;
@@ -93,7 +93,7 @@ export interface MummyPigOptions {
   animState?: CharacterAnimState;
 }
 
-export interface GrandpaPigOptions {
+export interface GrandpaOptions {
   eyeBlink?: boolean;
   pulling?: boolean;
   pullTension?: number;
@@ -103,10 +103,11 @@ export interface GrandpaPigOptions {
   animState?: CharacterAnimState;
 }
 
-export interface SuzySheepOptions {
+export interface MimiOptions {
   eyeBlink?: boolean;
   hopY?: number;
   earFlap?: number;
+  earFluff?: number;
   woolPuff?: number;
   dressSway?: number;
   holdingWand?: boolean;

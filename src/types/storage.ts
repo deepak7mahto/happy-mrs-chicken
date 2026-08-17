@@ -1,17 +1,17 @@
 /**
  * Storage Schema & Persistence Types
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 export interface HighScores {
-  eggLaying: number;        // Mode 1: Happy Mrs Chicken Classic Egg-Laying
-  muddyPuddles: number;     // Mode 2: Muddy Puddles
-  chickMaze: number;        // Mode 3: Chick Maze / Sorting
-  daddyPig: number;         // Mode 4: Daddy Pig High Score Challenge
-  dinosaurBalloon: number;  // Mode 5: George's Dinosaur Balloon Pop
-  pancakeFlipper: number;   // Mode 6: Mummy Pig's Pancake Flipper
-  vegetableHarvest: number; // Mode 7: Grandpa Pig's Vegetable Harvest
-  hopscotchBubble: number;  // Mode 8: Suzy Sheep's Hopscotch & Bubble Trail
+  eggLaying: number;        // Mode 1: Happy Mrs Clucky Egg-Laying
+  muddyPuddles: number;     // Mode 2: Puddle Splash Adventure
+  chickMaze: number;        // Mode 3: Fluffy Chick Trail
+  daddyPig: number;         // Mode 4: Dad's Kitchen Dash
+  dinosaurBalloon: number;  // Mode 5: Trishu & Leo's Balloon Pop
+  pancakeFlipper: number;   // Mode 6: Golden Pancake Flipper
+  vegetableHarvest: number; // Mode 7: Grandpa's Veggie Harvest
+  hopscotchBubble: number;  // Mode 8: Rainbow Bubble Hopscotch
   [key: string]: number;
 }
 
