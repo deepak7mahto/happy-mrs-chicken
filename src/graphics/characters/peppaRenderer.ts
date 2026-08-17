@@ -1,6 +1,7 @@
 /**
- * Peppa Pig Procedural Vector Renderer
+ * Peppa Pig Procedural Vector Renderer (Authentic Cartoon Geometry)
  * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
  */
 
 import { PALETTE } from '../palette';
@@ -31,127 +32,194 @@ export function drawPeppaPig(
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // 1. Boots
+  // 1. Legs (Pink Sticks)
+  ctx.strokeStyle = PALETTE.PEPPA_SKIN;
+  ctx.lineWidth = 4.5;
+  ctx.beginPath();
+  ctx.moveTo(-10, 36);
+  ctx.lineTo(-10, 48);
+  ctx.moveTo(10, 36);
+  ctx.lineTo(10, 48);
+  ctx.stroke();
+
+  // 2. Boots (Yellow Rain Boots)
   ctx.fillStyle = PALETTE.PEPPA_BOOTS;
   ctx.strokeStyle = PALETTE.PEPPA_BOOTS_OUTLINE;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 3.5;
+
   ctx.beginPath();
-  ctx.roundRect(-22, 45, 18, 14, 6);
-  ctx.roundRect(4, 45, 18, 14, 6);
+  ctx.roundRect(-20, 46, 18, 12, 5);
   ctx.fill();
   ctx.stroke();
 
-  // Mud splatters on boots
+  ctx.beginPath();
+  ctx.roundRect(4, 46, 18, 12, 5);
+  ctx.fill();
+  ctx.stroke();
+
   if (muddyBoots) {
     ctx.fillStyle = PALETTE.MUD_DARK;
     ctx.beginPath();
-    ctx.arc(-14, 52, 3, 0, Math.PI * 2);
+    ctx.arc(-12, 52, 3, 0, Math.PI * 2);
     ctx.arc(12, 50, 3.5, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 2. Legs
-  ctx.strokeStyle = PALETTE.PEPPA_SKIN;
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(-12, 35);
-  ctx.lineTo(-12, 46);
-  ctx.moveTo(12, 35);
-  ctx.lineTo(12, 46);
-  ctx.stroke();
-
-  // 3. Red Dress
+  // 3. Red Dress (Bell / Trapezoid Shape)
   ctx.fillStyle = PALETTE.PEPPA_DRESS;
   ctx.strokeStyle = PALETTE.PEPPA_DRESS_OUTLINE;
   ctx.lineWidth = 4.5;
   ctx.beginPath();
-  ctx.moveTo(-16, -5);
-  ctx.quadraticCurveTo(-35, 35, -28, 40);
-  ctx.lineTo(28, 40);
-  ctx.quadraticCurveTo(35, 35, 16, -5);
+  ctx.moveTo(-14, -6);
+  ctx.lineTo(14, -6);
+  ctx.quadraticCurveTo(24, 18, 28, 38);
+  ctx.quadraticCurveTo(0, 41, -28, 38);
+  ctx.quadraticCurveTo(-24, 18, -14, -6);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
 
-  // 4. Arms
+  // 4. Arms (Pink Stick Arms with 3 Twig Fingers)
   ctx.strokeStyle = PALETTE.PEPPA_SKIN;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 3.5;
+
+  // Left Arm
+  ctx.save();
+  ctx.translate(-14, 8);
+  ctx.rotate(Math.sin(armWave) * 0.4);
   ctx.beginPath();
-  ctx.moveTo(-18, 10);
-  ctx.lineTo(-32 + Math.sin(armWave) * 6, 0);
-  ctx.moveTo(18, 10);
-  ctx.lineTo(32 - Math.sin(armWave) * 6, 0);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-16, 6);
+  ctx.lineTo(-21, 3);
+  ctx.moveTo(-16, 6);
+  ctx.lineTo(-22, 8);
+  ctx.moveTo(-16, 6);
+  ctx.lineTo(-19, 12);
+  ctx.stroke();
+  ctx.restore();
+
+  // Right Arm
+  ctx.save();
+  ctx.translate(14, 8);
+  ctx.rotate(-Math.sin(armWave) * 0.4);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(16, 6);
+  ctx.lineTo(21, 3);
+  ctx.moveTo(16, 6);
+  ctx.lineTo(22, 8);
+  ctx.moveTo(16, 6);
+  ctx.lineTo(19, 12);
+  ctx.stroke();
+  ctx.restore();
+
+  // 5. Ears (Behind Head)
+  ctx.fillStyle = PALETTE.PEPPA_SKIN;
+  ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+  ctx.lineWidth = 4;
+
+  ctx.beginPath();
+  ctx.ellipse(-18, -52, 5.5, 11, -0.15, 0, Math.PI * 2);
+  ctx.fill();
   ctx.stroke();
 
-  // 5. Head & Snout
+  ctx.beginPath();
+  ctx.ellipse(-6, -52, 5.5, 11, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // 6. Canonical Hairdryer Head Silhouette
   ctx.fillStyle = PALETTE.PEPPA_SKIN;
   ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
   ctx.lineWidth = 4.5;
   ctx.beginPath();
-  ctx.moveTo(0, -15);
-  ctx.quadraticCurveTo(35, -15, 38, -35);
-  ctx.lineTo(55, -35);
-  ctx.arc(55, -28, 8, -Math.PI / 2, Math.PI / 2);
-  ctx.lineTo(30, -20);
-  ctx.quadraticCurveTo(15, -45, -15, -45);
-  ctx.quadraticCurveTo(-45, -45, -45, -15);
-  ctx.quadraticCurveTo(-45, 15, 0, -15);
+  // Start at top of head behind ears
+  ctx.moveTo(-10, -46);
+  // Top bridge of snout
+  ctx.lineTo(34, -36);
+  // Snout tip disk
+  ctx.quadraticCurveTo(44, -34, 44, -26);
+  ctx.quadraticCurveTo(44, -18, 34, -16);
+  // Bottom snout line
+  ctx.lineTo(6, -16);
+  // Jaw & Chin
+  ctx.quadraticCurveTo(0, -6, -16, -6);
+  // Cheek and back of head
+  ctx.quadraticCurveTo(-38, -6, -38, -26);
+  ctx.quadraticCurveTo(-38, -46, -10, -46);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
 
-  // Snout Nostrils
-  ctx.fillStyle = PALETTE.PEPPA_OUTLINE;
+  // Snout Front Oval
   ctx.beginPath();
-  ctx.arc(55, -30, 2, 0, Math.PI * 2);
-  ctx.arc(55, -26, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Ears
-  ctx.beginPath();
-  ctx.ellipse(-15, -50, 6, 12, -0.2, 0, Math.PI * 2);
-  ctx.ellipse(-2, -50, 6, 12, 0.1, 0, Math.PI * 2);
+  ctx.ellipse(34, -26, 4.5, 9.5, 0.15, 0, Math.PI * 2);
   ctx.fillStyle = PALETTE.PEPPA_SKIN;
   ctx.fill();
+  ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+  ctx.lineWidth = 3.5;
   ctx.stroke();
 
-  // Cheek
-  ctx.fillStyle = PALETTE.PEPPA_CHEEK;
+  // Nostrils (Solid pink dots)
+  ctx.fillStyle = PALETTE.PEPPA_OUTLINE;
   ctx.beginPath();
-  ctx.arc(-15, -12, 11, 0, Math.PI * 2);
+  ctx.arc(33, -29, 2.2, 0, Math.PI * 2);
+  ctx.arc(35, -23, 2.2, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eyes & Blinking
+  // 7. Hot Pink Cheek Circle
+  ctx.fillStyle = PALETTE.PEPPA_CHEEK;
+  ctx.beginPath();
+  ctx.arc(-18, -18, 10.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 8. Eyes (On Top of Snout Ridge)
   if (eyeBlink) {
-    ctx.strokeStyle = PALETTE.BLACK;
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-1, -35); ctx.lineTo(6, -35);
-    ctx.moveTo(13, -35); ctx.lineTo(20, -35);
+    ctx.arc(4, -38, 5, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(18, -36, 5, 0.2 * Math.PI, 0.8 * Math.PI);
     ctx.stroke();
   } else {
     ctx.fillStyle = PALETTE.WHITE;
     ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
+
+    // Left Eye
     ctx.beginPath();
-    ctx.arc(2, -35, 6, 0, Math.PI * 2);
-    ctx.arc(16, -35, 6, 0, Math.PI * 2);
+    ctx.arc(4, -38, 6, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
+    // Right Eye
+    ctx.beginPath();
+    ctx.arc(18, -36, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Pupils
     ctx.fillStyle = PALETTE.BLACK;
     ctx.beginPath();
-    ctx.arc(3, -35, 2.5, 0, Math.PI * 2);
-    ctx.arc(17, -35, 2.5, 0, Math.PI * 2);
+    ctx.arc(5.5, -38, 2.6, 0, Math.PI * 2);
+    ctx.arc(19.5, -36, 2.6, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Smile
+  // 9. Happy Red Mouth (Inside Face Area)
   ctx.strokeStyle = PALETTE.PEPPA_DRESS_OUTLINE;
   ctx.lineWidth = 3.5;
   ctx.beginPath();
-  ctx.arc(12, -15, 10, 0.1 * Math.PI, 0.8 * Math.PI);
+  ctx.arc(10, -18, 8, 0.15 * Math.PI, 0.85 * Math.PI);
   ctx.stroke();
+
+  // Dimple
+  ctx.beginPath();
+  ctx.arc(17, -19, 2.2, 0, Math.PI * 2);
+  ctx.fillStyle = PALETTE.PEPPA_DRESS_OUTLINE;
+  ctx.fill();
 
   ctx.restore();
 }

@@ -1,6 +1,7 @@
 /**
- * Suzy Sheep Procedural Vector Renderer
+ * Suzy Sheep Procedural Vector Renderer (Show-Accurate Cartoon Geometry)
  * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
  */
 
 import { PALETTE } from '../palette';
@@ -50,14 +51,13 @@ export function drawSuzySheep(
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // 1. Black Mary Jane Shoes & White Socks
+  // 1. Black Mary Jane Shoes & White Legs
   ctx.fillStyle = PALETTE.BLACK;
   ctx.beginPath();
   ctx.roundRect(-20, 44, 16, 12, 5);
   ctx.roundRect(4, 44, 16, 12, 5);
   ctx.fill();
 
-  // White Sheep Legs
   ctx.strokeStyle = PALETTE.SUZY_WOOL;
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -67,12 +67,12 @@ export function drawSuzySheep(
   ctx.lineTo(11, 45);
   ctx.stroke();
 
-  // Fluffy Tail (Cotton Puff)
+  // Fluffy Tail
   ctx.fillStyle = PALETTE.SUZY_WOOL;
   ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.arc(-28, 32, 7, 0, Math.PI * 2);
+  ctx.arc(-26, 32, 7, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
@@ -81,10 +81,11 @@ export function drawSuzySheep(
   ctx.strokeStyle = PALETTE.SUZY_DRESS_OUTLINE;
   ctx.lineWidth = 4.5;
   ctx.beginPath();
-  ctx.moveTo(-16, -5);
-  ctx.quadraticCurveTo(-35 + dressSway, 35, -28 + dressSway, 40);
-  ctx.lineTo(28 + dressSway, 40);
-  ctx.quadraticCurveTo(35 + dressSway, 35, 16, -5);
+  ctx.moveTo(-14, 0);
+  ctx.lineTo(14, 0);
+  ctx.quadraticCurveTo(24 + dressSway, 20, 30 + dressSway, 40);
+  ctx.quadraticCurveTo(0, 43, -30 + dressSway, 40);
+  ctx.quadraticCurveTo(-24 + dressSway, 20, -14, 0);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -93,34 +94,43 @@ export function drawSuzySheep(
   ctx.strokeStyle = PALETTE.SUZY_WOOL;
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(-18, 10);
-  ctx.lineTo(-32, 0);
+  ctx.moveTo(-16, 10);
+  ctx.lineTo(-30, 2);
   ctx.stroke();
 
-  // 4. White Wool Head & Sheep Snout
+  // 4. White Wool Head & Snout Contour
   ctx.fillStyle = PALETTE.SUZY_WOOL;
   ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
   ctx.lineWidth = 4.5;
   ctx.beginPath();
-  ctx.moveTo(0, -15);
-  ctx.quadraticCurveTo(32, -15, 36, -32);
-  ctx.lineTo(50, -32);
-  ctx.arc(50, -25, 7.5, -Math.PI / 2, Math.PI / 2);
-  ctx.lineTo(28, -18);
-  ctx.quadraticCurveTo(14, -44, -14, -44);
-  ctx.quadraticCurveTo(-42, -44, -42, -15);
-  ctx.quadraticCurveTo(-42, 14, 0, -15);
+  ctx.moveTo(-10, -42);
+  ctx.quadraticCurveTo(12, -42, 38, -36);
+  ctx.quadraticCurveTo(46, -34, 46, -26);
+  ctx.quadraticCurveTo(46, -18, 38, -16);
+  ctx.quadraticCurveTo(14, -16, 4, -4);
+  ctx.quadraticCurveTo(-4, 6, -22, 4);
+  ctx.quadraticCurveTo(-42, 2, -42, -18);
+  ctx.quadraticCurveTo(-42, -42, -10, -42);
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+
+  // Snout Oval
+  ctx.beginPath();
+  ctx.ellipse(38, -26, 4.5, 9, 0.12, 0, Math.PI * 2);
+  ctx.fillStyle = PALETTE.SUZY_WOOL;
+  ctx.fill();
+  ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
+  ctx.lineWidth = 3.5;
   ctx.stroke();
 
   // Pink Sheep Nose Pad
   ctx.fillStyle = PALETTE.SUZY_NOSE;
   ctx.beginPath();
-  ctx.arc(50, -25, 4, 0, Math.PI * 2);
+  ctx.arc(38, -26, 3.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // Scalloped Fluffy Wool Ears & Crown
+  // Fluffy Wool Ears
   ctx.fillStyle = PALETTE.SUZY_WOOL;
   ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
   ctx.lineWidth = 3.5;
@@ -130,119 +140,119 @@ export function drawSuzySheep(
     ctx.translate(baseX, baseY);
     ctx.rotate(rot + earFlap);
     ctx.beginPath();
-    ctx.arc(-2, -6, 6, 0, Math.PI * 2);
-    ctx.arc(-4, -14, 6.5, 0, Math.PI * 2);
-    ctx.arc(2, -20, 6, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
   };
 
-  drawFluffyEar(-16, -42, -0.2);
-  drawFluffyEar(-4, -44, 0.1);
+  drawFluffyEar(-18, -46, -0.2);
+  drawFluffyEar(-6, -46, 0.1);
 
-  // Wool Head Crown Puffs
+  // Rosy Cheek
+  ctx.fillStyle = '#FF80AB';
   ctx.beginPath();
-  ctx.arc(-2, -46, 5, 0, Math.PI * 2);
-  ctx.arc(8, -47, 5.5, 0, Math.PI * 2);
-  ctx.arc(16, -44, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // Cheek Blush
-  ctx.fillStyle = PALETTE.SUZY_CHEEK;
-  ctx.beginPath();
-  ctx.arc(-14, -12, 10, 0, Math.PI * 2);
+  ctx.arc(-18, -12, 10, 0, Math.PI * 2);
   ctx.fill();
 
   // Eyes & Blinking
   if (eyeBlink) {
-    ctx.strokeStyle = PALETTE.BLACK;
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(0, -32); ctx.lineTo(7, -32);
-    ctx.moveTo(13, -32); ctx.lineTo(20, -32);
+    ctx.arc(4, -36, 5, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(18, -34, 5, 0.2 * Math.PI, 0.8 * Math.PI);
     ctx.stroke();
   } else {
     ctx.fillStyle = PALETTE.WHITE;
     ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
+
     ctx.beginPath();
-    ctx.arc(3, -32, 5.5, 0, Math.PI * 2);
-    ctx.arc(16, -32, 5.5, 0, Math.PI * 2);
+    ctx.arc(4, -36, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(18, -34, 6, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = PALETTE.BLACK;
     ctx.beginPath();
-    ctx.arc(4, -32, 2.4, 0, Math.PI * 2);
-    ctx.arc(17, -32, 2.4, 0, Math.PI * 2);
+    ctx.arc(5.5, -36, 2.6, 0, Math.PI * 2);
+    ctx.arc(19.5, -34, 2.6, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Mouth (Happy or Puckered for Bubble Blowing)
+  // Smile / Blowing Mouth
   if (blowingBubble) {
-    ctx.fillStyle = PALETTE.SUZY_DRESS_OUTLINE;
+    ctx.fillStyle = '#E91E63';
+    ctx.strokeStyle = PALETTE.SUZY_WOOL_OUTLINE;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(18, -14, 3.5 + mouthPucker * 2, 0, Math.PI * 2);
+    ctx.arc(18, -14, 4 + mouthPucker * 2, 0, Math.PI * 2);
     ctx.fill();
-  } else {
-    ctx.strokeStyle = PALETTE.SUZY_DRESS_OUTLINE;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(12, -14, 9, 0.1 * Math.PI, 0.8 * Math.PI);
     ctx.stroke();
+  } else {
+    ctx.strokeStyle = '#E91E63';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(12, -12, 10, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(20, -14, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#E91E63';
+    ctx.fill();
   }
 
   // 5. Front Arm & Bubble Wand
   if (holdingWand) {
     ctx.save();
-    ctx.translate(18, 10);
-    ctx.rotate(wandAngle);
-
-    // Arm to wand
+    ctx.translate(14, 10);
     ctx.strokeStyle = PALETTE.SUZY_WOOL;
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(16, -6);
+    ctx.lineTo(16, -2);
     ctx.stroke();
+
+    ctx.save();
+    ctx.translate(16, -2);
+    ctx.rotate(wandAngle);
 
     // Wand Stick
-    ctx.strokeStyle = PALETTE.SUZY_WAND;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#FF4081';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.moveTo(14, -6);
-    ctx.lineTo(28, -14);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(16, 0);
     ctx.stroke();
 
-    // Wand Loop Ring
-    ctx.strokeStyle = PALETTE.SUZY_BUBBLE;
-    ctx.lineWidth = 2.5;
+    // Wand Bubble Ring
+    ctx.strokeStyle = '#FF4081';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.arc(34, -18, 6, 0, Math.PI * 2);
+    ctx.arc(22, 0, 6, 0, Math.PI * 2);
     ctx.stroke();
-
-    // Bubble Soap Film / Highlight
-    ctx.fillStyle = 'rgba(79, 195, 247, 0.35)';
-    ctx.beginPath();
-    ctx.arc(34, -18, 5.5, 0, Math.PI * 2);
-    ctx.fill();
 
     ctx.restore();
+    ctx.restore();
   } else {
-    // Normal front arm
     ctx.strokeStyle = PALETTE.SUZY_WOOL;
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(18, 10);
-    ctx.lineTo(32, 0);
+    ctx.moveTo(14, 10);
+    ctx.lineTo(28, 2);
     ctx.stroke();
   }
 
   ctx.restore();
 }
 
-export const renderSuzy = drawSuzySheep;
 export const renderSuzySheep = drawSuzySheep;
+export const renderSuzy = drawSuzySheep;
 export const drawSuzy = drawSuzySheep;

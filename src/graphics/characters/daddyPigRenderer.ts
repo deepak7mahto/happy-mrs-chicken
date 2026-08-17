@@ -1,6 +1,7 @@
 /**
- * Daddy Pig Procedural Vector Renderer
+ * Daddy Pig Procedural Vector Renderer (Show-Accurate Cartoon Geometry)
  * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
  */
 
 import { PALETTE } from '../palette';
@@ -53,126 +54,178 @@ export function drawDaddyPig(
   ctx.strokeStyle = PALETTE.DADDY_SHIRT_OUTLINE;
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.ellipse(0, 45 + bellyBounce, 58, 48, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 42 + bellyBounce, 56, 46, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  // 2. Head & Snout
+  // 2. Black Shoes & Legs
+  ctx.fillStyle = PALETTE.BLACK;
+  ctx.beginPath();
+  ctx.roundRect(-30, 80, 24, 14, 5);
+  ctx.roundRect(8, 80, 24, 14, 5);
+  ctx.fill();
+
+  ctx.strokeStyle = PALETTE.DADDY_SKIN;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-18, 70);
+  ctx.lineTo(-18, 82);
+  ctx.moveTo(18, 70);
+  ctx.lineTo(18, 82);
+  ctx.stroke();
+
+  // 3. Arms
+  ctx.strokeStyle = PALETTE.DADDY_SKIN;
+  ctx.lineWidth = 4.5;
+  ctx.beginPath();
+  ctx.moveTo(-35, 30);
+  ctx.lineTo(-52, 22);
+  ctx.moveTo(35, 30);
+  ctx.lineTo(52, 22);
+  ctx.stroke();
+
+  // 4. Ears
+  ctx.fillStyle = PALETTE.DADDY_SKIN;
+  ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
+  ctx.lineWidth = 4.5;
+
+  ctx.beginPath();
+  ctx.ellipse(-22, -54, 7, 14, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(-8, -54, 7, 14, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // 5. Canonical Hairdryer Head & Snout Contour (Daddy Pig Proportions)
   ctx.fillStyle = PALETTE.DADDY_SKIN;
   ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.moveTo(0, -10);
-  ctx.quadraticCurveTo(45, -10, 48, -35);
-  ctx.lineTo(70, -35);
-  ctx.arc(70, -25, 11, -Math.PI / 2, Math.PI / 2);
-  ctx.lineTo(40, -15);
-  ctx.quadraticCurveTo(20, -55, -20, -55);
-  ctx.quadraticCurveTo(-60, -55, -60, -15);
-  ctx.quadraticCurveTo(-60, 20, 0, -10);
+  ctx.moveTo(-14, -46);
+  ctx.quadraticCurveTo(16, -46, 46, -38);
+  ctx.quadraticCurveTo(56, -36, 56, -26);
+  ctx.quadraticCurveTo(56, -16, 46, -14);
+  ctx.quadraticCurveTo(18, -14, 6, 0);
+  ctx.quadraticCurveTo(-4, 10, -26, 8);
+  ctx.quadraticCurveTo(-52, 6, -52, -18);
+  ctx.quadraticCurveTo(-52, -46, -14, -46);
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+
+  // Snout Oval
+  ctx.beginPath();
+  ctx.ellipse(46, -26, 5.5, 11, 0.12, 0, Math.PI * 2);
+  ctx.fillStyle = PALETTE.DADDY_SKIN;
+  ctx.fill();
+  ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
+  ctx.lineWidth = 4;
   ctx.stroke();
 
   // Nostril Dots
   ctx.fillStyle = PALETTE.DADDY_OUTLINE;
   ctx.beginPath();
-  ctx.arc(70, -28, 2.2, 0, Math.PI * 2);
-  ctx.arc(70, -22, 2.2, 0, Math.PI * 2);
+  ctx.arc(45, -30, 2.5, 0, Math.PI * 2);
+  ctx.arc(47, -22, 2.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // Ears
-  ctx.beginPath();
-  ctx.ellipse(-20, -60, 7, 14, -0.2, 0, Math.PI * 2);
-  ctx.ellipse(-4, -60, 7, 14, 0.1, 0, Math.PI * 2);
-  ctx.fillStyle = PALETTE.DADDY_SKIN;
-  ctx.fill();
-  ctx.stroke();
-
-  // Cheek
+  // Rosy Cheek
   ctx.fillStyle = PALETTE.DADDY_CHEEK;
   ctx.beginPath();
-  ctx.arc(-22, -8, 14, 0, Math.PI * 2);
+  ctx.arc(-22, -10, 14, 0, Math.PI * 2);
   ctx.fill();
 
-  // 3. Beard Stubble
+  // 6. Beard Stubble
   ctx.strokeStyle = PALETTE.DADDY_BEARD;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2.5;
   for (let i = 0; i < 6; i++) {
     ctx.beginPath();
-    ctx.arc(-20 + i * 8, 5, 3, 0, Math.PI);
+    ctx.arc(-20 + i * 8, 4, 3.5, 0, Math.PI);
     ctx.stroke();
   }
 
-  // 4. Glasses
+  // 7. Signature Round Glasses & Eyes
   ctx.strokeStyle = PALETTE.DADDY_GLASSES;
   ctx.lineWidth = 4;
+
+  // Left lens
   ctx.beginPath();
-  ctx.arc(10, -35, 10, 0, Math.PI * 2);
-  ctx.arc(32, -35, 10, 0, Math.PI * 2);
-  ctx.moveTo(20, -35);
-  ctx.lineTo(22, -35);
-  ctx.moveTo(0, -35);
-  ctx.lineTo(-12, -38);
+  ctx.arc(6, -36, 11, 0, Math.PI * 2);
   ctx.stroke();
 
-  // 5. Eyes & Blinking
+  // Right lens
+  ctx.beginPath();
+  ctx.arc(26, -34, 11, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Glasses bridge
+  ctx.beginPath();
+  ctx.moveTo(17, -35);
+  ctx.lineTo(15, -35);
+  ctx.moveTo(-5, -36);
+  ctx.lineTo(-14, -38);
+  ctx.stroke();
+
+  // Eyes inside glasses
   if (eyeBlink) {
     ctx.strokeStyle = PALETTE.BLACK;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(6, -35); ctx.lineTo(14, -35);
-    ctx.moveTo(28, -35); ctx.lineTo(36, -35);
+    ctx.moveTo(1, -36); ctx.lineTo(11, -36);
+    ctx.moveTo(21, -34); ctx.lineTo(31, -34);
     ctx.stroke();
   } else {
     ctx.fillStyle = PALETTE.BLACK;
     ctx.beginPath();
-    ctx.arc(11, -35, eyeRadius, 0, Math.PI * 2);
-    ctx.arc(33, -35, eyeRadius, 0, Math.PI * 2);
+    ctx.arc(7, -36, eyeRadius, 0, Math.PI * 2);
+    ctx.arc(27, -34, eyeRadius, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 6. Smile or Panic Mouth
+  // 8. Smile or Panic Mouth
   ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
-  ctx.lineWidth = 3.5;
+  ctx.lineWidth = 4;
   ctx.beginPath();
   if (panic >= 3) {
     // Open screaming oval mouth
-    ctx.ellipse(22, -12, 10, 8, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#D32F2F';
+    ctx.fillStyle = '#C62828';
+    ctx.ellipse(18, -10, 8, 11, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
   } else if (panic >= 1) {
-    // Wavy nervous grimace
-    ctx.moveTo(10, -14);
-    ctx.quadraticCurveTo(18, -10, 26, -16);
+    // Wobbly worried mouth
+    ctx.moveTo(6, -10);
+    ctx.quadraticCurveTo(16, -16, 26, -10);
     ctx.stroke();
   } else {
-    // Jolly smile
-    ctx.arc(18, -14, 12, 0.1 * Math.PI, 0.8 * Math.PI);
+    // Happy smile
+    ctx.arc(16, -12, 12, 0.15 * Math.PI, 0.85 * Math.PI);
     ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(26, -14, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = PALETTE.DADDY_OUTLINE;
+    ctx.fill();
   }
 
-  // 7. Sweat Drops
+  // Sweat Drops in Panic Mode
   if (sweatDropsCount > 0) {
-    ctx.fillStyle = '#4FC3F7';
-    ctx.beginPath();
-    ctx.arc(-35, -35 + Math.sin(time * 8) * 5, 5, 0, Math.PI * 2);
-    if (sweatDropsCount >= 2) {
-      ctx.arc(-25, -55, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#29B6F6';
+    ctx.strokeStyle = '#0288D1';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < sweatDropsCount; i++) {
+      ctx.beginPath();
+      ctx.arc(-28 - i * 8, -35 - (i % 2) * 8, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
     }
-    if (sweatDropsCount >= 3) {
-      ctx.arc(38, -50 + Math.cos(time * 10) * 4, 4.5, 0, Math.PI * 2);
-    }
-    if (sweatDropsCount >= 4) {
-      ctx.arc(-15, -45, 3.5, 0, Math.PI * 2);
-    }
-    ctx.fill();
   }
 
   ctx.restore();
 }
 
-export const renderDaddy = drawDaddyPig;
 export const renderDaddyPig = drawDaddyPig;
+export const renderDaddy = drawDaddyPig;
 export const drawDaddy = drawDaddyPig;
