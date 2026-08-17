@@ -16,7 +16,7 @@ export default defineConfig({
           if (id.includes('src/graphics/')) {
             return 'graphics-engine';
           }
-          if (id.includes('src/engine/SoundEngine')) {
+          if (id.includes('src/engine/audio') || id.includes('src/engine/SoundEngine')) {
             return 'audio-engine';
           }
         }

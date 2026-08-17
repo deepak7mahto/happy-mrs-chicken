@@ -9,6 +9,10 @@ import { EggLayingScene } from '../modes/EggLayingScene';
 import { MuddyPuddlesScene } from '../modes/MuddyPuddlesScene';
 import { ChickMazeScene } from '../modes/ChickMazeScene';
 import { DaddyPigScene } from '../modes/DaddyPigScene';
+import { DinosaurBalloonScene } from '../modes/DinosaurBalloonScene';
+import { PancakeFlipperScene } from '../modes/PancakeFlipperScene';
+import { VegetableHarvestScene } from '../modes/VegetableHarvestScene';
+import { HopscotchBubbleScene } from '../modes/HopscotchBubbleScene';
 import { GameModeId } from '../types/game';
 
 export class GameEngine {
@@ -30,6 +34,10 @@ export class GameEngine {
     this.scenes.set('MUDDY_PUDDLES', new MuddyPuddlesScene(this));
     this.scenes.set('CHICK_MAZE', new ChickMazeScene(this));
     this.scenes.set('DADDY_PIG', new DaddyPigScene(this));
+    this.scenes.set('DINOSAUR_BALLOON', new DinosaurBalloonScene(this));
+    this.scenes.set('PANCAKE_FLIPPER', new PancakeFlipperScene(this));
+    this.scenes.set('VEGETABLE_HARVEST', new VegetableHarvestScene(this));
+    this.scenes.set('HOPSCOTCH_BUBBLE', new HopscotchBubbleScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),
@@ -129,7 +137,18 @@ export class GameEngine {
       set currentMode(v: GameModeId) { self.changeScene(v); },
       get scene() { return self.currentSceneId; },
       set scene(v: GameModeId) { self.changeScene(v); },
-      get modesAvailable() { return ['EGG_LAYING', 'MUDDY_PUDDLES', 'CHICK_MAZE', 'DADDY_PIG']; },
+      get modesAvailable() {
+        return [
+          'EGG_LAYING',
+          'MUDDY_PUDDLES',
+          'CHICK_MAZE',
+          'DADDY_PIG',
+          'DINOSAUR_BALLOON',
+          'PANCAKE_FLIPPER',
+          'VEGETABLE_HARVEST',
+          'HOPSCOTCH_BUBBLE'
+        ];
+      },
       get subState() {
         if (!self.activeScene) return 'IDLE';
         const st = self.activeScene.getModeState() as { isOverheating?: boolean; timer?: number };

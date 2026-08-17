@@ -1,34 +1,48 @@
+/**
+ * Mode 2: Muddy Puddles
+ * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
+ */
+
 import { BaseScene } from './BaseScene';
 import { GameEngine } from '../engine/GameEngine';
 import { InputManager } from '../engine/InputManager';
 import { DisplayManager } from '../engine/DisplayManager';
 import { PuddleEntity } from '../types/game';
+import { CharacterAnimState } from '../types/characters';
 import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills, drawMuddyPuddle } from '../graphics/environmentRenderer';
-import { drawPeppaPig } from '../graphics/peppaRenderer';
+import { drawPeppaPig } from '../graphics/characters/peppaRenderer';
+import { createCharacterAnimState, updateCharacterAnimState } from '../graphics/animations';
 
 export class MuddyPuddlesScene extends BaseScene {
   public time: number = 0;
   public timer: number = 60.0;
   public puddles: PuddleEntity[] = [];
   public particles: ParticleEngine;
+  public animState: CharacterAnimState;
   public peppa = { x: 270, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
   public multiplier: number = 1;
+  public muddyBootsTimer: number = 0;
   private spawnTimer: number = 0;
 
   constructor(game: GameEngine) {
     super(game);
     this.particles = new ParticleEngine(150);
+    this.animState = createCharacterAnimState();
   }
 
   enter(): void {
     this.score = 0;
     this.timer = 60.0;
     this.multiplier = 1;
+    this.muddyBootsTimer = 0;
     this.puddles = [];
     this.particles.clear();
+    this.animState = createCharacterAnimState();
+
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
     this.peppa = {
@@ -42,6 +56,13 @@ export class MuddyPuddlesScene extends BaseScene {
     };
     this.spawnPuddle();
     this.spawnPuddle();
+  }
+
+  exit(): void {
+    this.particles.clear();
+    if (this.score > 0) {
+      this.game.storage.saveHighScore('MUDDY_PUDDLES', this.score);
+    }
   }
 
   spawnPuddle(): void {
@@ -76,6 +97,12 @@ export class MuddyPuddlesScene extends BaseScene {
     if (this.timer > 0) {
       this.timer = Math.max(0, this.timer - dt);
     }
+    if (this.muddyBootsTimer > 0) {
+      this.muddyBootsTimer = Math.max(0, this.muddyBootsTimer - dt);
+    }
+
+    updateCharacterAnimState(this.animState, dt);
+
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
     this.peppa.y = groundY;
@@ -131,21 +158,32 @@ export class MuddyPuddlesScene extends BaseScene {
 
           if (dNorm <= 1.0) {
             hit = true;
+            this.muddyBootsTimer = 3.5;
             pud.ripplePhase = 0.01;
             const pts = pud.type === 'GOLDEN' ? 100 : 25;
             const centerBonus = dNorm <= 0.4 ? 2 : 1;
-            this.score += pts * centerBonus * this.multiplier;
+            const totalEarned = pts * centerBonus * this.multiplier;
+            this.score += totalEarned;
             this.multiplier = Math.min(5, this.multiplier + 1);
 
             if (pud.type === 'GOLDEN') {
               this.timer = Math.min(60, this.timer + 3.0);
-              this.particles.spawnSparkles(pud.x, pud.y, 10);
+              this.particles.spawnSparkles(pud.x, pud.y, 12);
+              soundEngine.playSFX('fanfare');
             }
 
             this.particles.spawnMudSplash(pud.x, pud.y, 20, pud.type === 'GOLDEN');
-            this.particles.spawnScorePopup(pud.x, pud.y - 30, `+${pts * centerBonus * this.multiplier}`);
+            this.particles.spawnScorePopup(
+              pud.x,
+              pud.y - 30,
+              `+${totalEarned}${this.multiplier > 1 ? ` (x${this.multiplier})` : ''}`
+            );
             soundEngine.playSFX('splash');
+            if (this.multiplier >= 3) {
+              soundEngine.playSFX('toddlerGiggle');
+            }
             Haptics.heavy();
+            this.game.storage.saveHighScore('MUDDY_PUDDLES', this.score);
             this.puddles.splice(i, 1);
             break;
           }
@@ -158,6 +196,8 @@ export class MuddyPuddlesScene extends BaseScene {
     }
 
     this.peppa.squish += (1.0 - this.peppa.squish) * (dt * 12);
+    this.animState.jumpY = this.peppa.jumpY;
+    this.animState.squash = this.peppa.squish;
 
     // Update puddles
     for (let i = this.puddles.length - 1; i >= 0; i--) {
@@ -181,9 +221,14 @@ export class MuddyPuddlesScene extends BaseScene {
 
     // Peppa Pig
     drawPeppaPig(ctx, this.peppa.x, this.peppa.y, isPortrait ? 1.15 : 1.0, {
+      animState: this.animState,
       jumpY: this.peppa.jumpY,
       squish: this.peppa.squish,
-      armWave: this.time * 8
+      squash: this.peppa.squish,
+      armWave: this.time * 8,
+      eyeBlink: this.animState.isBlinking,
+      muddyBoots: this.muddyBootsTimer > 0,
+      expression: this.multiplier >= 3 ? 'excited' : 'happy'
     });
 
     this.particles.render(ctx);
@@ -194,7 +239,7 @@ export class MuddyPuddlesScene extends BaseScene {
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 125, scoreY, 250, 42, 21);
+    ctx.roundRect(scoreX - 135, scoreY, 270, 42, 21);
     ctx.fill();
     ctx.strokeStyle = '#FFCDD2';
     ctx.lineWidth = 2.5;
@@ -204,7 +249,11 @@ export class MuddyPuddlesScene extends BaseScene {
     ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, scoreX, scoreY + 22);
+    ctx.fillText(
+      `Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s${this.multiplier > 1 ? `  (x${this.multiplier})` : ''}`,
+      scoreX,
+      scoreY + 22
+    );
     ctx.restore();
   }
 
@@ -223,4 +272,3 @@ export class MuddyPuddlesScene extends BaseScene {
     return { timer: this.timer, feverMeter: 0, multiplier: this.multiplier, coopSavedCount: 0, isOverheating: false };
   }
 }
-

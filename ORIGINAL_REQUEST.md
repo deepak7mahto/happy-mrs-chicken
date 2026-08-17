@@ -37,3 +37,65 @@ Provide an arcade-style game selection menu leading to 4 distinct playable modes
 - [ ] Standalone file opens and runs completely offline in a standard browser with zero console errors.
 - [ ] Web Audio API successfully synthesizes distinct sound effects for egg drop, hatch, splash, button clicks, and background music without audio clipping or delay.
 - [ ] Visual UI adapts responsively to desktop and mobile viewport sizes.
+
+## Follow-up — 2026-08-17T17:47:53+05:30
+
+Expand the *Peppa Pig: Happy Mrs Chicken* browser game suite from 4 to 8 distinct toddler-friendly mini-games, featuring a complete roster of upgraded procedural vector characters (George Pig with Mr. Dinosaur, Mummy Pig, Grandpa Pig, Suzy Sheep) with lively facial animations, procedural Web Audio, and responsive dual-orientation mobile layouts.
+
+Working directory: `~/teamwork_projects/happy_mrs_chicken`
+Integrity mode: `development`
+
+## Requirements
+
+### R1. Mini-Game Suite Expansion (Total 8 Playable Modes)
+Expand the main arcade menu with pagination/grid navigation to support 8 distinct playable mini-games:
+1. **Happy Mrs Chicken (Classic Egg-Laying)**: Existing mode with egg physics, hatching chicks, and nest stacking.
+2. **Muddy Puddles**: Existing jumping & splash combo mode with Peppa.
+3. **Chick Maze / Sorting**: Existing flocking AI & seed trail guidance mode.
+4. **Daddy Pig High Score Challenge**: Existing rapid-fire reaction & computer crash cutscene mode.
+5. **George's Dinosaur Balloon Pop**: Floating colorful dinosaur-shaped balloons that toddlers tap to pop with confetti particles, dinosaur roars, and George's joyful giggles.
+6. **Mummy Pig's Pancake Flipper**: Tap or swipe to flip pancakes in a frying pan, stacking them onto a towering plate with buttery syrup effects.
+7. **Grandpa Pig's Vegetable Harvest**: Tap and pull giant cartoon carrots, cabbages, and pumpkins out of the garden soil with mud splashes and wheelbarrow collection.
+8. **Suzy Sheep's Hopscotch & Bubble Trail**: Blow and pop shimmering soap bubbles along a garden hopscotch trail to guide Suzy Sheep and Peppa to a picnic basket.
+
+### R2. Upgraded & Expanded Procedural Vector Character Models
+Provide procedural 2D Canvas vector character renderers with authentic cartoon colors and animations:
+- **George Pig**: Blue shirt, snout, smiling/crying states, and green **Mr. Dinosaur** toy held in hand with animated chomping jaw.
+- **Mummy Pig**: Orange dress, eyelashes, mascara, authentic snout, and gentle blinking animations.
+- **Grandpa Pig**: Purple shirt, sailing cap, beard stubble, and garden boots.
+- **Suzy Sheep**: Pink dress, fluffy wool ears, snout, and hopscotch jumping animations.
+- **Enhanced Facial & Idle Animations**: Eye blinking intervals, smiling cheeks, squawking open beaks, panic sweat drops, and natural breathing/wobble idle loops across all characters and menu previews.
+
+### R3. Procedural Web Audio Synthesis & Toddler Soundboard
+Expand the zero-dependency Web Audio synthesizer with new procedural SFX and musical motifs:
+- Dinosaur roar oscillator sweeps (`"Grrr... Dinosaur!"`)
+- Pancake sizzle and airy whoosh flip sounds
+- Vegetable earth pop and mud thud sounds
+- Shimmering soap bubble pop chimes
+- Happy toddler giggles and cheerful musical melodies
+
+### R4. Architectural Modularity, Full TypeScript, & PWA Offline Integrity
+- **Full TypeScript**: Strict type definitions for all new game modes, character states, and particle systems.
+- **Hard File Length Limit**: Every single file must stay strictly under **500 lines** of code.
+- **Responsive Dual Orientation**: Full viewport fill in both Portrait (9:16) and Landscape (16:9) modes without letterbox distortion.
+- **PWA & Offline Execution**: Zero external asset/CDN dependencies, running 100% offline with Service Worker caching.
+- **Toddler-Friendly UX**: Forgiving full-screen tap mechanics, large colorful home/audio buttons, and haptic feedback.
+
+## Acceptance Criteria
+
+### Playability & Mini-Game Modes
+- [ ] All 8 mini-games are accessible from the main menu, can be played repeatedly without errors or memory leaks, and persist high scores to localStorage.
+- [ ] George's Balloon Pop spawns rising balloons with pop physics and dinosaur sound effects.
+- [ ] Mummy Pig's Pancake Flipper implements realistic flip trajectories and pancake stacking.
+- [ ] Grandpa Pig's Harvest features progressive pull resistance and vegetable collection into the wheelbarrow.
+- [ ] Suzy Sheep's Bubble mode allows interactive bubble popping and character path progression.
+
+### Character Art & Visual Polish
+- [ ] All 7 character models (Mrs. Chicken, Peppa, George + Mr. Dinosaur, Daddy Pig, Mummy Pig, Grandpa Pig, Suzy Sheep) render crisp and authentic at any DPI scale.
+- [ ] Characters exhibit natural eye blinks, squash-and-stretch on jump/land, and idle breathing animations.
+
+### Technical & Quality Guardrails
+- [ ] TypeScript check (`npx tsc --noEmit`) passes with 0 errors.
+- [ ] Production build (`npm run build`) generates clean chunked bundles in `dist/`.
+- [ ] Every source file in `src/` is strictly under 500 lines.
+- [ ] Automated test suite verifies all 8 modes, orientation resizing, audio triggers, and 100% offline execution.

@@ -1,3 +1,9 @@
+/**
+ * Mode 4: Daddy Pig Challenge (Hyper-Speed Frenzy Test)
+ * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
+ */
+
 import { BaseScene } from './BaseScene';
 import { GameEngine } from '../engine/GameEngine';
 import { InputManager } from '../engine/InputManager';
@@ -6,7 +12,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawDaddyPig } from '../graphics/daddyPigRenderer';
+import { drawDaddyPig } from '../graphics/characters/daddyPigRenderer';
 
 export class DaddyPigScene extends BaseScene {
   public time: number = 0;
@@ -28,6 +34,14 @@ export class DaddyPigScene extends BaseScene {
     this.multiplier = 1;
     this.isOverheating = false;
     this.particles.clear();
+    this.time = 0;
+  }
+
+  exit(): void {
+    this.particles.clear();
+    if (this.score > 0) {
+      this.game.storage.saveHighScore('daddyPig', this.score);
+    }
   }
 
   tap(): void {
@@ -42,7 +56,7 @@ export class DaddyPigScene extends BaseScene {
     Haptics.tap();
 
     const isPortrait = this.game.display.isPortrait;
-    const pigX = isPortrait ? this.game.display.vWidth / 2 : this.game.display.vWidth * 0.75;
+    const pigX = isPortrait ? this.game.display.vWidth / 2 : this.game.display.vWidth * 0.72;
     const pigY = isPortrait ? this.game.display.vHeight * 0.38 : 240;
 
     if (this.fever >= 65) {
@@ -56,6 +70,8 @@ export class DaddyPigScene extends BaseScene {
       this.isOverheating = true;
       soundEngine.playSFX('crash');
       Haptics.fanfare();
+      this.particles.spawnConfetti(pigX, pigY, 25);
+      this.particles.spawnSteam(pigX, pigY);
       this.game.storage.saveHighScore('daddyPig', this.score);
     }
   }
@@ -86,44 +102,109 @@ export class DaddyPigScene extends BaseScene {
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
 
-    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
-
     // Overheat Blue Screen Cutscene
     if (this.isOverheating) {
       ctx.fillStyle = '#0D47A1';
       ctx.fillRect(0, 0, vWidth, vHeight);
 
+      // Cartoon cracked monitor glow
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.beginPath();
+      ctx.roundRect(vWidth * 0.1, vHeight * 0.12, vWidth * 0.8, vHeight * 0.76, 24);
+      ctx.fill();
+
       ctx.fillStyle = '#FFFFFF';
       ctx.font = `bold ${isPortrait ? '28px' : '36px'} "Comic Sans MS", sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('💻 COMPUTER CRASH! 💥', vWidth / 2, vHeight * 0.35);
+      ctx.fillText('💻 COMPUTER CRASH! 💥', vWidth / 2, vHeight * 0.32);
 
-      ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 24px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFEB3B';
-      ctx.fillText(`Final High Score: ${this.score}!`, vWidth / 2, vHeight * 0.46);
+      ctx.fillText(`Final High Score: ${this.score}!`, vWidth / 2, vHeight * 0.44);
 
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = '#E0E0E0';
       ctx.font = '16px "Comic Sans MS", sans-serif';
-      ctx.fillText('Daddy Pig broke the computer again!', vWidth / 2, vHeight * 0.54);
+      ctx.fillText('Daddy Pig broke the computer again!', vWidth / 2, vHeight * 0.52);
 
-      // Back to Menu Button
+      // High Score Record
+      const best = this.game.storage.getHighScore('daddyPig');
+      ctx.fillStyle = '#FFF59D';
+      ctx.font = 'bold 15px "Comic Sans MS", sans-serif';
+      ctx.fillText(`🏆 All-Time Best: ${best}`, vWidth / 2, vHeight * 0.59);
+
+      // Play Again Button
+      const btnW = Math.min(220, vWidth - 60);
+      const btnH = 52;
+      const btnX = (vWidth - btnW) / 2;
+      const btnY = vHeight * 0.66;
       ctx.fillStyle = '#E53935';
+      ctx.strokeStyle = '#B71C1C';
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(vWidth / 2 - 100, vHeight * 0.64, 200, 50, 15);
+      ctx.roundRect(btnX, btnY, btnW, btnH, 16);
       ctx.fill();
+      ctx.stroke();
+
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
-      ctx.fillText('Play Again', vWidth / 2, vHeight * 0.64 + 32);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Play Again 🔄', vWidth / 2, btnY + btnH / 2);
       return;
     }
 
-    // Daddy Pig Character
-    const pigX = isPortrait ? vWidth / 2 : vWidth * 0.75;
-    const pigY = isPortrait ? vHeight * 0.38 : 260;
     const panicStage = this.fever >= 90 ? 3 : (this.fever >= 65 ? 2 : (this.fever >= 35 ? 1 : 0));
-    drawDaddyPig(ctx, pigX, pigY, isPortrait ? 1.25 : 1.1, { panicStage, time: this.time });
+    const shakeAmount = panicStage === 3 ? 4 : (panicStage === 2 ? 2 : (panicStage === 1 ? 0.6 : 0));
+    const shakeX = Math.sin(this.time * 45) * shakeAmount;
+    const shakeY = Math.cos(this.time * 40) * shakeAmount;
+
+    ctx.save();
+    if (shakeAmount > 0) {
+      ctx.translate(shakeX, shakeY);
+    }
+
+    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
+
+    // Office Desk & Computer Setup
+    const deskX = isPortrait ? vWidth / 2 : vWidth * 0.72;
+    const deskY = isPortrait ? vHeight * 0.44 : 280;
+
+    // Wooden desk
+    ctx.fillStyle = '#8D6E63';
+    ctx.strokeStyle = '#5D4037';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(deskX - 110, deskY + 30, 220, 36, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    // CRT Monitor
+    ctx.fillStyle = '#CFD8DC';
+    ctx.strokeStyle = '#37474F';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(deskX - 85, deskY - 20, 60, 50, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Monitor screen color changing with fever
+    const screenColor = this.fever >= 90 ? (Math.sin(this.time * 20) > 0 ? '#F44336' : '#FFEB3B') : (this.fever >= 65 ? '#FFA000' : '#4CAF50');
+    ctx.fillStyle = screenColor;
+    ctx.beginPath();
+    ctx.roundRect(deskX - 80, deskY - 16, 50, 38, 4);
+    ctx.fill();
+
+    // Daddy Pig Character
+    const pigX = isPortrait ? vWidth / 2 : vWidth * 0.72;
+    const pigY = isPortrait ? vHeight * 0.38 : 240;
+    drawDaddyPig(ctx, pigX, pigY, isPortrait ? 1.25 : 1.1, {
+      panicStage,
+      time: this.time,
+      sweatCount: panicStage > 0 ? panicStage * 2 : 0
+    });
 
     this.particles.render(ctx);
+    ctx.restore();
 
     // Fever Bar
     const barW = Math.min(420, vWidth - 60);
@@ -150,15 +231,16 @@ export class DaddyPigScene extends BaseScene {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 14px "Comic Sans MS", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`⚡ FRENZY: ${this.multiplier}x MULTIPLIER ⚡`, barX + barW / 2, barY + 20);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`⚡ FRENZY: ${this.multiplier}x MULTIPLIER ⚡`, barX + barW / 2, barY + barH / 2);
     ctx.restore();
 
-    // Tap Prompt for Kids
+    // Tap Prompt for Toddlers
     if (isPortrait) {
       ctx.fillStyle = '#FFE600';
-      ctx.font = '900 24px "Comic Sans MS", sans-serif';
+      ctx.font = '900 22px "Comic Sans MS", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('👉 TAP RAPIDLY! 👈', vWidth / 2, Math.min(vHeight - 50, barY + 70));
+      ctx.fillText('👉 TAP RAPIDLY! 👈', vWidth / 2, Math.min(vHeight - 45, barY + 68));
     }
 
     // Score Badge
@@ -199,4 +281,3 @@ export class DaddyPigScene extends BaseScene {
     };
   }
 }
-

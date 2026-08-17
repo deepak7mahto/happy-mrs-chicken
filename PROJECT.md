@@ -1,180 +1,206 @@
-# Project: Peppa Pig — Happy Mrs Chicken Standalone Browser Game Suite
+# Project: Peppa Pig — Happy Mrs Chicken 8-Game Deluxe Expansion
 
 ## Architecture
-
-### High-Level System Architecture
-The application is structured as a self-contained, zero-external-dependency HTML5 application delivered in `index.html` with modular JavaScript subsystems communicating via strict state interfaces:
-
-```
-+-----------------------------------------------------------------------------------+
-|                                    index.html                                     |
-|  +-----------------------------------------------------------------------------+  |
-|  | CSS Styles: Responsive Viewport, High-DPI Canvas Letterboxing, HUD Overlays |  |
-|  +-----------------------------------------------------------------------------+  |
-|  | HTML Structure: Viewport Container, #gameCanvas, UI Overlays, Audio Unlock   |  |
-|  +-----------------------------------------------------------------------------+  |
-|  | JS Engine:                                                                  |  |
-|  |  [InputManager] ----> [SceneManager] <----> [StorageManager]                |  |
-|  |         |                    |                       |                      |  |
-|  |         v                    v                       v                      |  |
-|  |  [SoundSynthesizer]   [Active Game Mode]     [LocalStorage]                 |  |
-|  |  (Web Audio BGM/SFX)  - Menu                 (High Scores & Settings)       |  |
-|  |                       - Mode 1: Egg Laying                                  |  |
-|  |                       - Mode 2: Muddy Puddles                               |  |
-|  |                       - Mode 3: Chick Maze                                  |  |
-|  |                       - Mode 4: Daddy Pig                                   |  |
-|  |                              |                                              |  |
-|  |                              v                                              |  |
-|  |                     [CartoonRenderer2D] <--- [ParticleSystem]               |  |
-|  |                              |                                              |  |
-|  |                              v                                              |  |
-|  |                   [Testing Introspection Hooks]                             |  |
-|  |                   (window.__GAME_STATE__, __AUDIO_SPY__, __FPS_MONITOR__)   |  |
-|  +-----------------------------------------------------------------------------+  |
-+-----------------------------------------------------------------------------------+
-```
-
-### Module Boundaries & Responsibilities
-1. **Core Engine & Canvas Pipeline**:
-   - High-DPI Canvas scaling preserving 16:9 virtual aspect ratio ($960 \times 540$).
-   - 60 FPS fixed-timestep accumulator game loop (`dt = 1/60s`) with rendering interpolation.
-   - Unified Input Manager capturing pointer/mouse, multi-touch taps, and keyboard (Space, Arrows, ESC, M).
-2. **Procedural Web Audio Engine**:
-   - Zero audio assets / CDN dependencies. 100% synthesized via Web Audio API.
-   - Master Gain, compressor/limiter, mute toggle, and unlocked AudioContext gate.
-   - Synthesizer recipes: Clucks/Bawks, Egg Pop, Crack & Hatch, Mud Splashes, Corn Seed Chime, Victory Fanfare, Computer Crash Jingle.
-   - Algorithmic 128 BPM multi-track nursery BGM sequencer (Melody, Bass, Chords, Percussion).
-3. **Procedural Cartoon 2D Graphics & Particle Engine**:
-   - Procedural vector character rendering: Mrs Chicken (squash & stretch), Peppa Pig (boots), George Pig, Daddy Pig (glasses, panic states, crash), Baby Chicks, Coop, Nest, Fence, Mud Puddles, Farm landscape.
-   - Particle Engine: Eggshells, mud droplets, feathers, sparkles, steam/smoke, combo popups.
-4. **Arcade Menu & State Management**:
-   - Animated selection cards for 4 modes with live mini-previews, high score badges, audio toggle, and instruction overlays.
-5. **Game Mode 1: Happy Mrs Chicken (Classic Egg-Laying)**:
-   - Egg laying physics, stacking & restitution, nest capacity threshold, 8-state cracking & hatching, chirping baby chicks scampering off-screen, egg counter.
-6. **Game Mode 2: Muddy Puddles**:
-   - Dynamic tiered puddle spawner (Small, Medium, Mega, Golden +3s), jump trajectory, center-accuracy splash scoring, dual-layer mud particles, 60s countdown timer.
-7. **Game Mode 3: Chick Maze / Sorting**:
-   - Top-down garden maze with obstacles (fences, flowers, mud slows), Reynolds Boids wandering chicks, corn seed trail placement, whistle call, coop scoring zone.
-8. **Game Mode 4: Daddy Pig High Score Challenge**:
-   - Rapid-fire accelerating egg laying, fever meter & multipliers ($\times 1 \to \times 10$), escalating Daddy Pig panic/smoke, computer overheat blue screen / crash cutscene, local storage leaderboard.
-
----
+A modular, high-performance HTML5 Canvas 2D game engine built with React 19, TypeScript, and Vite.
+- **Engine Core (`src/engine/`)**: 60 FPS fixed-timestep game loop, dual-orientation dynamic viewport manager (`DisplayManager.ts`), multi-touch gesture input manager (`InputManager.ts`), particle pool (`ParticleEngine.ts`), local storage persistence (`StorageManager.ts`), and procedural audio suite (`src/engine/audio/`).
+- **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, and an algorithmic 128 BPM multi-track nursery BGM sequencer.
+- **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for all 7 characters (Mrs Chicken, Peppa Pig, George Pig with Mr. Dinosaur, Daddy Pig, Mummy Pig, Grandpa Pig, Suzy Sheep, and Baby Chicks) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.
+- **Mini-Game Modes (`src/modes/`)**: 8 standalone mini-game scenes implementing the `BaseScene` / `MiniGame` contract (`init`, `enter`, `update`, `render`, `handleInput`, `resize`, `exit`, `destroy`, `getEntities`, `getModeState`).
+- **UI & PWA (`src/components/`, `src/pwa/`)**: Responsive HUD, toddler multi-touch tap ripple feedback, and Service Worker offline caching.
 
 ## Feature Inventory
+Every feature from the Survey phase is mapped to an implementation milestone below:
 
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | High-DPI 16:9 Canvas Viewport | Virtual $960 \times 540$ rendering with auto-scaling and letterboxing | M1 | Survey |
-| 2 | 60 FPS Fixed-Step Game Loop | Delta-time accumulator loop ensuring deterministic physics and fluid animation | M1 | Survey |
-| 3 | Unified Input System | Pointer, touch tap/swipe, and keyboard (Space, Arrows, ESC, M) abstraction | M1 | Survey |
-| 4 | Procedural SFX Synthesizer | Web Audio oscillators, noise buffers, and filters for all game SFX | M1 | Survey |
-| 5 | Algorithmic Nursery BGM Sequencer | Multi-track cheerful 128 BPM background music generator with zero external files | M1 | Survey |
-| 6 | Procedural Cartoon Art System | Vector drawing routines for Mrs Chicken, Peppa, Daddy Pig, chicks, farm assets | M1 | Survey |
-| 7 | Particle & FX Subsystem | Dynamic particles (mud, eggshells, feathers, sparkles, smoke) with pooling | M1 | Survey |
-| 8 | Opaque-Box Introspection Hooks | `window.__GAME_STATE__`, `window.__AUDIO_SPY__`, `window.__FPS_MONITOR__` | M1 | Survey |
-| 9 | Arcade Game Selection Menu | 4 interactive mode cards with live preview animations and high score badges | M2 | Survey |
-| 10 | LocalStorage Data Persistence | Schema `hmc_game_data_v1` saving high scores, stats, and audio settings | M2 | Survey |
-| 11 | Mrs Chicken Egg-Laying Physics | Squash & stretch chicken animation, egg ejection velocity, ground/egg restitution | M2 | Survey |
-| 12 | Egg Stacking & Nest Threshold | Stacking physics and nest threshold trigger triggering hatching phase | M2 | Survey |
-| 13 | 8-State Cracking & Hatching Cycle | Wobble, fissure lines, shell burst, chick emergence, chirp, scamper off-screen | M2 | Survey |
-| 14 | Dynamic Puddle Spawning System | Tiered sizes (Small/Med/Mega/Golden), dynamic placement, ripples, lifetime decay | M3 | Survey |
-| 15 | Muddy Puddles Jump & Splash | Parabolic jump physics, center-hit detection, splash particles, multiplier scoring | M3 | Survey |
-| 16 | Muddy Puddles Timer & Scoreboard | 60s countdown timer with golden puddle extensions, game over recap | M3 | Survey |
-| 17 | Chick Maze Garden Environment | Top-down garden grid with fences, flowerbeds, mud slowing zones, and coop | M3 | Survey |
-| 18 | Autonomous Chick Flocking AI | Reynolds Boids (cohesion, separation, alignment, wandering noise) | M3 | Survey |
-| 19 | Corn Seed Trail & Guiding Controls | Tap/click to drop corn seeds attracting nearby chicks, whistle call assist | M3 | Survey |
-| 20 | Chick Coop Sorting & Victory Flow | Coop entry detection, chick counter, multi-stage garden progression | M3 | Survey |
-| 21 | Daddy Pig Rapid-Fire Egg Laying | Accelerated egg laying input, fever meter (+4.5%/tap), combo multipliers | M4 | Survey |
-| 22 | Daddy Pig Panic & Smoke Escalation | 4-stage visual escalation (calm, focused, sweating/shaking, smoke/sparks) | M4 | Survey |
-| 23 | Overheat Crash Cutscene & BSOD | Comedic computer smoke, blue screen cutscene, high score celebration | M4 | Survey |
-| 24 | Mobile Touch Controls & UI Polish | Responsive HUD overlays, pause menu, audio mute button, help dialog | M4 | Survey |
-| 25 | Standalone Offline Single-File Pack | Bundled self-contained `index.html` with zero external requests/CDNs | M4 | Survey |
-| 26 | 100% Pass of 4-Tier E2E Test Suite | Headless Chrome CDP & visual harness verifying 80+ test cases | M5 | Testing |
-| 27 | Adversarial Hardening (Tier 5) | White-box stress testing, memory leak audit, rapid input fuzzing | M5 | Testing |
-
----
+| 1 | Master Types & Schema Expansion | `GameModeId` (8 modes), `SFXName` (16 sfx), `HighScores` (8 modes), Character anim types | M1 | Survey (R1, R4) |
+| 2 | Modular Audio Engine (<500 LOC) | Decompose into `AudioContextHolder`, `SoundSynthesizer`, `BGMSequencer`, `AudioSpy`, `index.ts` | M1 | Survey (R3, R4) |
+| 3 | 16 Procedural SFX Recipes | Synthesize all 16 sound effects (roars, sizzle, whoosh, veggie pop, bubble pop, clucks, splashes, fanfare) | M1 | Survey (R3) |
+| 4 | Algorithmic BGM Sequencer | 128 BPM multi-track nursery music generator with dynamic tempo control | M1 | Survey (R3) |
+| 5 | Extended Particle Engine | Support confetti, soap bubbles, pancake syrup drips, mud clods, and sparkles | M1 | Survey (R1) |
+| 6 | Storage Manager 8-Mode Persistence | LocalStorage schema for all 8 high scores with fallback safety | M1 | Survey (R4) |
+| 7 | Shared Character Animation Controller | `CharacterAnimState` helper for eye blinks, breathing squash, wobbles, volume preservation | M2 | Survey (R2) |
+| 8 | George Pig & Mr. Dinosaur Model | Procedural George Pig holding Mr. Dinosaur with animated chomping jaw | M2 | Survey (R2) |
+| 9 | Mummy Pig Model | Procedural Mummy Pig with eyelashes, mascara, orange dress, and frying pan | M2 | Survey (R2) |
+| 10 | Grandpa Pig Model | Procedural Grandpa Pig with sailing cap, beard stubble, purple shirt, wellies | M2 | Survey (R2) |
+| 11 | Suzy Sheep Model | Procedural Suzy Sheep with pink dress and fluffy scalloped wool ears | M2 | Survey (R2) |
+| 12 | Existing Character Model Upgrades | Enhance Mrs Chicken, Peppa Pig, Daddy Pig, Baby Chicks with facial animations & blinking | M2 | Survey (R2) |
+| 13 | Mode 5: Dinosaur Balloon Pop | George's dinosaur balloon pop with rising balloons, confetti bursts, roars, giggles | M3 | Survey (R1.5) |
+| 14 | Mode 6: Mummy Pig Pancake Flipper | Pancake frying pan flip timing, parabolic flight, golden detection, plate stacking | M3 | Survey (R1.6) |
+| 15 | Mode 7: Grandpa Pig Vegetable Harvest | Garden vegetable pulling with elastic tension resistance, mud pops, wheelbarrow counter | M3 | Survey (R1.7) |
+| 16 | Mode 8: Suzy Sheep Hopscotch & Bubbles | Shimmering soap bubbles, glockenspiel pop chimes, hopscotch path to picnic | M3 | Survey (R1.8) |
+| 17 | Existing 4 Mini-Games Refactor | Update Mode 1–4 scenes to leverage modular audio, character models, and animation state | M4 | Survey (R1.1-1.4) |
+| 18 | 8-Game Arcade Menu Scene | Responsive paginated / grid menu with live preview animations and high score badges | M4 | Survey (R1, R4) |
+| 19 | Dual-Orientation Viewport & HUD | Responsive fill for Portrait 9:16 and Landscape 16:9 with zero letterbox distortion | M4 | Survey (R4) |
+| 20 | PWA Offline Integrity & Service Worker | Service Worker caching in `public/sw.js`, zero external CDN dependencies | M4 | Survey (R4) |
+| 21 | E2E Testing Suite (Tiers 1-4) | Comprehensive opaque-box test runner and 80 test cases covering all 8 modes | E2E Track | Survey (§4.8) |
+| 22 | Final E2E Suite Pass & Adversarial Hardening | 100% test pass on Tiers 1-4 + Tier 5 white-box challenger adversarial testing | M5 (Final) | Survey & Spec |
 
 ## Milestones
 
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Suite & Harness | Headless Chrome CDP runner, browser test harness, 80 test cases across 4 tiers | none | DONE |
-| M1 | Core Engine, Web Audio & Cartoon Renderer | Viewport, 60fps loop, input, Web Audio SFX & BGM, vector graphics, particles, testing hooks | none | DONE |
-| M2 | Arcade Menu & Classic Egg-Laying Mode | Main menu, mode cards, local storage, egg laying physics, stacking, 8-state hatching, scampering chicks | M1 | DONE |
-| M3 | Muddy Puddles & Chick Maze Modes | Dynamic puddles, jump & splash scoring, timer, garden maze, boids flocking AI, seed trail, coop | M1, M2 | DONE |
-| M4 | Daddy Pig Challenge & Complete UI Polish | Rapid-fire fever meter, Daddy Pig panic/crash cutscene, high score leaderboard, mobile HUD, single-file bundle | M1, M2, M3 | DONE |
-| M5 | Final Verification & Adversarial Hardening | Pass 100% E2E test suite (Tiers 1-4) followed by Tier 5 adversarial stress testing & coverage hardening | E2E, M4 | DONE |
-
----
+| E2E | E2E Testing Track | Test infra, headless test runner, Tiers 1–4 test suite (80 test scenarios), `TEST_READY.md` | none | DONE |
+| M1 | Core Types, Audio Engine & Foundation | Types expansion (`src/types/`), modular Audio Engine (`src/engine/audio/`), ParticleEngine expansion, StorageManager update | none | DONE |
+| M2 | Character Models & Procedural Vector Graphics | Animation controller (`animations.ts`), George+Dino, Mummy Pig, Grandpa Pig, Suzy Sheep, existing character upgrades | M1 | DONE |
+| M3 | 4 New Mini-Game Scenes | `DinosaurBalloonScene`, `PancakeFlipperScene`, `VegetableHarvestScene`, `HopscotchBubbleScene` | M1, M2 | DONE |
+| M4 | Existing Scenes Refactor, 8-Game Menu & PWA | Refactor Modes 1–4, 8-Game `MenuScene`, HUD, GameEngine wiring, PWA `sw.js` | M1, M2, M3 | DONE |
+| M5 | Final E2E Test Pass & Adversarial Hardening | Phase 1: 100% E2E test pass (Tiers 1-4). Phase 2: Tier 5 adversarial testing & Forensic Audit | M4, E2E | DONE |
 
 ## Interface Contracts
 
-### Audio Engine Interface (`window.__AUDIO_ENGINE__`)
-```javascript
-{
-  init: () => Promise<boolean>,
-  unlock: () => Promise<boolean>,
-  setMuted: (isMuted: boolean) => void,
-  isMuted: () => boolean,
-  playSFX: (sfxName: 'cluck'|'eggPop'|'crack'|'hatch'|'splash'|'seedDrop'|'fanfare'|'crash'|'click', options?: object) => void,
-  startBGM: () => void,
-  stopBGM: () => void,
-  setBGMTempo: (bpm: number) => void
+### 1. Game Mode Lifecycle (`src/types/game.ts` & `src/modes/BaseScene.ts`)
+```typescript
+export type GameModeId =
+  | 'MENU'
+  | 'EGG_LAYING'
+  | 'MUDDY_PUDDLES'
+  | 'CHICK_MAZE'
+  | 'DADDY_PIG'
+  | 'DINOSAUR_BALLOON'
+  | 'PANCAKE_FLIPPER'
+  | 'VEGETABLE_HARVEST'
+  | 'HOPSCOTCH_BUBBLE';
+
+export interface MiniGame {
+  readonly modeId: GameModeId;
+  score: number;
+  highScoreKey: string;
+  enter(params?: Record<string, unknown>): void;
+  exit(): void;
+  update(dt: number, input: InputManager): void;
+  render(ctx: CanvasRenderingContext2D, alpha: number, display: DisplayManager): void;
+  handleInput?(input: InputManager): void;
+  resize?(display: DisplayManager): void;
+  pause?(): void;
+  resume?(): void;
+  destroy?(): void;
+  getEntities(): Record<string, unknown>;
+  getModeState(): Record<string, unknown>;
 }
 ```
 
-### Scene Manager & Game State Interface (`window.__GAME_STATE__`)
-```javascript
-{
-  currentScene: 'MENU' | 'EGG_LAYING' | 'MUDDY_PUDDLES' | 'CHICK_MAZE' | 'DADDY_PIG',
-  score: number,
-  highScores: { eggLaying: number, muddyPuddles: number, chickMaze: number, daddyPig: number },
-  isPaused: boolean,
-  isAudioMuted: boolean,
-  entities: {
-    eggs: Array<{ x: number, y: number, state: string }>,
-    chicks: Array<{ x: number, y: number, state: string }>,
-    puddles: Array<{ x: number, y: number, type: string, size: number }>,
-    seeds: Array<{ x: number, y: number, remaining: number }>
-  },
-  modeState: {
-    timer: number,
-    feverMeter: number,
-    multiplier: number,
-    coopSavedCount: number,
-    isOverheating: boolean
-  }
+### 2. Procedural Audio Engine (`src/engine/audio/index.ts`)
+```typescript
+export type SFXName =
+  | 'cluck'
+  | 'eggPop'
+  | 'crack'
+  | 'hatch'
+  | 'splash'
+  | 'seedDrop'
+  | 'fanfare'
+  | 'crash'
+  | 'click'
+  | 'dinosaurRoar'
+  | 'balloonPop'
+  | 'pancakeSizzle'
+  | 'whoosh'
+  | 'veggiePop'
+  | 'mudThud'
+  | 'bubblePop'
+  | 'sheepBleat'
+  | 'toddlerGiggle';
+
+export interface ISoundEngine {
+  init(): Promise<void>;
+  unlock(): Promise<void>;
+  playSFX(name: SFXName, options?: { playbackRate?: number; volume?: number }): void;
+  startBGM(): void;
+  stopBGM(): void;
+  setBGMTempo(bpm: number): void;
+  toggleMute(): boolean;
+  setVolume(volume: number): void;
+  isMuted: boolean;
 }
 ```
 
-### Testing & Verification Spy Contract (`window.__AUDIO_SPY__` & `window.__FPS_MONITOR__`)
-```javascript
-window.__AUDIO_SPY__ = {
-  events: Array<{ type: string, timestamp: number, params: object }>,
-  clear: () => void
-};
-window.__FPS_MONITOR__ = {
-  currentFPS: number,
-  avgFPS: number,
-  droppedFrames: number,
-  history: number[]
-};
-```
+### 3. Character Animation & Rendering Contracts (`src/graphics/animations.ts` & `src/graphics/characters/`)
+```typescript
+export interface CharacterAnimState {
+  blinkTimer: number;
+  isBlinking: boolean;
+  breathTimer: number;
+  breathScale: number;
+  wobbleTimer: number;
+  wobbleAngle: number;
+}
 
----
+export function drawMrsChicken(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: ChickenOptions): void;
+export function drawPeppaPig(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: PeppaOptions): void;
+export function drawGeorgePig(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: GeorgeOptions): void;
+export function drawDaddyPig(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: DaddyPigOptions): void;
+export function drawMummyPig(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: MummyPigOptions): void;
+export function drawGrandpaPig(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: GrandpaPigOptions): void;
+export function drawSuzySheep(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: SuzySheepOptions): void;
+export function drawBabyChick(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, options?: ChickOptions): void;
+```
 
 ## Code Layout
+Every file in `src/` must remain strictly **under 500 lines of code**.
 
 ```
-/Users/homemac/teamwork_projects/happy_mrs_chicken/
-├── index.html                  # Standalone self-contained game suite (HTML + embedded CSS + embedded JS)
-├── ORIGINAL_REQUEST.md         # Immutable original user request
-├── PROJECT.md                  # Master project architecture, feature inventory, milestones, contracts
-├── TEST_INFRA.md               # E2E Test Suite specification and 4-tier matrix
-├── TEST_READY.md               # Signal published when E2E test runner and test cases are ready
-├── tests/
-│   ├── e2e_runner.mjs          # Zero-dependency Headless Chrome CDP test runner (Node 24 native)
-│   ├── unit_runner.mjs         # Fast headless node unit test runner for math, boids, and state logic
-│   └── test_harness.html       # Visual in-browser interactive test harness & test suite runner
-└── .agents/                    # Agent metadata, briefings, handoffs (NO source code here)
+src/
+├── types/
+│   ├── game.ts                    # GameModeId, MiniGame interface, mode config
+│   ├── characters.ts              # Character animation state & options
+│   ├── audio.ts                   # SFX names, BGM types, synth interfaces
+│   ├── particles.ts               # Particle interface, shape enums
+│   └── storage.ts                 # HighScores, GameSettings, StorageData
+├── engine/
+│   ├── GameEngine.ts              # Master game orchestrator & scene manager
+│   ├── DisplayManager.ts          # Dual orientation (9:16 portrait, 16:9 landscape)
+│   ├── InputManager.ts            # Pointer, touch, keyboard, gesture tracking
+│   ├── GameLoop.ts                # Deterministic 60 FPS loop + FPS monitor
+│   ├── StorageManager.ts          # LocalStorage persistence (8 high scores)
+│   ├── Haptics.ts                 # Vibration API wrapper
+│   ├── ParticleEngine.ts          # Particle pooling (confetti, bubbles, mud, feathers)
+│   └── audio/
+│       ├── AudioContextHolder.ts  # Web Audio context & master gain management
+│       ├── SoundSynthesizer.ts    # Procedural sound recipes for 16 SFX
+│       ├── BGMSequencer.ts        # Algorithmic 128 BPM nursery music
+│       ├── AudioSpy.ts            # Introspection telemetry for test validation
+│       └── index.ts               # SoundEngine facade
+├── graphics/
+│   ├── palette.ts                 # Peppa Pig color palette
+│   ├── animations.ts              # Shared procedural animation math & easing
+│   ├── characters/
+│   │   ├── chickenRenderer.ts     # Mrs Chicken vector model
+│   │   ├── peppaRenderer.ts       # Peppa Pig vector model
+│   │   ├── daddyPigRenderer.ts    # Daddy Pig vector model
+│   │   ├── georgeRenderer.ts      # George Pig & Mr. Dinosaur vector model
+│   │   ├── mummyPigRenderer.ts    # Mummy Pig & frying pan vector model
+│   │   ├── grandpaPigRenderer.ts  # Grandpa Pig, sailing cap & wellies
+│   │   ├── suzySheepRenderer.ts   # Suzy Sheep & fluffy wool ears
+│   │   └── chickRenderer.ts       # Baby chick vector model
+│   ├── environment/
+│   │   ├── skyAndHills.ts         # Cartoon sky, smiling sun, hills
+│   │   ├── farmAssets.ts          # Hay nest, egg, hen coop
+│   │   └── gardenAssets.ts        # Mud puddles, garden soil mounds, vegetables
+│   └── index.ts                   # Unified graphics barrel
+├── modes/
+│   ├── BaseScene.ts               # Abstract base scene class
+│   ├── MenuScene.ts               # 8-game responsive grid / arcade menu
+│   ├── EggLayingScene.ts          # Mode 1: Happy Mrs Chicken
+│   ├── MuddyPuddlesScene.ts       # Mode 2: Muddy Puddles
+│   ├── ChickMazeScene.ts          # Mode 3: Chick Maze / Sorting
+│   ├── DaddyPigScene.ts           # Mode 4: Daddy Pig Reaction Challenge
+│   ├── DinosaurBalloonScene.ts    # Mode 5: George's Dinosaur Balloon Pop
+│   ├── PancakeFlipperScene.ts     # Mode 6: Mummy Pig's Pancake Flipper
+│   ├── VegetableHarvestScene.ts   # Mode 7: Grandpa Pig's Vegetable Harvest
+│   └── HopscotchBubbleScene.ts    # Mode 8: Suzy Sheep's Hopscotch & Bubble Trail
+├── components/
+│   ├── GameCanvas.tsx             # React canvas wrapper
+│   ├── HUD.tsx                    # Top navigation, Home, Mute, Fullscreen
+│   └── ToddlerTapFeedback.tsx     # Tap ripple overlay
+├── pwa/
+│   └── registerServiceWorker.ts   # Offline Service Worker registration
+├── App.tsx                        # Root React layout
+└── main.tsx                       # React DOM root entry
+tests/
+├── e2e_runner.mjs                 # Headless automated E2E test runner
+├── tier1_smoke.test.ts            # Tier 1: Smoke, Initialization & Lifecycle tests
+├── tier2_mechanics.test.ts        # Tier 2: 8 Mini-Game core mechanics tests
+├── tier3_ui_audio.test.ts         # Tier 3: UI, Dual-orientation & Audio tests
+└── tier4_quality_pwa.test.ts      # Tier 4: TypeScript, Line count, Offline PWA tests
 ```

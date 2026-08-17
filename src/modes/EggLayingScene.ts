@@ -1,20 +1,29 @@
+/**
+ * Mode 1: Happy Mrs Chicken (Classic Egg-Laying Mode)
+ * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Strictly under 500 Lines of Code
+ */
+
 import { BaseScene } from './BaseScene';
 import { GameEngine } from '../engine/GameEngine';
 import { InputManager } from '../engine/InputManager';
 import { DisplayManager } from '../engine/DisplayManager';
 import { EggEntity, ChickEntity } from '../types/game';
+import { CharacterAnimState } from '../types/characters';
 import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills, drawHayNest, drawEgg } from '../graphics/environmentRenderer';
-import { drawMrsChicken } from '../graphics/chickenRenderer';
-import { drawBabyChick } from '../graphics/chickRenderer';
+import { drawMrsChicken } from '../graphics/characters/chickenRenderer';
+import { drawBabyChick } from '../graphics/characters/chickRenderer';
+import { createCharacterAnimState, updateCharacterAnimState } from '../graphics/animations';
 
 export class EggLayingScene extends BaseScene {
   public time: number = 0;
   public eggs: EggEntity[] = [];
   public chicks: ChickEntity[] = [];
   public particles: ParticleEngine;
+  public animState: CharacterAnimState;
   public chicken = {
     x: 270,
     y: 200,
@@ -32,6 +41,7 @@ export class EggLayingScene extends BaseScene {
   constructor(game: GameEngine) {
     super(game);
     this.particles = new ParticleEngine(150);
+    this.animState = createCharacterAnimState();
   }
 
   enter(): void {
@@ -42,6 +52,7 @@ export class EggLayingScene extends BaseScene {
     this.time = 0;
     this.roamTimer = 0;
     this.lastUserTapTime = 0;
+    this.animState = createCharacterAnimState();
 
     const isPortrait = this.game.display.isPortrait;
     const startX = this.game.display.vWidth / 2;
@@ -50,6 +61,13 @@ export class EggLayingScene extends BaseScene {
     this.chicken.y = startY;
     this.chicken.targetX = startX;
     this.chicken.targetY = startY;
+  }
+
+  exit(): void {
+    this.particles.clear();
+    if (this.score > 0) {
+      this.game.storage.saveHighScore('EGG_LAYING', this.score);
+    }
   }
 
   layEggAt(x: number, y: number): void {
@@ -72,11 +90,20 @@ export class EggLayingScene extends BaseScene {
     this.score++;
     this.chicken.squash = 0.72;
     this.chicken.squawk = 1.0;
+    this.animState.squash = 0.72;
+    this.animState.squawk = 1.0;
 
     soundEngine.playSFX('cluck');
     soundEngine.playSFX('eggPop');
     Haptics.tap();
     this.particles.spawnFeathers(x, y, 3);
+    this.game.storage.saveHighScore('EGG_LAYING', this.score);
+
+    // Milestone fanfare every 10 eggs
+    if (this.score > 0 && this.score % 10 === 0) {
+      soundEngine.playSFX('fanfare');
+      this.particles.spawnSparkles(x, y, 10);
+    }
   }
 
   pickRandomRoamTarget(): void {
@@ -94,6 +121,8 @@ export class EggLayingScene extends BaseScene {
   update(dt: number, input: InputManager): void {
     this.time += dt;
     this.roamTimer += dt;
+    updateCharacterAnimState(this.animState, dt);
+
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 140 : this.game.display.vHeight - 80;
     const minChickenY = 80;
@@ -104,15 +133,11 @@ export class EggLayingScene extends BaseScene {
       this.lastUserTapTime = performance.now();
       const ptr = input.primaryPointer;
       if (ptr && ptr.inside && ptr.y > 60) {
-        // Set target position for chicken
         this.chicken.targetX = Math.max(50, Math.min(this.game.display.vWidth - 50, ptr.x));
         this.chicken.targetY = Math.max(minChickenY, Math.min(maxChickenY, ptr.y - 20));
         this.chicken.facingLeft = this.chicken.targetX < this.chicken.x;
-        
-        // Lay egg immediately
         this.layEggAt(this.chicken.targetX, this.chicken.targetY);
       } else {
-        // Spacebar or default lay egg at current position
         this.layEggAt(this.chicken.x, this.chicken.y);
       }
     }
@@ -143,11 +168,12 @@ export class EggLayingScene extends BaseScene {
     // Recover squash and squawk
     this.chicken.squash += (1.0 - this.chicken.squash) * (dt * 15);
     this.chicken.squawk += (0 - this.chicken.squawk) * (dt * 12);
+    this.animState.facingLeft = this.chicken.facingLeft;
+    this.animState.armWave = this.chicken.flap;
 
-    // Egg Physics across the entire lawn
+    // Egg Physics across lawn
     for (let i = 0; i < this.eggs.length; i++) {
       const egg = this.eggs[i];
-
       if (egg.state === 'FALLING') {
         egg.vy += 980 * dt;
         egg.x += egg.vx * dt;
@@ -188,7 +214,6 @@ export class EggLayingScene extends BaseScene {
           soundEngine.playSFX('hatch');
           Haptics.heavy();
 
-          // Spawn scampering baby chick with 2D velocity
           this.chicks.push({
             x: egg.x,
             y: egg.y - 10,
@@ -202,7 +227,6 @@ export class EggLayingScene extends BaseScene {
       }
     }
 
-    // Clean up hatched eggs
     this.eggs = this.eggs.filter(e => e.state !== 'HATCH_BURST');
 
     // Update baby chicks - 2D whole-yard roaming and natural dispersion
@@ -217,7 +241,6 @@ export class EggLayingScene extends BaseScene {
       chick.y += chick.vy * dt;
       chick.walkCycle += dt * 12;
 
-      // Soft separation to prevent bunching
       for (let j = i + 1; j < this.chicks.length; j++) {
         const other = this.chicks[j];
         const cdx = other.x - chick.x;
@@ -235,7 +258,6 @@ export class EggLayingScene extends BaseScene {
         }
       }
 
-      // Random direction changes to wander and peck across the yard
       if (Math.random() < 0.015) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 50 + Math.random() * 70;
@@ -243,22 +265,10 @@ export class EggLayingScene extends BaseScene {
         chick.vy = Math.sin(angle) * (speed * 0.6);
       }
 
-      // Bounce off screen boundaries in 2D
-      if (chick.x <= minChickX) {
-        chick.x = minChickX;
-        chick.vx = Math.abs(chick.vx) || 70;
-      } else if (chick.x >= maxChickX) {
-        chick.x = maxChickX;
-        chick.vx = -Math.abs(chick.vx) || -70;
-      }
-
-      if (chick.y <= minChickY) {
-        chick.y = minChickY;
-        chick.vy = Math.abs(chick.vy) || 50;
-      } else if (chick.y >= maxChickY) {
-        chick.y = maxChickY;
-        chick.vy = -Math.abs(chick.vy) || -50;
-      }
+      if (chick.x <= minChickX) { chick.x = minChickX; chick.vx = Math.abs(chick.vx) || 70; }
+      else if (chick.x >= maxChickX) { chick.x = maxChickX; chick.vx = -Math.abs(chick.vx) || -70; }
+      if (chick.y <= minChickY) { chick.y = minChickY; chick.vy = Math.abs(chick.vy) || 50; }
+      else if (chick.y >= maxChickY) { chick.y = maxChickY; chick.vy = -Math.abs(chick.vy) || -50; }
 
       chick.facingLeft = chick.vx < 0;
     }
@@ -268,33 +278,28 @@ export class EggLayingScene extends BaseScene {
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
     const isPortrait = display.isPortrait;
-    const groundY = isPortrait ? display.vHeight - 140 : display.vHeight - 80;
     const nestX = display.vWidth / 2;
     const nestY = isPortrait ? display.vHeight - 120 : display.vHeight - 60;
     const nestW = isPortrait ? 280 : 260;
 
-    // Draw full-bleed landscape
     drawLandscapeSkyHills(ctx, display.vWidth, display.vHeight, this.time);
-
-    // Hay Nest
     drawHayNest(ctx, nestX, nestY, nestW, 80);
 
-    // Eggs
     for (const egg of this.eggs) {
       drawEgg(ctx, egg.x, egg.y, 1.0, egg.rotation, egg.crackStage);
     }
 
-    // Depth-sorted Chicks (higher on hill drawn first, lower in front)
     const sortedChicks = [...this.chicks].sort((a, b) => a.y - b.y);
     for (const chick of sortedChicks) {
       drawBabyChick(ctx, chick.x, chick.y, 1.0, {
         walkCycle: chick.walkCycle,
-        facingLeft: chick.facingLeft
+        facingLeft: chick.facingLeft,
+        isPeeping: (chick.walkCycle * 2) % 4 < 1.2
       });
     }
 
-    // Flying Mrs Chicken
     drawMrsChicken(ctx, this.chicken.x, this.chicken.y, isPortrait ? 1.2 : 1.1, {
+      animState: this.animState,
       squash: this.chicken.squash,
       squawk: this.chicken.squawk,
       flap: this.chicken.flap,
@@ -303,7 +308,7 @@ export class EggLayingScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Polished Center Score Badge
+    // Score Badge
     const scoreX = display.vWidth / 2;
     const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
     ctx.save();
@@ -315,7 +320,6 @@ export class EggLayingScene extends BaseScene {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Mini egg icon + score text
     ctx.fillStyle = '#FFF9C4';
     ctx.beginPath();
     ctx.ellipse(scoreX - 52, scoreY + 21, 9, 12, 0, 0, Math.PI * 2);
@@ -344,4 +348,3 @@ export class EggLayingScene extends BaseScene {
     };
   }
 }
-
