@@ -188,13 +188,13 @@ export class EggLayingScene extends BaseScene {
           soundEngine.playSFX('hatch');
           Haptics.heavy();
 
-          // Spawn scampering baby chick
+          // Spawn scampering baby chick with 2D velocity
           this.chicks.push({
             x: egg.x,
-            y: egg.y - 5,
-            vx: Math.random() > 0.5 ? 120 : -120,
-            vy: 0,
-            walkCycle: 0,
+            y: egg.y - 10,
+            vx: (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 80),
+            vy: (Math.random() - 0.5) * 70,
+            walkCycle: Math.random() * 10,
             facingLeft: Math.random() > 0.5,
             state: 'SCAMPERING'
           });
@@ -205,26 +205,59 @@ export class EggLayingScene extends BaseScene {
     // Clean up hatched eggs
     this.eggs = this.eggs.filter(e => e.state !== 'HATCH_BURST');
 
-    // Update baby chicks - keep them on screen forever with lively roaming
+    // Update baby chicks - 2D whole-yard roaming and natural dispersion
     const minChickX = 25;
     const maxChickX = this.game.display.vWidth - 25;
+    const minChickY = Math.max(80, groundY - 260);
+    const maxChickY = this.game.display.vHeight - 20;
+
     for (let i = 0; i < this.chicks.length; i++) {
       const chick = this.chicks[i];
       chick.x += chick.vx * dt;
+      chick.y += chick.vy * dt;
       chick.walkCycle += dt * 12;
 
-      // Occasionally change speed/direction to feel alive
-      if (Math.random() < 0.008) {
-        chick.vx = (Math.random() > 0.5 ? 1 : -1) * (70 + Math.random() * 60);
+      // Soft separation to prevent bunching
+      for (let j = i + 1; j < this.chicks.length; j++) {
+        const other = this.chicks[j];
+        const cdx = other.x - chick.x;
+        const cdy = other.y - chick.y;
+        const distSq = cdx * cdx + cdy * cdy;
+        if (distSq < 32 * 32 && distSq > 0.1) {
+          const dist = Math.sqrt(distSq);
+          const push = (32 - dist) * 1.5 * dt;
+          const nx = cdx / dist;
+          const ny = cdy / dist;
+          chick.x -= nx * push;
+          chick.y -= ny * push;
+          other.x += nx * push;
+          other.y += ny * push;
+        }
       }
 
-      // Bounce off screen borders
+      // Random direction changes to wander and peck across the yard
+      if (Math.random() < 0.015) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 50 + Math.random() * 70;
+        chick.vx = Math.cos(angle) * speed;
+        chick.vy = Math.sin(angle) * (speed * 0.6);
+      }
+
+      // Bounce off screen boundaries in 2D
       if (chick.x <= minChickX) {
         chick.x = minChickX;
-        chick.vx = Math.abs(chick.vx) || 90;
+        chick.vx = Math.abs(chick.vx) || 70;
       } else if (chick.x >= maxChickX) {
         chick.x = maxChickX;
-        chick.vx = -Math.abs(chick.vx) || -90;
+        chick.vx = -Math.abs(chick.vx) || -70;
+      }
+
+      if (chick.y <= minChickY) {
+        chick.y = minChickY;
+        chick.vy = Math.abs(chick.vy) || 50;
+      } else if (chick.y >= maxChickY) {
+        chick.y = maxChickY;
+        chick.vy = -Math.abs(chick.vy) || -50;
       }
 
       chick.facingLeft = chick.vx < 0;
@@ -246,11 +279,14 @@ export class EggLayingScene extends BaseScene {
     // Hay Nest
     drawHayNest(ctx, nestX, nestY, nestW, 80);
 
-    // Eggs & Chicks
+    // Eggs
     for (const egg of this.eggs) {
       drawEgg(ctx, egg.x, egg.y, 1.0, egg.rotation, egg.crackStage);
     }
-    for (const chick of this.chicks) {
+
+    // Depth-sorted Chicks (higher on hill drawn first, lower in front)
+    const sortedChicks = [...this.chicks].sort((a, b) => a.y - b.y);
+    for (const chick of sortedChicks) {
       drawBabyChick(ctx, chick.x, chick.y, 1.0, {
         walkCycle: chick.walkCycle,
         facingLeft: chick.facingLeft
