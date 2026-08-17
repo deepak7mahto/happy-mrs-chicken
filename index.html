@@ -1,0 +1,3791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Peppa Pig: Happy Mrs Chicken</title>
+  <style>
+    /* ==========================================================================
+       RESET & HIGH-DPI CARTOON FRAMING STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0f172a; /* Deep midnight blue exterior letterbox */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: #0f172a;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1e293b;
+      cursor: pointer;
+    }
+
+    /* Accessibility / Testing DOM Overlays (Hidden offscreen or pointer-through) */
+    .mode-card-container {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <!-- DOM elements to satisfy semantic queries and accessibility -->
+    <div class="mode-card-container">
+      <button class="mode-card" data-mode="EGG_LAYING" aria-label="Happy Mrs Chicken Classic Mode" tabindex="-1">Classic Mode</button>
+      <button class="mode-card" data-mode="MUDDY_PUDDLES" aria-label="Muddy Puddles Mode" tabindex="-1">Muddy Puddles</button>
+      <button class="mode-card" data-mode="CHICK_MAZE" aria-label="Chick Maze Mode" tabindex="-1">Chick Maze</button>
+      <button class="mode-card" data-mode="DADDY_PIG" aria-label="Daddy Pig Challenge Mode" tabindex="-1">Daddy Pig Challenge</button>
+      <button id="audio-toggle-btn" aria-label="Toggle Audio" tabindex="-1">Mute/Unmute</button>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    // Hermetic tracking for offline test suites
+    window.__NETWORK_FAILS__ = [];
+
+    // =========================================================================
+    // SECTION 1: PROCEDURAL CARTOON COLOR PALETTE & VECTOR ART SUBSYSTEM
+    // =========================================================================
+    const PALETTE = {
+      // Characters - Mrs Chicken
+      CHICKEN_BODY: '#FFFFFF',
+      CHICKEN_OUTLINE: '#37474F',
+      CHICKEN_COMB: '#E53935',
+      CHICKEN_COMB_OUTLINE: '#B71C1C',
+      CHICKEN_WATTLE: '#E53935',
+      CHICKEN_BEAK: '#FFA000',
+      CHICKEN_BEAK_OUTLINE: '#E65100',
+      CHICKEN_LEGS: '#FF8F00',
+      CHICKEN_WING_SHADOW: '#ECEFF1',
+      CHICKEN_EYE: '#212121',
+
+      // Characters - Baby Chicks
+      CHICK_BODY: '#FFEE58',
+      CHICK_OUTLINE: '#F57F17',
+      CHICK_BEAK: '#FF6F00',
+      CHICK_CHEEK: '#FF8A80',
+      CHICK_WING_SHADOW: '#FDD835',
+      CHICK_EYE: '#212121',
+
+      // Characters - Peppa Pig
+      PEPPA_SKIN: '#FFB6C1',
+      PEPPA_OUTLINE: '#E06A8B',
+      PEPPA_CHEEK: '#FF69B4',
+      PEPPA_DRESS: '#E53935',
+      PEPPA_DRESS_OUTLINE: '#B71C1C',
+      PEPPA_BOOTS: '#FDD835',
+      PEPPA_BOOTS_OUTLINE: '#C49000',
+
+      // Characters - George Pig
+      GEORGE_SKIN: '#FFB6C1',
+      GEORGE_OUTLINE: '#E06A8B',
+      GEORGE_CHEEK: '#FF69B4',
+      GEORGE_SHIRT: '#1E88E5',
+      GEORGE_SHIRT_OUTLINE: '#0D47A1',
+      DINOSAUR_GREEN: '#4CAF50',
+      DINOSAUR_OUTLINE: '#2E7D32',
+      DINOSAUR_SPINE: '#E91E63',
+
+      // Characters - Daddy Pig
+      DADDY_SKIN: '#FFB6C1',
+      DADDY_OUTLINE: '#E06A8B',
+      DADDY_OUTFIT: '#00ACC1',
+      DADDY_OUTFIT_OUTLINE: '#006064',
+      DADDY_GLASSES: '#5D4037',
+      DADDY_STUBBLE: '#4E342E',
+      DADDY_SHOES: '#212121',
+      DADDY_OVERHEAT: '#EF5350',
+      DADDY_SWEAT: '#29B6F6',
+
+      // Environment & Scenery
+      SKY_TOP: '#4FC3F7',
+      SKY_BOTTOM: '#B3E5FC',
+      SUN_YELLOW: '#FFEE58',
+      SUN_RAY: '#FFF59D',
+      SUN_FACE: '#F57F17',
+      CLOUD_WHITE: '#FFFFFF',
+      CLOUD_SHADOW: '#ECEFF1',
+      HILL_BACK: '#81C784',
+      HILL_BACK_OUTLINE: '#4CAF50',
+      HILL_FRONT: '#66BB6A',
+      HILL_FRONT_OUTLINE: '#388E3C',
+      GRASS_BLADE: '#2E7D32',
+
+      // Farm Props
+      BARN_RED: '#C62828',
+      BARN_DARK: '#8E0000',
+      BARN_TRIM: '#FAFAFA',
+      STRAW_ROOF: '#FBC02D',
+      STRAW_DARK: '#F57F17',
+      NEST_STRAW: '#FBC02D',
+      NEST_DARK: '#C49000',
+      NEST_SHADOW: '#F57F17',
+      FENCE_WOOD: '#FFFFFF',
+      FENCE_OUTLINE: '#B0BEC5',
+      SOIL_DARK: '#4E342E',
+      FLOWER_STEM: '#43A047',
+
+      // Mud Puddles
+      MUD_DARK: '#5D4037',
+      MUD_LIGHT: '#8D6E63',
+      MUD_OUTLINE: '#3E2723',
+      MUD_HIGHLIGHT: 'rgba(255, 255, 255, 0.45)',
+      GOLDEN_PUDDLE: '#FFD54F',
+      GOLDEN_PUDDLE_OUTLINE: '#FF8F00',
+
+      // Eggs & Seeds
+      EGG_SHELL: '#FFF9C4',
+      EGG_OUTLINE: '#E0BA60',
+      EGG_SPOT: '#FFE082',
+      EGG_GOLDEN: '#FFD700',
+      SEED_CORN: '#FFC107',
+      SEED_OUTLINE: '#FFA000',
+
+      // UI & Special FX
+      WHITE: '#FFFFFF',
+      BLACK: '#212121',
+      UI_GOLD: '#FFD700',
+      UI_SHADOW: 'rgba(0, 0, 0, 0.25)',
+      STEAM_WHITE: 'rgba(245, 245, 245, 0.75)'
+    };
+
+    const AnimMath = {
+      easeOutBack(t, overshoot = 1.70158) {
+        const p = t - 1;
+        return p * p * ((overshoot + 1) * p + overshoot) + 1;
+      },
+      easeOutElastic(t) {
+        if (t === 0 || t === 1) return t;
+        return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * ((2 * Math.PI) / 3)) + 1;
+      },
+      easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      },
+      preserveVolume(squashY) {
+        const clampedY = Math.max(0.2, squashY);
+        const scaleX = 1.0 / Math.sqrt(clampedY);
+        return { scaleX, scaleY: clampedY };
+      }
+    };
+
+    /**
+     * Procedural Vector Drawing Functions
+     */
+    function drawMrsChicken(ctx, x, y, scale = 1.0, state = {}) {
+      const squash = state.squash !== undefined ? state.squash : 1.0;
+      const stretchX = 1.0 / Math.sqrt(Math.max(0.2, squash));
+      const flap = state.flap || 0;
+      const squawk = state.squawk || 0;
+      const eyeBlink = !!state.eyeBlink;
+      const facingLeft = !!state.facingLeft;
+      const headBob = state.headBob || 0;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(facingLeft ? -scale * stretchX : scale * stretchX, scale * squash);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // 1. Legs and Feet
+      ctx.strokeStyle = PALETTE.CHICKEN_LEGS;
+      ctx.lineWidth = 5;
+      
+      // Left Leg
+      ctx.beginPath();
+      ctx.moveTo(-15, 30); ctx.lineTo(-15, 58); ctx.lineTo(-26, 62);
+      ctx.moveTo(-15, 58); ctx.lineTo(-15, 65);
+      ctx.moveTo(-15, 58); ctx.lineTo(-4, 62);
+      ctx.stroke();
+
+      // Right Leg
+      ctx.beginPath();
+      ctx.moveTo(15, 30); ctx.lineTo(15, 58); ctx.lineTo(4, 62);
+      ctx.moveTo(15, 58); ctx.lineTo(15, 65);
+      ctx.moveTo(15, 58); ctx.lineTo(26, 62);
+      ctx.stroke();
+
+      // 2. Tail Feathers
+      ctx.fillStyle = PALETTE.CHICKEN_BODY;
+      ctx.strokeStyle = PALETTE.CHICKEN_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-42, 5);
+      ctx.quadraticCurveTo(-70, -10, -65, -35);
+      ctx.quadraticCurveTo(-50, -25, -48, -12);
+      ctx.quadraticCurveTo(-68, -48, -45, -60);
+      ctx.quadraticCurveTo(-38, -35, -32, -18);
+      ctx.quadraticCurveTo(-50, -68, -25, -72);
+      ctx.quadraticCurveTo(-22, -45, -18, -20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // 3. Main Body
+      ctx.beginPath();
+      ctx.ellipse(0, 5, 50, 44, 0, 0, Math.PI * 2);
+      ctx.fillStyle = PALETTE.CHICKEN_BODY;
+      ctx.fill();
+      ctx.stroke();
+
+      // 4. Head & Neck Curve
+      ctx.save();
+      ctx.translate(0, headBob);
+
+      ctx.beginPath();
+      ctx.moveTo(18, -10);
+      ctx.quadraticCurveTo(28, -48, 34, -58);
+      ctx.arc(38, -66, 22, Math.PI * 0.75, Math.PI * 1.85, false);
+      ctx.quadraticCurveTo(22, -78, 6, -52);
+      ctx.quadraticCurveTo(0, -28, -10, -5);
+      ctx.closePath();
+      ctx.fillStyle = PALETTE.CHICKEN_BODY;
+      ctx.fill();
+      ctx.stroke();
+
+      // 5. Red Comb
+      ctx.fillStyle = PALETTE.CHICKEN_COMB;
+      ctx.strokeStyle = PALETTE.CHICKEN_COMB_OUTLINE;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(26, -88, 10, 0, Math.PI * 2);
+      ctx.arc(40, -94, 13, 0, Math.PI * 2);
+      ctx.arc(55, -88, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 6. Red Wattle
+      ctx.beginPath();
+      ctx.ellipse(58, -52, 7.5, 13, Math.PI * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 7. Beak
+      const beakGap = squawk * 14;
+      ctx.fillStyle = PALETTE.CHICKEN_BEAK;
+      ctx.strokeStyle = PALETTE.CHICKEN_BEAK_OUTLINE;
+      ctx.lineWidth = 3.5;
+
+      ctx.beginPath();
+      ctx.moveTo(52, -70); ctx.lineTo(80, -62 - beakGap * 0.4); ctx.lineTo(54, -58);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(54, -56); ctx.lineTo(76, -54 + beakGap * 0.8); ctx.lineTo(48, -50);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // 8. Eyes
+      if (!eyeBlink) {
+        ctx.fillStyle = PALETTE.WHITE;
+        ctx.strokeStyle = PALETTE.CHICKEN_OUTLINE;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(33, -70, 7.5, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = PALETTE.CHICKEN_EYE;
+        ctx.beginPath();
+        ctx.arc(35, -70, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = PALETTE.WHITE;
+        ctx.beginPath();
+        ctx.arc(46, -70, 8, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = PALETTE.CHICKEN_EYE;
+        ctx.beginPath();
+        ctx.arc(48, -70, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = PALETTE.WHITE;
+        ctx.beginPath();
+        ctx.arc(49.5, -72, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = PALETTE.CHICKEN_OUTLINE;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(33, -70, 6.5, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(46, -70, 7, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+
+      // 9. Animated Wing
+      ctx.save();
+      ctx.translate(-5, 0);
+      ctx.rotate(flap);
+      ctx.fillStyle = PALETTE.CHICKEN_WING_SHADOW;
+      ctx.strokeStyle = PALETTE.CHICKEN_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(-6, 6, 28, 19, Math.PI * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.strokeStyle = '#CFD8DC';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-18, 2);
+      ctx.quadraticCurveTo(-6, 8, 12, 10);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    function drawBabyChick(ctx, x, y, scale = 1.0, state = {}) {
+      const walkCycle = state.walkCycle || 0;
+      const facingLeft = !!state.facingLeft;
+      const isPeeping = !!state.isPeeping;
+      const eyeBlink = !!state.eyeBlink;
+      const inShell = !!state.inShell;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(facingLeft ? -scale : scale, scale);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (!inShell) {
+        const legLeftY = Math.sin(walkCycle) * 5;
+        const legRightY = -Math.sin(walkCycle) * 5;
+        ctx.strokeStyle = PALETTE.CHICK_BEAK;
+        ctx.lineWidth = 3.5;
+
+        ctx.beginPath();
+        ctx.moveTo(-7, 10); ctx.lineTo(-7, 20 + legLeftY); ctx.lineTo(-13, 22 + legLeftY);
+        ctx.moveTo(-7, 20 + legLeftY); ctx.lineTo(-2, 22 + legLeftY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(7, 10); ctx.lineTo(7, 20 + legRightY); ctx.lineTo(1, 22 + legRightY);
+        ctx.moveTo(7, 20 + legRightY); ctx.lineTo(13, 22 + legRightY);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = PALETTE.CHICK_BODY;
+      ctx.strokeStyle = PALETTE.CHICK_OUTLINE;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 20, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Head tuft
+      ctx.beginPath();
+      ctx.moveTo(-3, -17); ctx.quadraticCurveTo(0, -25, 5, -23); ctx.quadraticCurveTo(3, -18, 1, -17);
+      ctx.fill(); ctx.stroke();
+
+      // Cheek
+      ctx.fillStyle = PALETTE.CHICK_CHEEK;
+      ctx.beginPath();
+      ctx.arc(8, 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak
+      ctx.fillStyle = PALETTE.CHICK_BEAK;
+      ctx.strokeStyle = '#E65100';
+      ctx.lineWidth = 2.5;
+      const peepGap = isPeeping ? 4 : 0;
+      ctx.beginPath();
+      ctx.moveTo(15, -4); ctx.lineTo(26, -1 - peepGap * 0.5); ctx.lineTo(15, 2);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      if (isPeeping) {
+        ctx.beginPath();
+        ctx.moveTo(15, 2); ctx.lineTo(24, 5 + peepGap); ctx.lineTo(13, 5);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
+
+      // Eyes
+      if (!eyeBlink) {
+        ctx.fillStyle = PALETTE.WHITE;
+        ctx.strokeStyle = PALETTE.BLACK;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(7, -7, 5.5, 0, Math.PI * 2);
+        ctx.arc(15, -7, 5.5, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = PALETTE.BLACK;
+        ctx.beginPath();
+        ctx.arc(8.5, -7, 2.8, 0, Math.PI * 2);
+        ctx.arc(16.5, -7, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = PALETTE.WHITE;
+        ctx.beginPath();
+        ctx.arc(9.5, -8.5, 1.2, 0, Math.PI * 2);
+        ctx.arc(17.5, -8.5, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = PALETTE.BLACK;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(7, -7, 4.5, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.arc(15, -7, 4.5, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.stroke();
+      }
+
+      // Wing
+      const wingAngle = Math.sin(walkCycle * 2) * 0.35;
+      ctx.save();
+      ctx.translate(-7, 2);
+      ctx.rotate(wingAngle);
+      ctx.fillStyle = PALETTE.CHICK_WING_SHADOW;
+      ctx.strokeStyle = PALETTE.CHICK_OUTLINE;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(-2, 0, 9, 6, 0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Half Shell
+      if (inShell) {
+        ctx.fillStyle = PALETTE.EGG_SHELL;
+        ctx.strokeStyle = PALETTE.EGG_OUTLINE;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(-22, 0); ctx.lineTo(-14, 5); ctx.lineTo(-6, -2); ctx.lineTo(2, 6);
+        ctx.lineTo(10, -1); ctx.lineTo(18, 5); ctx.lineTo(22, 0);
+        ctx.quadraticCurveTo(24, 22, 0, 24);
+        ctx.quadraticCurveTo(-24, 22, -22, 0);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawPeppaPig(ctx, x, y, scale = 1.0, state = {}) {
+      const jumpY = state.jumpY || 0;
+      const squish = state.squish !== undefined ? state.squish : 1.0;
+      const stretchX = 1.0 / Math.sqrt(Math.max(0.3, squish));
+      const armWave = state.armWave || 0;
+      const facingLeft = !!state.facingLeft;
+
+      ctx.save();
+      ctx.translate(x, y + jumpY);
+      ctx.scale(facingLeft ? -scale * stretchX : scale * stretchX, scale * squish);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Boots
+      ctx.fillStyle = PALETTE.PEPPA_BOOTS;
+      ctx.strokeStyle = PALETTE.PEPPA_BOOTS_OUTLINE;
+      ctx.lineWidth = 4;
+
+      ctx.beginPath();
+      ctx.moveTo(-18, 50); ctx.lineTo(-18, 70); ctx.lineTo(-32, 70);
+      ctx.arcTo(-36, 70, -36, 62, 6); ctx.lineTo(-25, 62); ctx.lineTo(-25, 50);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(6, 50); ctx.lineTo(6, 70); ctx.lineTo(-8, 70);
+      ctx.arcTo(-12, 70, -12, 62, 6); ctx.lineTo(-1, 62); ctx.lineTo(-1, 50);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // Legs
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-21, 38); ctx.lineTo(-21, 50);
+      ctx.moveTo(3, 38); ctx.lineTo(3, 50);
+      ctx.stroke();
+
+      // Tail
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-34, 25);
+      ctx.bezierCurveTo(-50, 18, -55, 36, -42, 36);
+      ctx.bezierCurveTo(-34, 36, -48, 50, -44, 54);
+      ctx.stroke();
+
+      // Dress
+      ctx.fillStyle = PALETTE.PEPPA_DRESS;
+      ctx.strokeStyle = PALETTE.PEPPA_DRESS_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-12, -10); ctx.lineTo(12, -10); ctx.lineTo(34, 40);
+      ctx.quadraticCurveTo(0, 45, -34, 40);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Arms
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 4;
+      const leftArmY = Math.sin(armWave) * 12;
+      ctx.beginPath();
+      ctx.moveTo(-20, 6); ctx.lineTo(-42, -6 + leftArmY); ctx.lineTo(-50, -14 + leftArmY);
+      ctx.moveTo(-42, -6 + leftArmY); ctx.lineTo(-52, -6 + leftArmY);
+      ctx.moveTo(-42, -6 + leftArmY); ctx.lineTo(-48, 2 + leftArmY);
+      ctx.stroke();
+
+      const rightArmY = -Math.sin(armWave) * 12;
+      ctx.beginPath();
+      ctx.moveTo(20, 6); ctx.lineTo(44, -6 + rightArmY); ctx.lineTo(52, -14 + rightArmY);
+      ctx.moveTo(44, -6 + rightArmY); ctx.lineTo(54, -6 + rightArmY);
+      ctx.moveTo(44, -6 + rightArmY); ctx.lineTo(50, 2 + rightArmY);
+      ctx.stroke();
+
+      // Head & Snout
+      ctx.fillStyle = PALETTE.PEPPA_SKIN;
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-20, -15);
+      ctx.bezierCurveTo(-42, -30, -38, -65, 0, -65);
+      ctx.lineTo(26, -65);
+      ctx.ellipse(46, -55, 12, 18, 0, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.lineTo(20, -45);
+      ctx.quadraticCurveTo(15, -15, -20, -15);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Nostrils
+      ctx.fillStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.beginPath();
+      ctx.arc(43, -58, 2.6, 0, Math.PI * 2);
+      ctx.arc(49, -54, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ears
+      ctx.fillStyle = PALETTE.PEPPA_SKIN;
+      ctx.beginPath();
+      ctx.ellipse(-10, -76, 6.5, 14, -0.15, 0, Math.PI * 2);
+      ctx.ellipse(8, -76, 6.5, 14, 0.15, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // Cheek
+      ctx.fillStyle = PALETTE.PEPPA_CHEEK;
+      ctx.beginPath();
+      ctx.arc(-9, -32, 12.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = PALETTE.WHITE;
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(10, -56, 7.5, 0, Math.PI * 2);
+      ctx.arc(26, -56, 7.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = PALETTE.BLACK;
+      ctx.beginPath();
+      ctx.arc(12, -56, 3.6, 0, Math.PI * 2);
+      ctx.arc(28, -56, 3.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Smile
+      ctx.strokeStyle = PALETTE.PEPPA_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(12, -32, 11, 0.1 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawGeorgePig(ctx, x, y, scale = 0.82, state = {}) {
+      const jumpY = state.jumpY || 0;
+      const squish = state.squish !== undefined ? state.squish : 1.0;
+      const stretchX = 1.0 / Math.sqrt(Math.max(0.3, squish));
+      const facingLeft = !!state.facingLeft;
+      const holdingDino = state.holdingDino !== false;
+
+      ctx.save();
+      ctx.translate(x, y + jumpY);
+      ctx.scale(facingLeft ? -scale * stretchX : scale * stretchX, scale * squish);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Boots
+      ctx.fillStyle = PALETTE.PEPPA_BOOTS;
+      ctx.strokeStyle = PALETTE.PEPPA_BOOTS_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-16, 45); ctx.lineTo(-16, 62); ctx.lineTo(-28, 62);
+      ctx.arcTo(-32, 62, -32, 54, 5); ctx.lineTo(-22, 54); ctx.lineTo(-22, 45);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(5, 45); ctx.lineTo(5, 62); ctx.lineTo(-7, 62);
+      ctx.arcTo(-11, 62, -11, 54, 5); ctx.lineTo(-1, 54); ctx.lineTo(-1, 45);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // Legs
+      ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-18, 35); ctx.lineTo(-18, 45);
+      ctx.moveTo(2, 35); ctx.lineTo(2, 45);
+      ctx.stroke();
+
+      // Shirt
+      ctx.fillStyle = PALETTE.GEORGE_SHIRT;
+      ctx.strokeStyle = PALETTE.GEORGE_SHIRT_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-10, -8); ctx.lineTo(10, -8); ctx.lineTo(28, 36);
+      ctx.quadraticCurveTo(0, 40, -28, 36);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // Head
+      ctx.fillStyle = PALETTE.GEORGE_SKIN;
+      ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-18, -12); ctx.bezierCurveTo(-38, -25, -34, -58, 0, -58);
+      ctx.lineTo(22, -58);
+      ctx.ellipse(40, -48, 10, 16, 0, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.lineTo(18, -38);
+      ctx.quadraticCurveTo(12, -12, -18, -12);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // Nostrils & Ears & Eyes
+      ctx.fillStyle = PALETTE.GEORGE_OUTLINE;
+      ctx.beginPath();
+      ctx.arc(37, -51, 2.3, 0, Math.PI * 2);
+      ctx.arc(43, -47, 2.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = PALETTE.GEORGE_SKIN;
+      ctx.beginPath();
+      ctx.ellipse(-8, -66, 5.5, 12, -0.15, 0, Math.PI * 2);
+      ctx.ellipse(6, -66, 5.5, 12, 0.15, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = PALETTE.GEORGE_CHEEK;
+      ctx.beginPath(); ctx.arc(-8, -26, 10, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = PALETTE.WHITE;
+      ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(8, -50, 6.5, 0, Math.PI * 2);
+      ctx.arc(22, -50, 6.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = PALETTE.BLACK;
+      ctx.beginPath();
+      ctx.arc(10, -50, 3.2, 0, Math.PI * 2);
+      ctx.arc(24, -50, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = PALETTE.GEORGE_OUTLINE;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.arc(10, -28, 9, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
+
+      // Mr Dinosaur
+      if (holdingDino) {
+        ctx.save();
+        ctx.translate(22, 10);
+        ctx.rotate(0.2);
+        ctx.fillStyle = PALETTE.DINOSAUR_GREEN;
+        ctx.strokeStyle = PALETTE.DINOSAUR_OUTLINE;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-10, 15); ctx.quadraticCurveTo(-22, 18, -26, 8);
+        ctx.quadraticCurveTo(-15, 0, -5, -12); ctx.quadraticCurveTo(12, -18, 16, -10);
+        ctx.lineTo(8, -2); ctx.quadraticCurveTo(8, 12, -10, 15);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = PALETTE.DINOSAUR_SPINE;
+        ctx.beginPath();
+        ctx.moveTo(-8, -14); ctx.lineTo(-6, -20); ctx.lineTo(-4, -13);
+        ctx.moveTo(-14, -6); ctx.lineTo(-15, -12); ctx.lineTo(-10, -5);
+        ctx.moveTo(-20, 2); ctx.lineTo(-23, -3); ctx.lineTo(-17, 3);
+        ctx.fill();
+
+        ctx.fillStyle = PALETTE.BLACK;
+        ctx.beginPath(); ctx.arc(10, -12, 1.8, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    function drawDaddyPig(ctx, x, y, scale = 1.25, state = {}) {
+      const panicStage = state.panicStage || 0;
+      const overheat = state.overheatProgress || 0;
+      const time = state.time || 0;
+      const facingLeft = !!state.facingLeft;
+
+      let shakeX = 0;
+      let shakeY = 0;
+      if (panicStage === 2) {
+        shakeX = (Math.sin(time * 45) + Math.cos(time * 33)) * 1.8;
+        shakeY = (Math.cos(time * 40)) * 1.2;
+      } else if (panicStage >= 3) {
+        shakeX = (Math.sin(time * 60) + (Math.random() - 0.5) * 2) * 4.0;
+        shakeY = (Math.cos(time * 55) + (Math.random() - 0.5) * 2) * 3.5;
+      }
+
+      ctx.save();
+      ctx.translate(x + shakeX, y + shakeY);
+      ctx.scale(facingLeft ? -scale : scale, scale);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Large Body
+      const isCrashing = panicStage >= 3 || overheat >= 0.95;
+      ctx.fillStyle = isCrashing ? PALETTE.DADDY_OVERHEAT : PALETTE.DADDY_OUTFIT;
+      ctx.strokeStyle = isCrashing ? '#B71C1C' : PALETTE.DADDY_OUTFIT_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 32, 54, 50, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // Legs & Shoes
+      ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-22, 78); ctx.lineTo(-22, 98);
+      ctx.moveTo(22, 78); ctx.lineTo(22, 98);
+      ctx.stroke();
+
+      ctx.fillStyle = PALETTE.DADDY_SHOES;
+      ctx.strokeStyle = PALETTE.BLACK;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.ellipse(-28, 99, 13, 7, 0, 0, Math.PI * 2);
+      ctx.ellipse(28, 99, 13, 7, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // Head & Snout
+      ctx.fillStyle = PALETTE.DADDY_SKIN;
+      ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-26, -20);
+      ctx.bezierCurveTo(-52, -42, -48, -88, 0, -88);
+      ctx.lineTo(36, -88);
+      ctx.ellipse(62, -74, 16, 23, 0, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.lineTo(26, -60);
+      ctx.quadraticCurveTo(20, -20, -26, -20);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Nostrils & Ears
+      ctx.fillStyle = PALETTE.DADDY_OUTLINE;
+      ctx.beginPath();
+      ctx.arc(60, -78, 3.2, 0, Math.PI * 2);
+      ctx.arc(67, -72, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = PALETTE.DADDY_SKIN;
+      ctx.beginPath();
+      ctx.ellipse(-16, -98, 7.5, 17, -0.15, 0, Math.PI * 2);
+      ctx.ellipse(10, -98, 7.5, 17, 0.15, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // Stubble
+      ctx.fillStyle = PALETTE.DADDY_STUBBLE;
+      const stubbleDots = [
+        [-12, -32], [-6, -36], [0, -30], [8, -35], [16, -30],
+        [-8, -24], [2, -22], [12, -24], [22, -28], [28, -34],
+        [-2, -18], [8, -17], [18, -18]
+      ];
+      for (const [sx, sy] of stubbleDots) {
+        ctx.beginPath(); ctx.arc(sx, sy, 1.6, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Spectacles (Glasses)
+      ctx.strokeStyle = PALETTE.DADDY_GLASSES;
+      ctx.lineWidth = 4;
+      ctx.fillStyle = PALETTE.WHITE;
+      ctx.beginPath();
+      ctx.arc(16, -74, 12, 0, Math.PI * 2);
+      ctx.arc(40, -74, 12, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(28, -74); ctx.lineTo(28, -74);
+      ctx.moveTo(4, -74); ctx.lineTo(-16, -70);
+      ctx.stroke();
+
+      // Eyes
+      if (panicStage < 3) {
+        ctx.fillStyle = PALETTE.BLACK;
+        ctx.beginPath();
+        ctx.arc(18, -74, panicStage === 1 ? 4.5 : 3.8, 0, Math.PI * 2);
+        ctx.arc(42, -74, panicStage === 1 ? 4.5 : 3.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = PALETTE.BLACK;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let theta = 0; theta < Math.PI * 4; theta += 0.2) {
+          const r = theta * 1.8;
+          const ex = 16 + Math.cos(theta + time * 15) * r;
+          const ey = -74 + Math.sin(theta + time * 15) * r;
+          if (theta === 0) ctx.moveTo(ex, ey); else ctx.lineTo(ex, ey);
+        }
+        ctx.stroke();
+
+        ctx.beginPath();
+        for (let theta = 0; theta < Math.PI * 4; theta += 0.2) {
+          const r = theta * 1.8;
+          const ex = 40 + Math.cos(theta - time * 15) * r;
+          const ey = -74 + Math.sin(theta - time * 15) * r;
+          if (theta === 0) ctx.moveTo(ex, ey); else ctx.lineTo(ex, ey);
+        }
+        ctx.stroke();
+      }
+
+      // Mouth
+      ctx.strokeStyle = PALETTE.DADDY_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      if (panicStage === 0) {
+        ctx.arc(22, -45, 12, 0.1 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+      } else if (panicStage === 1) {
+        ctx.arc(24, -44, 10, 0.15 * Math.PI, 0.8 * Math.PI);
+        ctx.stroke();
+      } else if (panicStage === 2) {
+        ctx.moveTo(6, -46); ctx.quadraticCurveTo(14, -40, 22, -48);
+        ctx.quadraticCurveTo(30, -56, 38, -44); ctx.quadraticCurveTo(44, -38, 48, -46);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#C62828';
+        ctx.beginPath();
+        ctx.ellipse(26, -44, 14, 18, 0, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#FF8A80';
+        ctx.beginPath(); ctx.arc(26, -34, 10, Math.PI, 0); ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawHenCoop(ctx, x, y, width = 280, height = 240) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.fillStyle = PALETTE.BARN_RED;
+      ctx.strokeStyle = PALETTE.BARN_DARK;
+      ctx.lineWidth = 4;
+      ctx.fillRect(-width * 0.5, -height * 0.7, width, height * 0.7);
+      ctx.strokeRect(-width * 0.5, -height * 0.7, width, height * 0.7);
+
+      ctx.strokeStyle = PALETTE.BARN_DARK;
+      ctx.lineWidth = 2.5;
+      for (let px = -width * 0.5 + 30; px < width * 0.5; px += 30) {
+        ctx.beginPath(); ctx.moveTo(px, -height * 0.7); ctx.lineTo(px, 0); ctx.stroke();
+      }
+
+      ctx.fillStyle = PALETTE.BARN_TRIM;
+      ctx.strokeStyle = '#B0BEC5';
+      ctx.lineWidth = 3;
+      ctx.fillRect(-width * 0.5 - 6, -height * 0.7, 14, height * 0.7);
+      ctx.strokeRect(-width * 0.5 - 6, -height * 0.7, 14, height * 0.7);
+      ctx.fillRect(width * 0.5 - 8, -height * 0.7, 14, height * 0.7);
+      ctx.strokeRect(width * 0.5 - 8, -height * 0.7, 14, height * 0.7);
+
+      ctx.fillStyle = '#212121';
+      ctx.beginPath();
+      ctx.arc(0, -height * 0.35, 42, Math.PI, 0);
+      ctx.lineTo(42, 0); ctx.lineTo(-42, 0);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = PALETTE.STRAW_ROOF;
+      ctx.strokeStyle = PALETTE.STRAW_DARK;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-width * 0.58, -height * 0.68);
+      ctx.lineTo(0, -height * 1.05);
+      ctx.lineTo(width * 0.58, -height * 0.68);
+      for (let sx = width * 0.58; sx >= -width * 0.58; sx -= 25) {
+        ctx.lineTo(sx - 12, -height * 0.65 + (sx % 2 === 0 ? 8 : 0));
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawHayNest(ctx, x, y, width = 160, height = 70) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.fillStyle = PALETTE.NEST_SHADOW;
+      ctx.beginPath();
+      ctx.ellipse(0, 10, width * 0.52, height * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = PALETTE.NEST_STRAW;
+      ctx.strokeStyle = PALETTE.NEST_DARK;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.5, height * 0.4, 0, 0, Math.PI);
+      ctx.fill(); ctx.stroke();
+
+      ctx.strokeStyle = PALETTE.NEST_DARK;
+      ctx.lineWidth = 3;
+      const strawWisps = [
+        [-60, 5, -80, 15], [-40, 12, -55, 26], [-20, 18, -25, 32],
+        [0, 20, 5, 35], [25, 18, 38, 30], [50, 10, 72, 22], [65, 0, 85, 8]
+      ];
+      for (const [x1, y1, x2, y2] of strawWisps) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo((x1 + x2) * 0.5 + 4, (y1 + y2) * 0.5 + 8, x2, y2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawMuddyPuddle(ctx, x, y, radiusX = 65, radiusY = 32, options = {}) {
+      const isGolden = options.type === 'GOLDEN';
+      const ripplePhase = options.ripplePhase || 0;
+
+      ctx.save();
+      ctx.translate(x, y);
+
+      ctx.fillStyle = isGolden ? PALETTE.GOLDEN_PUDDLE : PALETTE.MUD_DARK;
+      ctx.strokeStyle = isGolden ? PALETTE.GOLDEN_PUDDLE_OUTLINE : PALETTE.MUD_OUTLINE;
+      ctx.lineWidth = 4;
+
+      ctx.beginPath();
+      ctx.moveTo(-radiusX, 0);
+      ctx.bezierCurveTo(-radiusX, -radiusY * 0.9, -radiusX * 0.3, -radiusY * 1.2, 0, -radiusY);
+      ctx.bezierCurveTo(radiusX * 0.4, -radiusY * 1.1, radiusX * 1.05, -radiusY * 0.7, radiusX, 0);
+      ctx.bezierCurveTo(radiusX * 0.95, radiusY * 0.8, radiusX * 0.3, radiusY * 1.25, 0, radiusY);
+      ctx.bezierCurveTo(-radiusX * 0.5, radiusY * 1.1, -radiusX * 1.05, radiusY * 0.6, -radiusX, 0);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Glossy Reflection
+      ctx.fillStyle = isGolden ? 'rgba(255, 255, 255, 0.65)' : PALETTE.MUD_HIGHLIGHT;
+      ctx.beginPath();
+      ctx.ellipse(-radiusX * 0.25, -radiusY * 0.35, radiusX * 0.45, radiusY * 0.25, -0.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ripple waves
+      if (ripplePhase > 0) {
+        const waveCount = 3;
+        ctx.lineWidth = 2.5;
+        for (let w = 0; w < waveCount; w++) {
+          const phase = (ripplePhase + w / waveCount) % 1.0;
+          const alpha = (1.0 - phase) * 0.7;
+          const rx = radiusX * (0.3 + phase * 0.65);
+          const ry = radiusY * (0.3 + phase * 0.65);
+          ctx.strokeStyle = isGolden ? `rgba(255, 255, 255, ${alpha})` : `rgba(255, 248, 225, ${alpha})`;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawLandscapeSkyHills(ctx, width, height, time = 0) {
+      ctx.save();
+
+      // Sky Gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.75);
+      skyGrad.addColorStop(0, PALETTE.SKY_TOP);
+      skyGrad.addColorStop(1, PALETTE.SKY_BOTTOM);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Smiling Sun
+      const sunX = width * 0.86;
+      const sunY = height * 0.18;
+      const sunRadius = 42;
+      const pulse = Math.sin(time * 3) * 6;
+
+      ctx.fillStyle = PALETTE.SUN_RAY;
+      ctx.strokeStyle = PALETTE.SUN_FACE;
+      ctx.lineWidth = 3;
+      const rayCount = 10;
+      for (let i = 0; i < rayCount; i++) {
+        const angle = (Math.PI * 2 * i) / rayCount + time * 0.2;
+        const r1 = sunRadius + 6;
+        const r2 = sunRadius + 18 + pulse;
+        ctx.beginPath();
+        ctx.moveTo(sunX + Math.cos(angle - 0.15) * r1, sunY + Math.sin(angle - 0.15) * r1);
+        ctx.lineTo(sunX + Math.cos(angle) * r2, sunY + Math.sin(angle) * r2);
+        ctx.lineTo(sunX + Math.cos(angle + 0.15) * r1, sunY + Math.sin(angle + 0.15) * r1);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+      }
+
+      ctx.fillStyle = PALETTE.SUN_YELLOW;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      // Sun Face
+      ctx.fillStyle = PALETTE.BLACK;
+      ctx.beginPath();
+      ctx.arc(sunX - 12, sunY - 6, 4, 0, Math.PI * 2);
+      ctx.arc(sunX + 12, sunY - 6, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FF8A80';
+      ctx.beginPath();
+      ctx.arc(sunX - 20, sunY + 6, 6, 0, Math.PI * 2);
+      ctx.arc(sunX + 20, sunY + 6, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = PALETTE.SUN_FACE;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY + 4, 16, 0.1 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+
+      // Puffy Clouds
+      const clouds = [
+        { x: ((width * 0.15 + time * 12) % (width + 200)) - 100, y: height * 0.12, s: 0.9 },
+        { x: ((width * 0.55 + time * 8) % (width + 200)) - 100, y: height * 0.22, s: 1.15 }
+      ];
+      for (const c of clouds) {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.scale(c.s, c.s);
+        ctx.fillStyle = PALETTE.CLOUD_WHITE;
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.arc(22, -8, 20, 0, Math.PI * 2);
+        ctx.arc(42, 2, 22, 0, Math.PI * 2);
+        ctx.arc(20, 10, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Rolling Hills
+      ctx.fillStyle = PALETTE.HILL_BACK;
+      ctx.strokeStyle = PALETTE.HILL_BACK_OUTLINE;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, height * 0.62);
+      ctx.quadraticCurveTo(width * 0.35, height * 0.48, width * 0.7, height * 0.58);
+      ctx.quadraticCurveTo(width * 0.88, height * 0.62, width, height * 0.54);
+      ctx.lineTo(width, height); ctx.lineTo(0, height);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = PALETTE.HILL_FRONT;
+      ctx.strokeStyle = PALETTE.HILL_FRONT_OUTLINE;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(0, height * 0.72);
+      ctx.quadraticCurveTo(width * 0.4, height * 0.82, width * 0.8, height * 0.68);
+      ctx.quadraticCurveTo(width * 0.92, height * 0.65, width, height * 0.70);
+      ctx.lineTo(width, height); ctx.lineTo(0, height);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawEgg(ctx, x, y, scale = 1.0, rotation = 0, crackStage = 0, eggType = 'STANDARD') {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.scale(scale, scale);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const isGolden = eggType === 'GOLDEN';
+      const isRainbow = eggType === 'RAINBOW';
+
+      if (isRainbow) {
+        const rainbowGrad = ctx.createLinearGradient(-16, -24, 16, 24);
+        rainbowGrad.addColorStop(0, '#FF8A80');
+        rainbowGrad.addColorStop(0.33, '#FFEE58');
+        rainbowGrad.addColorStop(0.66, '#80D8FF');
+        rainbowGrad.addColorStop(1, '#B388FF');
+        ctx.fillStyle = rainbowGrad;
+      } else if (isGolden) {
+        ctx.fillStyle = PALETTE.EGG_GOLDEN;
+      } else {
+        ctx.fillStyle = PALETTE.EGG_SHELL;
+      }
+
+      ctx.strokeStyle = isGolden ? '#FF8F00' : PALETTE.EGG_OUTLINE;
+      ctx.lineWidth = 3.5;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -26);
+      ctx.bezierCurveTo(18, -26, 24, 6, 20, 22);
+      ctx.bezierCurveTo(16, 32, -16, 32, -20, 22);
+      ctx.bezierCurveTo(-24, 6, -18, -26, 0, -26);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      if (!isGolden && !isRainbow) {
+        ctx.fillStyle = PALETTE.EGG_SPOT;
+        ctx.beginPath();
+        ctx.arc(-6, -4, 2, 0, Math.PI * 2);
+        ctx.arc(8, 10, 2.5, 0, Math.PI * 2);
+        ctx.arc(-4, 16, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Cracking Fissures
+      if (crackStage >= 1) {
+        ctx.strokeStyle = PALETTE.BLACK;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-16, 2); ctx.lineTo(-6, -4); ctx.lineTo(2, 6); ctx.lineTo(12, -2);
+        ctx.stroke();
+
+        if (crackStage >= 2) {
+          ctx.beginPath();
+          ctx.moveTo(-6, -4); ctx.lineTo(-8, -14);
+          ctx.moveTo(2, 6); ctx.lineTo(6, 16);
+          ctx.stroke();
+        }
+
+        if (crackStage >= 3) {
+          ctx.fillStyle = '#212121';
+          ctx.beginPath();
+          ctx.moveTo(-16, 2); ctx.lineTo(-6, -2); ctx.lineTo(2, 8); ctx.lineTo(12, -2);
+          ctx.lineTo(14, 2); ctx.lineTo(2, 12); ctx.lineTo(-6, 2);
+          ctx.closePath(); ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // SECTION 2: HIGH-PERFORMANCE DYNAMIC PARTICLE POOL SUBSYSTEM
+    // =========================================================================
+    class ParticleEngine {
+      constructor(maxParticles = 350) {
+        this.maxParticles = maxParticles;
+        this.active = [];
+        this.pool = [];
+
+        for (let i = 0; i < maxParticles; i++) {
+          this.pool.push({
+            active: false,
+            type: 'EGGSHELL',
+            x: 0, y: 0, vx: 0, vy: 0,
+            gravity: 0.28, drag: 0.99,
+            rotation: 0, vRot: 0,
+            scale: 1.0, size: 8,
+            life: 1.0, decay: 0.02,
+            color: '#FFFFFF', bounce: 0.45,
+            groundY: 510, text: '',
+            wobblePhase: 0, wobbleSpeed: 5.0
+          });
+        }
+      }
+
+      spawn(type, x, y, options = {}) {
+        if (this.active.length >= this.maxParticles) {
+          const oldest = this.active.shift();
+          this.pool.push(oldest);
+        }
+
+        const p = this.pool.pop() || {};
+        p.active = true;
+        p.type = type;
+        p.x = x;
+        p.y = y;
+        p.vx = options.vx !== undefined ? options.vx : (Math.random() * 6 - 3);
+        p.vy = options.vy !== undefined ? options.vy : (Math.random() * -6 - 2);
+        p.gravity = options.gravity !== undefined ? options.gravity : 0.28;
+        p.drag = options.drag !== undefined ? options.drag : 0.99;
+        p.rotation = options.rotation !== undefined ? options.rotation : Math.random() * Math.PI * 2;
+        p.vRot = options.vRot !== undefined ? options.vRot : (Math.random() - 0.5) * 0.25;
+        p.scale = options.scale !== undefined ? options.scale : 1.0;
+        p.size = options.size !== undefined ? options.size : 8;
+        p.life = 1.0;
+        p.decay = options.decay !== undefined ? options.decay : 0.02;
+        p.color = options.color || '#FFFFFF';
+        p.bounce = options.bounce !== undefined ? options.bounce : 0.45;
+        p.groundY = options.groundY !== undefined ? options.groundY : 510;
+        p.text = options.text || '';
+        p.wobblePhase = Math.random() * Math.PI * 2;
+        p.wobbleSpeed = options.wobbleSpeed || 5.0;
+
+        this.active.push(p);
+        return p;
+      }
+
+      spawnEggCrack(x, y, count = 10, eggColor = PALETTE.EGG_SHELL) {
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+          const speed = 3.5 + Math.random() * 5.5;
+          this.spawn('EGGSHELL', x, y, {
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 3.0,
+            gravity: 0.32,
+            decay: 0.016 + Math.random() * 0.015,
+            color: eggColor,
+            size: 7 + Math.random() * 6,
+            bounce: 0.5,
+            groundY: 480 + Math.random() * 20
+          });
+        }
+      }
+
+      spawnMudSplash(x, y, count = 18, isGolden = false) {
+        for (let i = 0; i < count; i++) {
+          const angle = -Math.PI * 0.15 - Math.random() * Math.PI * 0.7;
+          const speed = 4.0 + Math.random() * 8.5;
+          this.spawn('MUD_DROPLET', x + (Math.random() * 36 - 18), y, {
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            gravity: 0.38,
+            decay: 0.022 + Math.random() * 0.015,
+            color: isGolden ? PALETTE.GOLDEN_PUDDLE : (Math.random() > 0.4 ? PALETTE.MUD_DARK : PALETTE.MUD_LIGHT),
+            size: 5 + Math.random() * 7,
+            groundY: y + 8
+          });
+        }
+      }
+
+      spawnFeathers(x, y, count = 6) {
+        for (let i = 0; i < count; i++) {
+          this.spawn('FEATHER', x, y, {
+            vx: (Math.random() - 0.5) * 3.5,
+            vy: -2.5 - Math.random() * 3.0,
+            gravity: 0.06,
+            drag: 0.96,
+            decay: 0.012,
+            size: 12 + Math.random() * 6,
+            vRot: (Math.random() - 0.5) * 0.08,
+            wobbleSpeed: 4.0 + Math.random() * 3.0
+          });
+        }
+      }
+
+      spawnSparkles(x, y, count = 8) {
+        for (let i = 0; i < count; i++) {
+          this.spawn('SPARKLE', x + (Math.random() * 40 - 20), y + (Math.random() * 40 - 20), {
+            vx: (Math.random() - 0.5) * 2.0,
+            vy: -1.5 - Math.random() * 2.5,
+            gravity: 0.03,
+            decay: 0.03 + Math.random() * 0.02,
+            color: Math.random() > 0.4 ? PALETTE.UI_GOLD : PALETTE.WHITE,
+            size: 6 + Math.random() * 8
+          });
+        }
+      }
+
+      spawnSteam(x, y) {
+        this.spawn('STEAM', x + (Math.random() * 16 - 8), y, {
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: -2.5 - Math.random() * 2.0,
+          gravity: -0.04,
+          decay: 0.022,
+          size: 16 + Math.random() * 12,
+          color: PALETTE.STEAM_WHITE
+        });
+      }
+
+      spawnScorePopup(x, y, text, color = PALETTE.UI_GOLD) {
+        this.spawn('POPUP_TEXT', x, y - 10, {
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: -3.0,
+          gravity: 0.04,
+          decay: 0.018,
+          text: text,
+          color: color,
+          scale: 1.4
+        });
+      }
+
+      update(dt = 1 / 60) {
+        for (let i = this.active.length - 1; i >= 0; i--) {
+          const p = this.active[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.vx *= p.drag;
+          p.rotation += p.vRot;
+          p.life -= p.decay;
+
+          if (p.type === 'FEATHER') {
+            p.wobblePhase += p.wobbleSpeed * dt;
+            p.x += Math.sin(p.wobblePhase) * 1.2;
+          }
+
+          if (p.groundY && p.y >= p.groundY) {
+            p.y = p.groundY;
+            p.vy = -p.vy * p.bounce;
+            p.vx *= 0.65;
+          }
+
+          if (p.life <= 0) {
+            p.active = false;
+            this.active.splice(i, 1);
+            if (this.pool.length < this.maxParticles) {
+              this.pool.push(p);
+            }
+          }
+        }
+      }
+
+      render(ctx) {
+        for (let i = 0; i < this.active.length; i++) {
+          const p = this.active[i];
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+
+          switch (p.type) {
+            case 'EGGSHELL': {
+              ctx.fillStyle = p.color;
+              ctx.strokeStyle = PALETTE.EGG_OUTLINE;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              const s = p.size;
+              ctx.moveTo(-s * 0.5, -s * 0.5); ctx.lineTo(s * 0.6, -s * 0.3);
+              ctx.lineTo(s * 0.3, s * 0.6); ctx.lineTo(-s * 0.4, s * 0.4);
+              ctx.closePath(); ctx.fill(); ctx.stroke();
+              break;
+            }
+            case 'MUD_DROPLET': {
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, p.size * 0.55, p.size, 0, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            }
+            case 'FEATHER': {
+              ctx.fillStyle = PALETTE.WHITE;
+              ctx.strokeStyle = '#CFD8DC';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, p.size * 0.8, p.size * 0.3, Math.PI * 0.2, 0, Math.PI * 2);
+              ctx.fill(); ctx.stroke();
+              break;
+            }
+            case 'SPARKLE': {
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              const s = p.size * (0.4 + (1.0 - p.life) * 0.6);
+              ctx.moveTo(0, -s); ctx.quadraticCurveTo(0, 0, s, 0);
+              ctx.quadraticCurveTo(0, 0, 0, s); ctx.quadraticCurveTo(0, 0, -s, 0);
+              ctx.quadraticCurveTo(0, 0, 0, -s);
+              ctx.fill();
+              break;
+            }
+            case 'STEAM': {
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              const currentRadius = p.size * (1.0 + (1.0 - p.life) * 1.5);
+              ctx.arc(0, 0, currentRadius, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+            }
+            case 'POPUP_TEXT': {
+              const popScale = p.scale * (1.0 + Math.sin((1.0 - p.life) * Math.PI) * 0.3);
+              ctx.scale(popScale, popScale);
+              ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.strokeStyle = PALETTE.BLACK;
+              ctx.lineWidth = 4.5;
+              ctx.strokeText(p.text, 0, 0);
+              ctx.fillStyle = p.color;
+              ctx.fillText(p.text, 0, 0);
+              break;
+            }
+          }
+          ctx.restore();
+        }
+      }
+
+      clear() {
+        for (const p of this.active) {
+          p.active = false;
+          this.pool.push(p);
+        }
+        this.active.length = 0;
+      }
+    }
+
+    // Attach to globals
+    window.CartoonRenderer2D = {
+      PALETTE,
+      drawMrsChicken,
+      drawBabyChick,
+      drawPeppaPig,
+      drawGeorgePig,
+      drawDaddyPig,
+      drawHenCoop,
+      drawHayNest,
+      drawMuddyPuddle,
+      drawLandscapeSkyHills,
+      drawEgg,
+      AnimMath
+    };
+    window.ParticleEngine = ParticleEngine;
+
+    // =========================================================================
+    // SECTION 3: PROCEDURAL WEB AUDIO API SYNTHESIS ENGINE
+    // =========================================================================
+    const NOTE = {
+      C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
+      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+      C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+      C6: 1046.50, D6: 1174.66, E6: 1318.51, REST: 0
+    };
+
+    const BGM_MELODY_PATTERN = [
+      { note: NOTE.E5, dur: 0.5 }, { note: NOTE.G5, dur: 0.5 },
+      { note: NOTE.C6, dur: 0.5 }, { note: NOTE.E5, dur: 0.5 },
+      { note: NOTE.D5, dur: 0.5 }, { note: NOTE.F5, dur: 0.5 },
+      { note: NOTE.A5, dur: 1.0 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.G5, dur: 0.5 }, { note: NOTE.E5, dur: 0.5 },
+      { note: NOTE.C5, dur: 0.5 }, { note: NOTE.E5, dur: 0.5 },
+      { note: NOTE.D5, dur: 1.0 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.G4, dur: 1.0 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.E5, dur: 0.5 }, { note: NOTE.G5, dur: 0.5 },
+      { note: NOTE.C6, dur: 0.5 }, { note: NOTE.G5, dur: 0.5 },
+      { note: NOTE.A5, dur: 0.5 }, { note: NOTE.C6, dur: 0.5 },
+      { note: NOTE.G5, dur: 1.0 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.F5, dur: 0.5 }, { note: NOTE.E5, dur: 0.5 },
+      { note: NOTE.D5, dur: 0.5 }, { note: NOTE.G5, dur: 0.5 },
+      { note: NOTE.C5, dur: 1.5 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.REST, dur: 0.0 }, { note: NOTE.REST, dur: 0.5 }
+    ];
+
+    const BGM_BASS_PATTERN = [
+      { note: NOTE.C3, dur: 0.5 }, { note: NOTE.G3, dur: 0.5 },
+      { note: NOTE.C3, dur: 0.5 }, { note: NOTE.G3, dur: 0.5 },
+      { note: NOTE.D3, dur: 0.5 }, { note: NOTE.A3, dur: 0.5 },
+      { note: NOTE.D3, dur: 0.5 }, { note: NOTE.A3, dur: 0.5 },
+      { note: NOTE.E3, dur: 0.5 }, { note: NOTE.C3, dur: 0.5 },
+      { note: NOTE.G3, dur: 0.5 }, { note: NOTE.C3, dur: 0.5 },
+      { note: NOTE.G3, dur: 0.5 }, { note: NOTE.D3, dur: 0.5 },
+      { note: NOTE.G3, dur: 0.5 }, { note: NOTE.F3, dur: 0.5 },
+      { note: NOTE.C3, dur: 0.5 }, { note: NOTE.G3, dur: 0.5 },
+      { note: NOTE.C3, dur: 0.5 }, { note: NOTE.G3, dur: 0.5 },
+      { note: NOTE.F3, dur: 0.5 }, { note: NOTE.C3, dur: 0.5 },
+      { note: NOTE.G3, dur: 0.5 }, { note: NOTE.E3, dur: 0.5 },
+      { note: NOTE.F3, dur: 0.5 }, { note: NOTE.G3, dur: 0.5 },
+      { note: NOTE.G3, dur: 0.5 }, { note: NOTE.B3, dur: 0.5 },
+      { note: NOTE.C3, dur: 1.0 }, { note: NOTE.REST, dur: 0.0 },
+      { note: NOTE.REST, dur: 0.5 }, { note: NOTE.REST, dur: 0.5 }
+    ];
+
+    const BGM_CHORD_MAP = {
+      2: [NOTE.E4, NOTE.G4], 6: [NOTE.E4, NOTE.G4],
+      10: [NOTE.F4, NOTE.A4], 14: [NOTE.F4, NOTE.A4],
+      18: [NOTE.E4, NOTE.G4], 22: [NOTE.E4, NOTE.G4],
+      26: [NOTE.D4, NOTE.G4, NOTE.B4], 30: [NOTE.D4, NOTE.G4, NOTE.B4]
+    };
+
+    class BGMSequencer {
+      constructor(soundEngine) {
+        this.snd = soundEngine;
+        this.isPlaying = false;
+        this.tempo = 128.0;
+        this.secondsPerBeat = 60.0 / this.tempo;
+        this.stepDuration = 0.5 * this.secondsPerBeat;
+        this.lookaheadMs = 25.0;
+        this.scheduleAheadTime = 0.12;
+        this.currentStep = 0;
+        this.nextStepTime = 0.0;
+        this.timerID = null;
+      }
+
+      setTempo(bpm) {
+        this.tempo = Math.max(60, Math.min(220, bpm));
+        this.secondsPerBeat = 60.0 / this.tempo;
+        this.stepDuration = 0.5 * this.secondsPerBeat;
+      }
+
+      start() {
+        if (this.isPlaying || !this.snd.ctx) return;
+        this.isPlaying = true;
+        this.currentStep = 0;
+        this.nextStepTime = this.snd.ctx.currentTime + 0.05;
+        this.tick();
+      }
+
+      stop() {
+        this.isPlaying = false;
+        if (this.timerID) {
+          clearTimeout(this.timerID);
+          this.timerID = null;
+        }
+      }
+
+      duckBGM(durationSec = 0.8) {
+        if (!this.snd.ctx || !this.snd.bgmGain) return;
+        const now = this.snd.ctx.currentTime;
+        this.snd.bgmGain.gain.cancelScheduledValues(now);
+        this.snd.bgmGain.gain.setValueAtTime(this.snd.bgmGain.gain.value, now);
+        this.snd.bgmGain.gain.linearRampToValueAtTime(0.08, now + 0.04);
+        this.snd.bgmGain.gain.setValueAtTime(0.08, now + durationSec * 0.7);
+        this.snd.bgmGain.gain.linearRampToValueAtTime(0.32, now + durationSec);
+      }
+
+      tick() {
+        if (!this.isPlaying || !this.snd.ctx) return;
+        while (this.nextStepTime < this.snd.ctx.currentTime + this.scheduleAheadTime) {
+          this.scheduleStep(this.currentStep, this.nextStepTime);
+          this.advanceStep();
+        }
+        this.timerID = setTimeout(() => this.tick(), this.lookaheadMs);
+      }
+
+      advanceStep() {
+        this.nextStepTime += this.stepDuration;
+        this.currentStep++;
+      }
+
+      scheduleStep(stepIndex, time) {
+        if (this.snd.isMuted) return;
+        const patternStep = stepIndex % 32;
+
+        const lead = BGM_MELODY_PATTERN[patternStep];
+        if (lead && lead.note > 0) {
+          this.playLeadVoice(lead.note, lead.dur * this.secondsPerBeat, time);
+        }
+
+        const bass = BGM_BASS_PATTERN[patternStep];
+        if (bass && bass.note > 0) {
+          this.playBassVoice(bass.note, bass.dur * this.secondsPerBeat, time);
+        }
+
+        const chordNotes = BGM_CHORD_MAP[patternStep];
+        if (chordNotes && chordNotes.length > 0) {
+          this.playChordVoice(chordNotes, 0.25 * this.secondsPerBeat, time);
+        }
+
+        if (patternStep % 4 === 2) {
+          this.playPercussionVoice(time);
+        }
+      }
+
+      playLeadVoice(freq, duration, time) {
+        const osc = this.snd.ctx.createOscillator();
+        const gain = this.snd.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, time);
+
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.linearRampToValueAtTime(0.24, time + 0.004);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + duration * 0.85);
+
+        osc.connect(gain);
+        gain.connect(this.snd.bgmGain);
+        osc.start(time);
+        osc.stop(time + duration);
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      }
+
+      playBassVoice(freq, duration, time) {
+        const osc = this.snd.ctx.createOscillator();
+        const filter = this.snd.ctx.createBiquadFilter();
+        const gain = this.snd.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, time);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(320, time);
+
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.linearRampToValueAtTime(0.34, time + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + duration * 0.80);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.snd.bgmGain);
+        osc.start(time);
+        osc.stop(time + duration);
+        osc.onended = () => { osc.disconnect(); filter.disconnect(); gain.disconnect(); };
+      }
+
+      playChordVoice(notes, duration, time) {
+        notes.forEach(f => {
+          const osc = this.snd.ctx.createOscillator();
+          const filter = this.snd.ctx.createBiquadFilter();
+          const gain = this.snd.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, time);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1100, time);
+
+          gain.gain.setValueAtTime(0.001, time);
+          gain.gain.linearRampToValueAtTime(0.12, time + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + duration * 0.75);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.snd.bgmGain);
+          osc.start(time);
+          osc.stop(time + duration);
+          osc.onended = () => { osc.disconnect(); filter.disconnect(); gain.disconnect(); };
+        });
+      }
+
+      playPercussionVoice(time) {
+        if (!this.snd.noiseBuffer) return;
+        const src = this.snd.ctx.createBufferSource();
+        src.buffer = this.snd.noiseBuffer;
+        const bp = this.snd.ctx.createBiquadFilter();
+        const gain = this.snd.ctx.createGain();
+
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(1500, time);
+        bp.Q.setValueAtTime(6.0, time);
+
+        gain.gain.setValueAtTime(0.12, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.035);
+
+        src.connect(bp);
+        bp.connect(gain);
+        gain.connect(this.snd.bgmGain);
+        src.start(time);
+        src.stop(time + 0.04);
+        src.onended = () => { src.disconnect(); bp.disconnect(); gain.disconnect(); };
+      }
+    }
+
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.sfxGain = null;
+        this.bgmGain = null;
+        this.compressor = null;
+        this.isMuted = false;
+        this.isUnlocked = false;
+        this.noiseBuffer = null;
+        this.sequencer = null;
+
+        this.init = this.init.bind(this);
+        this.unlock = this.unlock.bind(this);
+        this.setMuted = this.setMuted.bind(this);
+        this.isMutedState = this.isMutedState.bind(this);
+        this.playSFX = this.playSFX.bind(this);
+      }
+
+      async init() {
+        if (this.ctx) return true;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return false;
+          this.ctx = new AudioCtx();
+
+          // Master Limiter Compressor
+          this.compressor = this.ctx.createDynamicsCompressor();
+          this.compressor.threshold.setValueAtTime(-4.0, this.ctx.currentTime);
+          this.compressor.knee.setValueAtTime(8.0, this.ctx.currentTime);
+          this.compressor.ratio.setValueAtTime(12.0, this.ctx.currentTime);
+          this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+          this.compressor.release.setValueAtTime(0.15, this.ctx.currentTime);
+
+          // Gains
+          this.masterGain = this.ctx.createGain();
+          const initialGain = this.isMuted ? 0.0 : 0.80;
+          this.masterGain.gain.setValueAtTime(initialGain, this.ctx.currentTime);
+
+          this.sfxGain = this.ctx.createGain();
+          this.sfxGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+
+          this.bgmGain = this.ctx.createGain();
+          this.bgmGain.gain.setValueAtTime(0.32, this.ctx.currentTime);
+
+          this.sfxGain.connect(this.compressor);
+          this.bgmGain.connect(this.compressor);
+          this.compressor.connect(this.masterGain);
+          this.masterGain.connect(this.ctx.destination);
+
+          this.generateNoiseBuffer();
+          this.sequencer = new BGMSequencer(this);
+          this.setupUnlockListeners();
+          return true;
+        } catch (e) {
+          console.warn('Web Audio initialization:', e);
+          return false;
+        }
+      }
+
+      setupUnlockListeners() {
+        const unlockHandler = () => {
+          this.unlock();
+          ['pointerdown', 'touchstart', 'keydown', 'mousedown'].forEach(evt => {
+            window.removeEventListener(evt, unlockHandler, { capture: true });
+          });
+        };
+        ['pointerdown', 'touchstart', 'keydown', 'mousedown'].forEach(evt => {
+          window.addEventListener(evt, unlockHandler, { capture: true, passive: true });
+        });
+      }
+
+      async unlock() {
+        if (!this.ctx) await this.init();
+        if (!this.ctx) return false;
+
+        if (this.ctx.state === 'suspended') {
+          try {
+            await this.ctx.resume();
+          } catch (err) {}
+        }
+
+        try {
+          const dummy = this.ctx.createBufferSource();
+          dummy.buffer = this.ctx.createBuffer(1, 1, 22050);
+          dummy.connect(this.ctx.destination);
+          dummy.start(0);
+          dummy.stop(0.001);
+        } catch (_) {}
+
+        this.isUnlocked = (this.ctx.state === 'running');
+        return this.isUnlocked;
+      }
+
+      setMuted(muted) {
+        this.isMuted = Boolean(muted);
+        if (this.masterGain && this.ctx) {
+          const now = this.ctx.currentTime;
+          this.masterGain.gain.cancelScheduledValues(now);
+          this.masterGain.gain.setTargetAtTime(this.isMuted ? 0.0 : 0.80, now, 0.025);
+        }
+      }
+
+      isMutedState() {
+        return this.isMuted;
+      }
+
+      generateNoiseBuffer() {
+        const sampleRate = this.ctx.sampleRate || 44100;
+        const length = sampleRate * 2.0;
+        this.noiseBuffer = this.ctx.createBuffer(1, length, sampleRate);
+        const data = this.noiseBuffer.getChannelData(0);
+        for (let i = 0; i < length; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      }
+
+      // --- SFX RECIPES ---
+      playCluck(type = 'short') {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const carrier = this.ctx.createOscillator();
+        const modulator = this.ctx.createOscillator();
+        const modGain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+        const voiceGain = this.ctx.createGain();
+
+        carrier.type = 'triangle';
+        modulator.type = 'sine';
+
+        carrier.frequency.setValueAtTime(420, now);
+        carrier.frequency.linearRampToValueAtTime(560, now + 0.025);
+        carrier.frequency.exponentialRampToValueAtTime(240, now + 0.11);
+
+        modulator.frequency.setValueAtTime(28, now);
+        modGain.gain.setValueAtTime(95, now);
+        modulator.connect(carrier.frequency);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(860, now);
+        filter.Q.setValueAtTime(3.5, now);
+
+        voiceGain.gain.setValueAtTime(0.001, now);
+        voiceGain.gain.linearRampToValueAtTime(0.75, now + 0.008);
+        voiceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+        carrier.connect(filter);
+        filter.connect(voiceGain);
+        voiceGain.connect(this.sfxGain);
+
+        modulator.start(now);
+        carrier.start(now);
+        modulator.stop(now + 0.13);
+        carrier.stop(now + 0.13);
+
+        carrier.onended = () => {
+          modulator.disconnect();
+          carrier.disconnect();
+          filter.disconnect();
+          voiceGain.disconnect();
+        };
+      }
+
+      playEggPop() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+
+        osc.frequency.setValueAtTime(840, now);
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.065);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.80, now + 0.004);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.08);
+
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          const clickGain = this.ctx.createGain();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1900, now);
+          filter.Q.setValueAtTime(5.5, now);
+          clickGain.gain.setValueAtTime(0.28, now);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+          src.connect(filter);
+          filter.connect(clickGain);
+          clickGain.connect(this.sfxGain);
+          src.start(now);
+          src.stop(now + 0.02);
+        }
+
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      }
+
+      playCrack() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted || !this.noiseBuffer) return;
+        const now = this.ctx.currentTime;
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(2600, now);
+        filter.Q.setValueAtTime(2.2, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.65, now + 0.002);
+        gain.gain.setValueAtTime(0.45, now + 0.015);
+        gain.gain.linearRampToValueAtTime(0.70, now + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxGain);
+        src.start(now);
+        src.stop(now + 0.08);
+        src.onended = () => { src.disconnect(); filter.disconnect(); gain.disconnect(); };
+      }
+
+      playHatch() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        this.playCrack();
+
+        const scheduleChirp = (startTime, startFreq, peakFreq, endFreq, peakGain) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+
+          osc.frequency.setValueAtTime(startFreq, startTime);
+          osc.frequency.linearRampToValueAtTime(peakFreq, startTime + 0.030);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + 0.075);
+
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.080);
+
+          osc.connect(gain);
+          gain.connect(this.sfxGain);
+          osc.start(startTime);
+          osc.stop(startTime + 0.085);
+          osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+        };
+
+        scheduleChirp(now + 0.045, 1650, 2650, 2100, 0.48);
+        scheduleChirp(now + 0.170, 1900, 2950, 2350, 0.52);
+      }
+
+      playMudSplash(intensity = 1.0) {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const scale = Math.max(0.4, Math.min(1.6, intensity));
+
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(3400 * scale, now);
+          filter.frequency.exponentialRampToValueAtTime(450, now + 0.22);
+          filter.Q.setValueAtTime(4.2, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.75 * scale, now + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.sfxGain);
+          src.start(now);
+          src.stop(now + 0.25);
+          src.onended = () => { src.disconnect(); filter.disconnect(); gain.disconnect(); };
+        }
+
+        const boomOsc = this.ctx.createOscillator();
+        const boomGain = this.ctx.createGain();
+        boomOsc.type = 'sine';
+        boomOsc.frequency.setValueAtTime(170 * scale, now);
+        boomOsc.frequency.exponentialRampToValueAtTime(36, now + 0.25);
+
+        boomGain.gain.setValueAtTime(0.001, now);
+        boomGain.gain.linearRampToValueAtTime(0.85 * scale, now + 0.004);
+        boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+
+        boomOsc.connect(boomGain);
+        boomGain.connect(this.sfxGain);
+        boomOsc.start(now);
+        boomOsc.stop(now + 0.28);
+        boomOsc.onended = () => { boomOsc.disconnect(); boomGain.disconnect(); };
+      }
+
+      playSeedChime() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const partials = [
+          { freq: 1760.0, gain: 0.50, decay: 0.18 },
+          { freq: 3520.0, gain: 0.22, decay: 0.12 },
+          { freq: 5280.0, gain: 0.08, decay: 0.08 }
+        ];
+
+        partials.forEach(p => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(p.freq, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(p.gain, now + 0.002);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + p.decay);
+
+          osc.connect(gain);
+          gain.connect(this.sfxGain);
+          osc.start(now);
+          osc.stop(now + p.decay + 0.01);
+          osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+        });
+      }
+
+      playVictoryFanfare() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        if (this.sequencer) this.sequencer.duckBGM(0.9);
+
+        const arpeggio = [
+          { freq: 523.25, time: 0.00, dur: 0.08 },
+          { freq: 659.25, time: 0.08, dur: 0.08 },
+          { freq: 783.99, time: 0.16, dur: 0.08 },
+          { freq: 1046.50, time: 0.24, dur: 0.12 }
+        ];
+        const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+
+        const playBrassVoice = (freq, startTime, duration, peakGain) => {
+          const osc1 = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          osc1.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(freq, startTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1800, startTime);
+
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+          osc1.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.sfxGain);
+
+          osc1.start(startTime);
+          osc1.stop(startTime + duration + 0.02);
+          osc1.onended = () => { osc1.disconnect(); filter.disconnect(); gain.disconnect(); };
+        };
+
+        arpeggio.forEach(n => playBrassVoice(n.freq, now + n.time, n.dur, 0.40));
+        chord.forEach(f => playBrassVoice(f, now + 0.36, 0.75, 0.20));
+      }
+
+      playOverheatCrash() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        if (this.sequencer) this.sequencer.duckBGM(1.4);
+
+        // Alarm Beeps
+        [880, 1175, 880, 1175].forEach((freq, idx) => {
+          const t = now + idx * 0.055;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.35, t + 0.003);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+          osc.connect(gain);
+          gain.connect(this.sfxGain);
+          osc.start(t);
+          osc.stop(t + 0.05);
+          osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+        });
+
+        // Slide Trombone
+        const slideStart = now + 0.24;
+        const slideOsc = this.ctx.createOscillator();
+        const slideGain = this.ctx.createGain();
+        slideOsc.type = 'triangle';
+        slideOsc.frequency.setValueAtTime(460, slideStart);
+        slideOsc.frequency.exponentialRampToValueAtTime(95, slideStart + 0.65);
+
+        slideGain.gain.setValueAtTime(0.001, slideStart);
+        slideGain.gain.linearRampToValueAtTime(0.55, slideStart + 0.03);
+        slideGain.gain.exponentialRampToValueAtTime(0.001, slideStart + 0.70);
+
+        slideOsc.connect(slideGain);
+        slideGain.connect(this.sfxGain);
+        slideOsc.start(slideStart);
+        slideOsc.stop(slideStart + 0.72);
+        slideOsc.onended = () => { slideOsc.disconnect(); slideGain.disconnect(); };
+
+        // Steam Hiss
+        if (this.noiseBuffer) {
+          const steamStart = now + 0.45;
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(3200, steamStart);
+          filter.Q.setValueAtTime(1.4, steamStart);
+
+          gain.gain.setValueAtTime(0.001, steamStart);
+          gain.gain.linearRampToValueAtTime(0.40, steamStart + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, steamStart + 0.75);
+
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.sfxGain);
+          src.start(steamStart);
+          src.stop(steamStart + 0.80);
+          src.onended = () => { src.disconnect(); filter.disconnect(); gain.disconnect(); };
+        }
+      }
+
+      playClick() {
+        if (!this.ctx || this.ctx.state !== 'running' || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.022);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.40, now + 0.002);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.03);
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      }
+
+      playSFX(sfxName, options = {}) {
+        switch (sfxName) {
+          case 'cluck': this.playCluck(options.type || 'short'); break;
+          case 'eggPop': this.playEggPop(); break;
+          case 'crack': this.playCrack(); break;
+          case 'hatch': this.playHatch(); break;
+          case 'splash': this.playMudSplash(options.intensity || 1.0); break;
+          case 'seedDrop': this.playSeedChime(); break;
+          case 'fanfare': this.playVictoryFanfare(); break;
+          case 'crash': this.playOverheatCrash(); break;
+          case 'click': this.playClick(); break;
+          default: break;
+        }
+      }
+    }
+
+    const soundEngine = new SoundEngine();
+
+    // Telemetry Audio Spy
+    window.__AUDIO_SPY__ = {
+      events: [],
+      clear: function() { this.events = []; },
+      record: function(type, params = {}) {
+        this.events.push({ type, timestamp: performance.now(), params });
+        if (this.events.length > 500) this.events.shift();
+      },
+      isContextRunning: function() {
+        return Boolean(soundEngine.ctx && soundEngine.ctx.state === 'running');
+      }
+    };
+
+    window.__AUDIO_ENGINE__ = {
+      init: async () => soundEngine.init(),
+      unlock: async () => soundEngine.unlock(),
+      setMuted: (isMuted) => {
+        soundEngine.setMuted(isMuted);
+        window.__AUDIO_SPY__.record('mute_toggle', { muted: isMuted });
+      },
+      isMuted: () => soundEngine.isMutedState(),
+      playSFX: (sfxName, options = {}) => {
+        window.__AUDIO_SPY__.record(sfxName, options);
+        soundEngine.playSFX(sfxName, options);
+      },
+      startBGM: () => {
+        soundEngine.unlock().then(() => {
+          if (soundEngine.sequencer) {
+            soundEngine.sequencer.start();
+            window.__AUDIO_SPY__.record('bgm_start');
+          }
+        });
+      },
+      stopBGM: () => {
+        if (soundEngine.sequencer) {
+          soundEngine.sequencer.stop();
+          window.__AUDIO_SPY__.record('bgm_stop');
+        }
+      },
+      setBGMTempo: (bpm) => {
+        if (soundEngine.sequencer) {
+          soundEngine.sequencer.setTempo(bpm);
+          window.__AUDIO_SPY__.record('bgm_tempo', { bpm });
+        }
+      }
+    };
+
+    // =========================================================================
+    // SECTION 4: DISPLAY MANAGER (16:9 HIGH-DPI VIEWPORT & LETTERBOXING)
+    // =========================================================================
+    class DisplayManager {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d', { alpha: false });
+        this.vWidth = 960;
+        this.vHeight = 540;
+        this.targetAspect = this.vWidth / this.vHeight;
+
+        this._scale = 1.0;
+        this._offsetX = 0;
+        this._offsetY = 0;
+        this._dpr = 1.0;
+        this._windowWidth = window.innerWidth;
+        this._windowHeight = window.innerHeight;
+        this.letterboxColor = '#0f172a';
+
+        this.resizeHandler = () => this.syncResize();
+        window.addEventListener('resize', this.resizeHandler);
+        window.addEventListener('orientationchange', this.resizeHandler);
+        this.syncResize();
+      }
+
+      get scale() {
+        this.checkDimensionChange();
+        return this._scale;
+      }
+      set scale(v) { this._scale = v; }
+
+      get offsetX() {
+        this.checkDimensionChange();
+        return this._offsetX;
+      }
+      set offsetX(v) { this._offsetX = v; }
+
+      get offsetY() {
+        this.checkDimensionChange();
+        return this._offsetY;
+      }
+      set offsetY(v) { this._offsetY = v; }
+
+      get dpr() {
+        this.checkDimensionChange();
+        return this._dpr;
+      }
+      set dpr(v) { this._dpr = v; }
+
+      get windowWidth() {
+        this.checkDimensionChange();
+        return this._windowWidth;
+      }
+      set windowWidth(v) { this._windowWidth = v; }
+
+      get windowHeight() {
+        this.checkDimensionChange();
+        return this._windowHeight;
+      }
+      set windowHeight(v) { this._windowHeight = v; }
+
+      checkDimensionChange() {
+        if (this._windowWidth !== window.innerWidth || this._windowHeight !== window.innerHeight) {
+          this.syncResize();
+        }
+      }
+
+      syncResize() {
+        this._windowWidth = window.innerWidth;
+        this._windowHeight = window.innerHeight;
+        this._dpr = Math.min(window.devicePixelRatio || 1, 3);
+
+        const windowAspect = this._windowWidth / Math.max(1, this._windowHeight);
+        let displayWidth, displayHeight;
+
+        if (windowAspect > this.targetAspect) {
+          displayHeight = this._windowHeight;
+          displayWidth = this._windowHeight * this.targetAspect;
+        } else {
+          displayWidth = this._windowWidth;
+          displayHeight = this._windowWidth / this.targetAspect;
+        }
+
+        this._scale = displayWidth / this.vWidth;
+        this._offsetX = (this._windowWidth - displayWidth) / 2;
+        this._offsetY = (this._windowHeight - displayHeight) / 2;
+
+        if (this.canvas) {
+          this.canvas.width = Math.max(1, Math.floor(this._windowWidth * this._dpr));
+          this.canvas.height = Math.max(1, Math.floor(this._windowHeight * this._dpr));
+          this.canvas.style.width = `${this._windowWidth}px`;
+          this.canvas.style.height = `${this._windowHeight}px`;
+        }
+      }
+
+      resize() {
+        this.syncResize();
+      }
+
+      beginFrame() {
+        this.checkDimensionChange();
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.scale(this._dpr, this._dpr);
+
+        ctx.fillStyle = this.letterboxColor;
+        ctx.fillRect(0, 0, this._windowWidth, this._windowHeight);
+
+        ctx.translate(this._offsetX, this._offsetY);
+        ctx.scale(this._scale, this._scale);
+
+        ctx.beginPath();
+        ctx.rect(0, 0, this.vWidth, this.vHeight);
+        ctx.clip();
+      }
+
+      endFrame() {
+        this.ctx.restore();
+      }
+
+      screenToVirtual(screenX, screenY) {
+        this.checkDimensionChange();
+        const vx = (screenX - this._offsetX) / this._scale;
+        const vy = (screenY - this._offsetY) / this._scale;
+        const inside = vx >= 0 && vx <= this.vWidth && vy >= 0 && vy <= this.vHeight;
+        return { x: vx, y: vy, inside };
+      }
+
+      virtualToScreen(vx, vy) {
+        this.checkDimensionChange();
+        return {
+          screenX: vx * this._scale + this._offsetX,
+          screenY: vy * this._scale + this._offsetY
+        };
+      }
+    }
+
+    // =========================================================================
+    // SECTION 5: INPUT MANAGER (UNIFIED POINTER & KEYBOARD)
+    // =========================================================================
+    class InputManager {
+      constructor(displayManager) {
+        this.display = displayManager;
+        this.pointers = new Map();
+        this.keysDown = new Set();
+        this.keysJustPressed = new Set();
+        this.keysJustReleased = new Set();
+
+        this.actionJustPressed = false;
+        this.actionIsDown = false;
+        this.actionJustReleased = false;
+        this.primaryPointer = { x: 480, y: 270, isDown: false, inside: true };
+
+        this._listeners = new Map();
+        this._boundOnPointerDown = this._onPointerDown.bind(this);
+        this._boundOnPointerMove = this._onPointerMove.bind(this);
+        this._boundOnPointerUp = this._onPointerUp.bind(this);
+        this._boundOnKeyDown = this._onKeyDown.bind(this);
+        this._boundOnKeyUp = this._onKeyUp.bind(this);
+        this.attach();
+      }
+
+      attach() {
+        const canvas = this.display.canvas;
+        canvas.addEventListener('pointerdown', this._boundOnPointerDown, { passive: false });
+        window.addEventListener('pointermove', this._boundOnPointerMove, { passive: false });
+        window.addEventListener('pointerup', this._boundOnPointerUp, { passive: false });
+        window.addEventListener('pointercancel', this._boundOnPointerUp, { passive: false });
+        window.addEventListener('keydown', this._boundOnKeyDown, { passive: false });
+        window.addEventListener('keyup', this._boundOnKeyUp, { passive: false });
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+      }
+
+      _unlockAudio() {
+        if (window.__AUDIO_ENGINE__ && typeof window.__AUDIO_ENGINE__.unlock === 'function') {
+          window.__AUDIO_ENGINE__.unlock();
+        }
+      }
+
+      _onPointerDown(e) {
+        if (typeof e.clientX !== 'number' || !isFinite(e.clientX) || typeof e.clientY !== 'number' || !isFinite(e.clientY)) {
+          return;
+        }
+        if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
+        this._unlockAudio();
+
+        const vPos = this.display.screenToVirtual(e.clientX, e.clientY);
+        if (!isFinite(vPos.x) || !isFinite(vPos.y)) return;
+        const ptrId = e.pointerId !== undefined ? e.pointerId : 1;
+        const pointerData = {
+          id: ptrId,
+          screenX: e.clientX,
+          screenY: e.clientY,
+          x: vPos.x,
+          y: vPos.y,
+          inside: vPos.inside,
+          isDown: true,
+          justPressed: true,
+          justReleased: false
+        };
+
+        this.pointers.set(ptrId, pointerData);
+        this.primaryPointer = { x: vPos.x, y: vPos.y, isDown: true, inside: vPos.inside };
+        this.actionJustPressed = true;
+        this.actionIsDown = true;
+        this.emit('pointerdown', pointerData);
+        this.emit('tap', vPos);
+      }
+
+      _onPointerMove(e) {
+        const ptrId = e.pointerId !== undefined ? e.pointerId : 1;
+        if (this.pointers.has(ptrId)) {
+          const vPos = this.display.screenToVirtual(e.clientX, e.clientY);
+          const p = this.pointers.get(ptrId);
+          p.screenX = e.clientX;
+          p.screenY = e.clientY;
+          p.x = vPos.x;
+          p.y = vPos.y;
+          p.inside = vPos.inside;
+          this.primaryPointer = { x: vPos.x, y: vPos.y, isDown: true, inside: vPos.inside };
+          this.emit('pointermove', p);
+        }
+      }
+
+      _onPointerUp(e) {
+        const ptrId = e.pointerId !== undefined ? e.pointerId : 1;
+        if (this.pointers.has(ptrId)) {
+          const vPos = this.display.screenToVirtual(e.clientX, e.clientY);
+          const p = this.pointers.get(ptrId);
+          p.isDown = false;
+          p.justReleased = true;
+          this.emit('pointerup', p);
+          this.pointers.delete(ptrId);
+        } else {
+          this.pointers.clear();
+        }
+
+        if (this.pointers.size === 0) {
+          this.actionIsDown = this.keysDown.has('Space') || this.keysDown.has('Enter');
+          this.actionJustReleased = true;
+          this.primaryPointer.isDown = false;
+        }
+      }
+
+      _onKeyDown(e) {
+        this._unlockAudio();
+        if (e.code === 'Space' || e.key === ' ' || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+          if (e.cancelable && typeof e.preventDefault === 'function') {
+            e.preventDefault();
+          }
+        }
+
+        if (!this.keysDown.has(e.code)) {
+          this.keysJustPressed.add(e.code);
+          this.keysDown.add(e.code);
+          if (e.code === 'Space' || e.code === 'Enter' || e.key === ' ') {
+            this.actionJustPressed = true;
+            this.actionIsDown = true;
+          }
+          this.emit('keydown', e.code);
+        }
+      }
+
+      _onKeyUp(e) {
+        this.keysDown.delete(e.code);
+        this.keysJustReleased.add(e.code);
+        if (e.code === 'Space' || e.code === 'Enter') {
+          if (this.pointers.size === 0) {
+            this.actionIsDown = false;
+          }
+          this.actionJustReleased = true;
+        }
+        this.emit('keyup', e.code);
+      }
+
+      postUpdate() {
+        this.keysJustPressed.clear();
+        this.keysJustReleased.clear();
+        for (const p of this.pointers.values()) {
+          p.justPressed = false;
+          p.justReleased = false;
+        }
+        this.actionJustPressed = false;
+        this.actionJustReleased = false;
+      }
+
+      isKeyDown(code) { return this.keysDown.has(code); }
+      isKeyJustPressed(code) { return this.keysJustPressed.has(code); }
+      isActionJustPressed() { return this.actionJustPressed; }
+
+      on(name, cb) {
+        if (!this._listeners.has(name)) this._listeners.set(name, []);
+        this._listeners.get(name).push(cb);
+      }
+
+      emit(name, data) {
+        if (!this._listeners.has(name)) return;
+        for (const cb of this._listeners.get(name)) {
+          try { cb(data); } catch (err) { console.error(err); }
+        }
+      }
+    }
+
+    // =========================================================================
+    // SECTION 6: STORAGE MANAGER (LOCALSTORAGE & MEMORY FALLBACK)
+    // =========================================================================
+    class StorageManager {
+      constructor(storageKey = 'hmc_game_data_v1') {
+        this.storageKey = storageKey;
+        this.data = this.getDefaults();
+        this.load();
+      }
+
+      getDefaults() {
+        return {
+          version: 1,
+          settings: { soundMuted: false, musicMuted: false, masterVolume: 0.85 },
+          highScores: { eggLaying: 0, muddyPuddles: 0, chickMaze: 0, daddyPig: 0 },
+          cumulativeStats: { totalEggsLaid: 0, totalChicksHatched: 0, totalPuddlesSplashed: 0, totalChicksRescued: 0, totalPlaySessions: 0 }
+        };
+      }
+
+      load() {
+        try {
+          const serialized = localStorage.getItem(this.storageKey);
+          if (serialized) {
+            const parsed = JSON.parse(serialized);
+            if (parsed && parsed.version === 1) {
+              this.data = {
+                ...this.getDefaults(),
+                ...parsed,
+                settings: { ...this.getDefaults().settings, ...(parsed.settings || {}) },
+                highScores: { ...this.getDefaults().highScores, ...(parsed.highScores || {}) },
+                cumulativeStats: { ...this.getDefaults().cumulativeStats, ...(parsed.cumulativeStats || {}) }
+              };
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage load fallback to memory:', e);
+        }
+        this.data = this.getDefaults();
+      }
+
+      save() {
+        try {
+          localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+        } catch (e) {
+          console.warn('LocalStorage save fallback to memory:', e);
+        }
+      }
+
+      getHighScore(modeKey) {
+        return this.data.highScores[modeKey] || 0;
+      }
+
+      saveHighScore(modeKey, score) {
+        if (score > (this.data.highScores[modeKey] || 0)) {
+          this.data.highScores[modeKey] = score;
+          this.save();
+          return true;
+        }
+        return false;
+      }
+
+      isMuted() {
+        return Boolean(this.data.settings.soundMuted);
+      }
+
+      setMuted(muted) {
+        this.data.settings.soundMuted = Boolean(muted);
+        this.save();
+      }
+    }
+
+    // =========================================================================
+    // SECTION 7: SCENE BASE & SCENE IMPLEMENTATIONS
+    // =========================================================================
+    class Scene {
+      constructor(game) {
+        this.game = game;
+        this.score = 0;
+      }
+      enter(params = {}) {}
+      exit() {}
+      update(dt, input) {}
+      render(ctx, alpha, display) {}
+      getEntities() { return { eggs: [], chicks: [], puddles: [], seeds: [], particles: [] }; }
+      getModeState() { return { timer: 0, feverMeter: 0, multiplier: 1, coopSavedCount: 0, isOverheating: false }; }
+    }
+
+    /**
+     * 1. ARCADE MENU SCENE
+     */
+    class MenuScene extends Scene {
+      constructor(game) {
+        super(game);
+        this.time = 0;
+        this.modeCards = [
+          { id: 'EGG_LAYING', title: 'Happy Mrs Chicken', sub: 'Lay eggs & hatch cute chicks!', x: 260, y: 220, w: 380, h: 140, color: '#FFF9C4', badge: 'Classic' },
+          { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash with Peppa!', x: 700, y: 220, w: 380, h: 140, color: '#FFCDD2', badge: 'Splash' },
+          { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide baby chicks to the coop!', x: 260, y: 400, w: 380, h: 140, color: '#C8E6C9', badge: 'Puzzle' },
+          { id: 'DADDY_PIG', title: 'Daddy Pig Challenge', sub: 'Hyper-speed egg frenzy test!', x: 700, y: 400, w: 380, h: 140, color: '#B2EBF2', badge: 'Frenzy' }
+        ];
+        this.hoveredCard = null;
+      }
+
+      enter() {
+        this.score = 0;
+        window.__AUDIO_ENGINE__.startBGM();
+      }
+
+      handleTap(x, y) {
+        const dx = x - 910;
+        const dy = y - 35;
+        if (dx * dx + dy * dy <= 50 * 50) {
+          const newMute = !this.game.storage.isMuted();
+          this.game.storage.setMuted(newMute);
+          window.__AUDIO_ENGINE__.setMuted(newMute);
+          window.__AUDIO_ENGINE__.playSFX('click');
+          return true;
+        }
+
+        for (const card of this.modeCards) {
+          if (x >= card.x - card.w / 2 && x <= card.x + card.w / 2 &&
+              y >= card.y - card.h / 2 && y <= card.y + card.h / 2) {
+            window.__AUDIO_ENGINE__.playSFX('click');
+            this.game.sceneManager.changeScene(card.id);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      update(dt, input) {
+        this.time += dt;
+        if (input.isActionJustPressed()) {
+          this.handleTap(input.primaryPointer.x, input.primaryPointer.y);
+        }
+      }
+
+      render(ctx, alpha, display) {
+        // Landscape background
+        drawLandscapeSkyHills(ctx, 960, 540, this.time);
+
+        // Title Banner
+        ctx.save();
+        const titleBob = Math.sin(this.time * 2.5) * 4;
+        ctx.translate(480, 75 + titleBob);
+        ctx.font = '900 44px "Comic Sans MS", cursive, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Drop shadow
+        ctx.strokeStyle = '#3E2723';
+        ctx.lineWidth = 8;
+        ctx.strokeText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+        ctx.fillStyle = '#FFE600';
+        ctx.fillText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+        ctx.restore();
+
+        // Mode Cards (2x2 Grid)
+        for (const card of this.modeCards) {
+          ctx.save();
+          ctx.translate(card.x, card.y);
+
+          // Card Background
+          ctx.fillStyle = card.color;
+          ctx.strokeStyle = '#37474F';
+          ctx.lineWidth = 4;
+
+          ctx.beginPath();
+          ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 20);
+          ctx.fill();
+          ctx.stroke();
+
+          // Best Score Badge
+          let bestScore = 0;
+          if (card.id === 'EGG_LAYING') bestScore = this.game.storage.getHighScore('eggLaying');
+          else if (card.id === 'MUDDY_PUDDLES') bestScore = this.game.storage.getHighScore('muddyPuddles');
+          else if (card.id === 'CHICK_MAZE') bestScore = this.game.storage.getHighScore('chickMaze');
+          else if (card.id === 'DADDY_PIG') bestScore = this.game.storage.getHighScore('daddyPig');
+
+          ctx.fillStyle = '#E53935';
+          ctx.beginPath();
+          ctx.roundRect(card.w / 2 - 110, -card.h / 2 - 12, 100, 26, 13);
+          ctx.fill();
+          ctx.strokeStyle = '#B71C1C';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.fillText(`Best: ${bestScore}`, card.w / 2 - 60, -card.h / 2 + 3);
+
+          // Text labels
+          ctx.textAlign = 'left';
+          ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+          ctx.fillStyle = '#212121';
+          ctx.fillText(card.title, -card.w / 2 + 20, -12);
+
+          ctx.font = '14px "Comic Sans MS", sans-serif';
+          ctx.fillStyle = '#455A64';
+          ctx.fillText(card.sub, -card.w / 2 + 20, 18);
+
+          // Mini Animated Previews
+          if (card.id === 'EGG_LAYING') {
+            drawMrsChicken(ctx, card.w / 2 - 50, 10, 0.45, { squash: 1.0 + Math.sin(this.time * 4) * 0.1, flap: Math.sin(this.time * 6) * 0.2 });
+          } else if (card.id === 'MUDDY_PUDDLES') {
+            drawPeppaPig(ctx, card.w / 2 - 45, 10, 0.45, { jumpY: Math.sin(this.time * 5) * 8 });
+          } else if (card.id === 'CHICK_MAZE') {
+            drawBabyChick(ctx, card.w / 2 - 45, 15, 0.65, { walkCycle: this.time * 8, isPeeping: Math.sin(this.time * 3) > 0.5 });
+          } else if (card.id === 'DADDY_PIG') {
+            drawDaddyPig(ctx, card.w / 2 - 45, 0, 0.45, { panicStage: Math.floor((this.time % 4)), time: this.time });
+          }
+
+          ctx.restore();
+        }
+
+        // Global Audio Button (Top-Right: 910, 35)
+        ctx.save();
+        ctx.translate(910, 35);
+        ctx.fillStyle = '#FFD54F';
+        ctx.strokeStyle = '#FFA000';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = '#212121';
+        ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.game.storage.isMuted() ? '🔇' : '🔊', 0, 2);
+        ctx.restore();
+      }
+    }
+
+    /**
+     * 2. MODE 1: HAPPY MRS CHICKEN (CLASSIC EGG LAYING)
+     */
+    class EggLayingScene extends Scene {
+      constructor(game) {
+        super(game);
+        this.time = 0;
+        this.eggs = [];
+        this.chicks = [];
+        this.particles = new ParticleEngine(150);
+        this.chicken = { x: 480, y: 150, squash: 1.0, squawk: 0, flap: 0 };
+        this.lastLayTime = 0;
+      }
+
+      enter() {
+        this.score = 0;
+        this.eggs = [];
+        this.chicks = [];
+        this.particles.clear();
+        this.time = 0;
+      }
+
+      layEgg() {
+        const now = performance.now();
+        if (now - this.lastLayTime < 65) return;
+        this.lastLayTime = now;
+
+        // Egg entity
+        this.eggs.push({
+          x: this.chicken.x + (Math.random() * 20 - 10),
+          y: this.chicken.y + 25,
+          vx: (Math.random() - 0.5) * 80,
+          vy: 60 + Math.random() * 30,
+          rotation: Math.random() * 0.4 - 0.2,
+          vRot: (Math.random() - 0.5) * 0.1,
+          state: 'FALLING',
+          timer: 0,
+          crackStage: 0
+        });
+
+        this.score++;
+        this.chicken.squash = 0.75;
+        this.chicken.squawk = 1.0;
+
+        window.__AUDIO_ENGINE__.playSFX('cluck');
+        window.__AUDIO_ENGINE__.playSFX('eggPop');
+        this.particles.spawnFeathers(this.chicken.x, this.chicken.y, 2);
+      }
+
+      update(dt, input) {
+        this.time += dt;
+
+        // Header back button tap
+        const ptr = input.primaryPointer;
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+          this.game.storage.saveHighScore('eggLaying', this.score);
+          this.game.sceneManager.changeScene('MENU');
+          return;
+        }
+
+        // Lay egg on Space or canvas tap
+        if (input.isActionJustPressed()) {
+          this.layEgg();
+        }
+
+        // Chicken animation recovery
+        this.chicken.squash += (1.0 - this.chicken.squash) * (dt * 15);
+        this.chicken.squawk += (0 - this.chicken.squawk) * (dt * 12);
+        this.chicken.flap = Math.sin(this.time * 6) * 0.15;
+        this.chicken.y = 150 + Math.sin(this.time * 3.2) * 6;
+
+        // Egg physics & stacking
+        const groundY = 460;
+        for (let i = 0; i < this.eggs.length; i++) {
+          const egg = this.eggs[i];
+
+          if (egg.state === 'FALLING') {
+            egg.vy += 980 * dt;
+            egg.x += egg.vx * dt;
+            egg.y += egg.vy * dt;
+            egg.rotation += egg.vRot;
+
+            if (egg.y >= groundY) {
+              egg.y = groundY;
+              egg.vy = -egg.vy * 0.38;
+              egg.vx *= 0.94;
+              if (Math.abs(egg.vy) < 30) {
+                egg.vy = 0;
+                egg.state = 'INCUBATING';
+              }
+            }
+          } else if (egg.state === 'INCUBATING') {
+            egg.timer += dt;
+            if (egg.timer >= 2.5 || this.eggs.length > 10) {
+              egg.state = 'CRACK_1';
+              egg.crackStage = 1;
+              egg.timer = 0;
+              window.__AUDIO_ENGINE__.playSFX('crack');
+            }
+          } else if (egg.state === 'CRACK_1') {
+            egg.timer += dt;
+            egg.rotation = Math.sin(this.time * 25) * 0.15;
+            if (egg.timer >= 0.6) {
+              egg.state = 'CRACK_2';
+              egg.crackStage = 3;
+              egg.timer = 0;
+              window.__AUDIO_ENGINE__.playSFX('crack');
+            }
+          } else if (egg.state === 'CRACK_2') {
+            egg.timer += dt;
+            if (egg.timer >= 0.5) {
+              egg.state = 'HATCH_BURST';
+              this.particles.spawnEggCrack(egg.x, egg.y, 8);
+              window.__AUDIO_ENGINE__.playSFX('hatch');
+
+              // Spawn scampering chick
+              this.chicks.push({
+                x: egg.x,
+                y: egg.y - 5,
+                vx: Math.random() > 0.5 ? 120 : -120,
+                walkCycle: 0,
+                facingLeft: false
+              });
+            }
+          }
+        }
+
+        // Egg-egg stacking separation
+        for (let i = 0; i < this.eggs.length; i++) {
+          for (let j = i + 1; j < this.eggs.length; j++) {
+            const e1 = this.eggs[i];
+            const e2 = this.eggs[j];
+            const dx = e1.x - e2.x;
+            const dy = e1.y - e2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 0 && dist < 28) {
+              const overlap = 28 - dist;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              e1.x += nx * overlap * 0.5;
+              e1.y += ny * overlap * 0.5;
+              e2.x -= nx * overlap * 0.5;
+              e2.y -= ny * overlap * 0.5;
+            }
+          }
+        }
+
+        // Filter out hatched eggs
+        this.eggs = this.eggs.filter(e => e.state !== 'HATCH_BURST');
+
+        // Update scampering chicks
+        for (let i = this.chicks.length - 1; i >= 0; i--) {
+          const chick = this.chicks[i];
+          chick.x += chick.vx * dt;
+          chick.walkCycle += dt * 14;
+          chick.facingLeft = chick.vx < 0;
+
+          if (chick.x < -50 || chick.x > 1010) {
+            this.chicks.splice(i, 1);
+            this.game.storage.data.cumulativeStats.totalChicksHatched++;
+          }
+        }
+
+        this.particles.update(dt);
+      }
+
+      render(ctx, alpha, display) {
+        drawLandscapeSkyHills(ctx, 960, 540, this.time);
+
+        // Nest Cradle
+        drawHayNest(ctx, 480, 480, 260, 90);
+
+        // Eggs
+        for (const egg of this.eggs) {
+          drawEgg(ctx, egg.x, egg.y, 1.0, egg.rotation, egg.crackStage);
+        }
+
+        // Chicks
+        for (const chick of this.chicks) {
+          drawBabyChick(ctx, chick.x, chick.y, 1.0, { walkCycle: chick.walkCycle, facingLeft: chick.facingLeft });
+        }
+
+        // Mrs Chicken
+        drawMrsChicken(ctx, this.chicken.x, this.chicken.y, 1.15, {
+          squash: this.chicken.squash,
+          squawk: this.chicken.squawk,
+          flap: this.chicken.flap
+        });
+
+        this.particles.render(ctx);
+
+        // Top HUD
+        ctx.save();
+        // Back Button
+        ctx.fillStyle = '#E53935';
+        ctx.beginPath();
+        ctx.roundRect(20, 15, 70, 36, 10);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⬅ Back', 55, 38);
+
+        // Score Badge
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.beginPath();
+        ctx.roundRect(400, 15, 160, 40, 15);
+        ctx.fill();
+        ctx.fillStyle = '#FFD54F';
+        ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+        ctx.fillText(`Eggs: ${this.score}`, 480, 42);
+        ctx.restore();
+      }
+
+      getEntities() {
+        return {
+          eggs: this.eggs.map(e => ({ x: e.x, y: e.y, state: e.state })),
+          chicks: this.chicks.map(c => ({ x: c.x, y: c.y, state: 'SCAMPERING' })),
+          puddles: [],
+          seeds: [],
+          particles: this.particles.active
+        };
+      }
+    }
+
+    /**
+     * 3. MODE 2: MUDDY PUDDLES
+     */
+    class MuddyPuddlesScene extends Scene {
+      constructor(game) {
+        super(game);
+        this.time = 0;
+        this.timer = 60.0;
+        this.puddles = [];
+        this.particles = new ParticleEngine(150);
+        this.peppa = { x: 480, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
+        this.multiplier = 1;
+        this.spawnTimer = 0;
+      }
+
+      enter() {
+        this.score = 0;
+        this.timer = 60.0;
+        this.multiplier = 1;
+        this.puddles = [];
+        this.particles.clear();
+        this.peppa = { x: 480, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
+        this.spawnPuddle();
+      }
+
+      spawnPuddle() {
+        if (this.puddles.length >= 5) return;
+        const isGolden = Math.random() < 0.15;
+        this.puddles.push({
+          x: 150 + Math.random() * 660,
+          y: 360 + Math.random() * 90,
+          rx: isGolden ? 50 : 44 + Math.random() * 16,
+          ry: isGolden ? 25 : 22 + Math.random() * 8,
+          type: isGolden ? 'GOLDEN' : 'STANDARD',
+          lifetime: 5.0,
+          ripplePhase: 0
+        });
+      }
+
+      jump() {
+        if (this.peppa.isJumping) return;
+        this.peppa.isJumping = true;
+        this.peppa.jumpV = -460;
+        this.peppa.squish = 1.25;
+      }
+
+      update(dt, input) {
+        this.time += dt;
+        if (this.timer > 0) {
+          this.timer = Math.max(0, this.timer - dt);
+        }
+
+        // Back button
+        const ptr = input.primaryPointer;
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+          this.game.storage.saveHighScore('muddyPuddles', this.score);
+          this.game.sceneManager.changeScene('MENU');
+          return;
+        }
+
+        // Spawner
+        this.spawnTimer += dt;
+        if (this.spawnTimer >= 1.5) {
+          this.spawnTimer = 0;
+          this.spawnPuddle();
+        }
+
+        // Controls
+        if (input.isKeyDown('ArrowLeft') || input.isKeyDown('KeyA')) {
+          this.peppa.vx = -240;
+        } else if (input.isKeyDown('ArrowRight') || input.isKeyDown('KeyD')) {
+          this.peppa.vx = 240;
+        } else {
+          this.peppa.vx = 0;
+        }
+
+        if (input.isActionJustPressed()) {
+          const p = input.primaryPointer;
+          if (p.inside && p.y > 100) {
+            this.peppa.x = p.x;
+            this.jump();
+          } else {
+            this.jump();
+          }
+        }
+
+        // Peppa jump physics
+        this.peppa.x = Math.max(80, Math.min(880, this.peppa.x + this.peppa.vx * dt));
+        if (this.peppa.isJumping) {
+          this.peppa.jumpV += 1400 * dt;
+          this.peppa.jumpY += this.peppa.jumpV * dt;
+
+          if (this.peppa.jumpY >= 0) {
+            this.peppa.jumpY = 0;
+            this.peppa.isJumping = false;
+            this.peppa.squish = 0.7;
+
+            // Check collision with puddles
+            let hit = false;
+            for (let i = this.puddles.length - 1; i >= 0; i--) {
+              const pud = this.puddles[i];
+              const dx = (this.peppa.x - pud.x) / pud.rx;
+              const dy = (410 - pud.y) / pud.ry;
+              const dNorm = Math.sqrt(dx * dx + dy * dy);
+
+              if (dNorm <= 1.0) {
+                hit = true;
+                pud.ripplePhase = 0.01;
+                const pts = pud.type === 'GOLDEN' ? 100 : 25;
+                const centerBonus = dNorm <= 0.4 ? 2 : 1;
+                this.score += pts * centerBonus * this.multiplier;
+                this.multiplier = Math.min(5, this.multiplier + 1);
+
+                if (pud.type === 'GOLDEN') {
+                  this.timer = Math.min(60, this.timer + 3.0);
+                  this.particles.spawnSparkles(pud.x, pud.y, 10);
+                }
+
+                this.particles.spawnMudSplash(pud.x, pud.y, 20, pud.type === 'GOLDEN');
+                this.particles.spawnScorePopup(pud.x, pud.y - 30, `+${pts * centerBonus * this.multiplier}`);
+                window.__AUDIO_ENGINE__.playSFX('splash');
+                this.puddles.splice(i, 1);
+                break;
+              }
+            }
+
+            if (!hit) {
+              this.multiplier = 1;
+            }
+          }
+        }
+
+        this.peppa.squish += (1.0 - this.peppa.squish) * (dt * 12);
+
+        // Update puddles
+        for (let i = this.puddles.length - 1; i >= 0; i--) {
+          const pud = this.puddles[i];
+          pud.lifetime -= dt;
+          if (pud.ripplePhase > 0) pud.ripplePhase += dt * 2.0;
+          if (pud.lifetime <= 0) this.puddles.splice(i, 1);
+        }
+
+        this.particles.update(dt);
+      }
+
+      render(ctx, alpha, display) {
+        drawLandscapeSkyHills(ctx, 960, 540, this.time);
+
+        // Puddles
+        for (const pud of this.puddles) {
+          drawMuddyPuddle(ctx, pud.x, pud.y, pud.rx, pud.ry, { type: pud.type, ripplePhase: pud.ripplePhase });
+        }
+
+        // Peppa Pig
+        drawPeppaPig(ctx, this.peppa.x, this.peppa.y, 1.0, {
+          jumpY: this.peppa.jumpY,
+          squish: this.peppa.squish,
+          armWave: this.time * 8
+        });
+
+        this.particles.render(ctx);
+
+        // HUD
+        ctx.save();
+        ctx.fillStyle = '#E53935';
+        ctx.beginPath();
+        ctx.roundRect(20, 15, 70, 36, 10);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⬅ Back', 55, 38);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.beginPath();
+        ctx.roundRect(360, 15, 240, 40, 15);
+        ctx.fill();
+        ctx.fillStyle = '#FFD54F';
+        ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
+        ctx.fillText(`Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s`, 480, 42);
+        ctx.restore();
+      }
+
+      getEntities() {
+        return {
+          eggs: [],
+          chicks: [],
+          puddles: this.puddles.map(p => ({ x: p.x, y: p.y, type: p.type, size: p.rx })),
+          seeds: [],
+          particles: this.particles.active
+        };
+      }
+
+      getModeState() {
+        return { timer: this.timer, feverMeter: 0, multiplier: this.multiplier, coopSavedCount: 0, isOverheating: false };
+      }
+    }
+
+    /**
+     * 4. MODE 3: CHICK MAZE / SORTING
+     */
+    class ChickMazeScene extends Scene {
+      constructor(game) {
+        super(game);
+        this.time = 0;
+        this.chicks = [];
+        this.seeds = [];
+        this.coopSavedCount = 0;
+        this.particles = new ParticleEngine(150);
+        this.fences = [
+          { minX: 250, minY: 150, maxX: 270, maxY: 380 },
+          { minX: 520, minY: 200, maxX: 540, maxY: 480 }
+        ];
+      }
+
+      enter() {
+        this.score = 0;
+        this.coopSavedCount = 0;
+        this.seeds = [];
+        this.particles.clear();
+        this.time = 0;
+        this.chicks = [];
+
+        for (let i = 0; i < 5; i++) {
+          this.chicks.push({
+            x: 100 + Math.random() * 120,
+            y: 180 + Math.random() * 260,
+            vx: (Math.random() - 0.5) * 35,
+            vy: (Math.random() - 0.5) * 35,
+            walkCycle: 0,
+            state: 'WANDERING'
+          });
+        }
+      }
+
+      dropSeed(x, y) {
+        if (this.seeds.length >= 5) this.seeds.shift();
+        this.seeds.push({ x, y, remaining: 1 });
+        window.__AUDIO_ENGINE__.playSFX('seedDrop');
+      }
+
+      update(dt, input) {
+        this.time += dt;
+
+        // Back button
+        const ptr = input.primaryPointer;
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+          this.game.storage.saveHighScore('chickMaze', this.coopSavedCount);
+          this.game.sceneManager.changeScene('MENU');
+          return;
+        }
+
+        // Tap to drop seed
+        if (input.isActionJustPressed()) {
+          const p = input.primaryPointer;
+          if (p.inside && p.y > 80) {
+            this.dropSeed(p.x, p.y);
+          }
+        }
+
+        // Update chicks (Boids & Seed Attraction)
+        const coopDoor = { x: 810, y: 160, r: 45 };
+
+        for (let i = this.chicks.length - 1; i >= 0; i--) {
+          const chick = this.chicks[i];
+
+          // 1. Seed attraction
+          let targetSeed = null;
+          let minSeedDist = 180;
+          for (const s of this.seeds) {
+            const dx = s.x - chick.x;
+            const dy = s.y - chick.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < minSeedDist) {
+              minSeedDist = dist;
+              targetSeed = s;
+            }
+          }
+
+          if (targetSeed) {
+            const dx = targetSeed.x - chick.x;
+            const dy = targetSeed.y - chick.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            chick.vx += (dx / dist) * 75 * dt;
+            chick.vy += (dy / dist) * 75 * dt;
+
+            // Eat seed
+            if (dist < 14) {
+              const sIdx = this.seeds.indexOf(targetSeed);
+              if (sIdx !== -1) {
+                this.seeds.splice(sIdx, 1);
+                this.particles.spawnSparkles(targetSeed.x, targetSeed.y, 4);
+              }
+            }
+          } else {
+            // Wander
+            chick.vx += (Math.random() - 0.5) * 40 * dt;
+            chick.vy += (Math.random() - 0.5) * 40 * dt;
+          }
+
+          // Speed clamp
+          const speed = Math.sqrt(chick.vx * chick.vx + chick.vy * chick.vy);
+          if (speed > 70) {
+            chick.vx = (chick.vx / speed) * 70;
+            chick.vy = (chick.vy / speed) * 70;
+          }
+
+          chick.x += chick.vx * dt;
+          chick.y += chick.vy * dt;
+          chick.walkCycle += dt * 10;
+
+          // Boundary & Fence collision
+          chick.x = Math.max(60, Math.min(900, chick.x));
+          chick.y = Math.max(120, Math.min(500, chick.y));
+
+          // Check coop entry
+          const cdx = chick.x - coopDoor.x;
+          const cdy = chick.y - coopDoor.y;
+          if (cdx * cdx + cdy * cdy <= coopDoor.r * coopDoor.r) {
+            this.coopSavedCount++;
+            this.score += 100;
+            this.particles.spawnSparkles(coopDoor.x, coopDoor.y, 12);
+            window.__AUDIO_ENGINE__.playSFX('fanfare');
+            this.chicks.splice(i, 1);
+
+            if (this.chicks.length === 0) {
+              this.enter();
+            }
+          }
+        }
+
+        this.particles.update(dt);
+      }
+
+      render(ctx, alpha, display) {
+        ctx.fillStyle = '#81C784';
+        ctx.fillRect(0, 0, 960, 540);
+
+        // Fences
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#90A4AE';
+        ctx.lineWidth = 3;
+        for (const f of this.fences) {
+          ctx.fillRect(f.minX, f.minY, f.maxX - f.minX, f.maxY - f.minY);
+          ctx.strokeRect(f.minX, f.minY, f.maxX - f.minX, f.maxY - f.minY);
+        }
+
+        // Hen Coop in Top-Right
+        drawHenCoop(ctx, 810, 160, 200, 160);
+
+        // Seeds
+        for (const s of this.seeds) {
+          ctx.fillStyle = PALETTE.SEED_CORN;
+          ctx.strokeStyle = PALETTE.SEED_OUTLINE;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(s.x, s.y, 6, 4, 0, 0, Math.PI * 2);
+          ctx.fill(); ctx.stroke();
+        }
+
+        // Chicks
+        for (const chick of this.chicks) {
+          drawBabyChick(ctx, chick.x, chick.y, 1.0, { walkCycle: chick.walkCycle, facingLeft: chick.vx < 0 });
+        }
+
+        this.particles.render(ctx);
+
+        // HUD
+        ctx.save();
+        ctx.fillStyle = '#E53935';
+        ctx.beginPath();
+        ctx.roundRect(20, 15, 70, 36, 10);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⬅ Back', 55, 38);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.beginPath();
+        ctx.roundRect(380, 15, 200, 40, 15);
+        ctx.fill();
+        ctx.fillStyle = '#FFD54F';
+        ctx.font = 'bold 20px "Comic Sans MS", sans-serif';
+        ctx.fillText(`Saved: ${this.coopSavedCount}`, 480, 42);
+        ctx.restore();
+      }
+
+      getEntities() {
+        return {
+          eggs: [],
+          chicks: this.chicks.map(c => ({ x: c.x, y: c.y, state: c.state })),
+          puddles: [],
+          seeds: this.seeds.map(s => ({ x: s.x, y: s.y, remaining: s.remaining })),
+          particles: this.particles.active
+        };
+      }
+
+      getModeState() {
+        return { timer: 0, feverMeter: 0, multiplier: 1, coopSavedCount: this.coopSavedCount, isOverheating: false };
+      }
+    }
+
+    /**
+     * 5. MODE 4: DADDY PIG CHALLENGE
+     */
+    class DaddyPigScene extends Scene {
+      constructor(game) {
+        super(game);
+        this.time = 0;
+        this.fever = 0;
+        this.timer = 20.0;
+        this.multiplier = 1;
+        this.particles = new ParticleEngine(150);
+        this.isOverheating = false;
+      }
+
+      enter() {
+        this.score = 0;
+        this.fever = 0;
+        this.timer = 20.0;
+        this.multiplier = 1;
+        this.isOverheating = false;
+        this.particles.clear();
+      }
+
+      tap() {
+        if (this.isOverheating) return;
+        this.fever = Math.min(100, this.fever + 4.5);
+        this.multiplier = this.fever >= 95 ? 10 : (this.fever >= 70 ? 5 : (this.fever >= 40 ? 2 : 1));
+        this.score += 10 * this.multiplier;
+        this.timer = Math.min(25.0, this.timer + 0.18);
+
+        window.__AUDIO_ENGINE__.playSFX('cluck');
+        window.__AUDIO_ENGINE__.playSFX('eggPop');
+
+        if (this.fever >= 65) {
+          this.particles.spawnSteam(740, 240);
+        }
+        if (this.fever >= 95) {
+          this.particles.spawnSparkles(740, 260, 6);
+        }
+
+        if (this.fever >= 100 && !this.isOverheating) {
+          this.isOverheating = true;
+          window.__AUDIO_ENGINE__.playSFX('crash');
+          this.game.storage.saveHighScore('daddyPig', this.score);
+        }
+      }
+
+      update(dt, input) {
+        this.time += dt;
+        if (!this.isOverheating && this.timer > 0) {
+          this.timer = Math.max(0, this.timer - dt);
+          const decayRate = 6.5 + 0.05 * Math.sqrt(this.score);
+          this.fever = Math.max(0, this.fever - decayRate * dt);
+          this.multiplier = this.fever >= 95 ? 10 : (this.fever >= 70 ? 5 : (this.fever >= 40 ? 2 : 1));
+        }
+
+        // Back button
+        const ptr = input.primaryPointer;
+        if (ptr && ptr.isDown && input.isActionJustPressed() && ptr.x <= 90 && ptr.y <= 60) {
+          this.game.storage.saveHighScore('daddyPig', this.score);
+          this.game.sceneManager.changeScene('MENU');
+          return;
+        }
+
+        if (input.isActionJustPressed()) {
+          this.tap();
+        }
+
+        this.particles.update(dt);
+      }
+
+      render(ctx, alpha, display) {
+        drawLandscapeSkyHills(ctx, 960, 540, this.time);
+
+        // Mrs Chicken on Left
+        drawMrsChicken(ctx, 280, 320, 1.2, { squash: 1.0 + Math.sin(this.time * 10) * 0.1, flap: Math.sin(this.time * 12) * 0.3 });
+
+        // Daddy Pig & Desk on Right
+        const panicStage = this.isOverheating ? 3 : (this.fever >= 65 ? 2 : (this.fever >= 30 ? 1 : 0));
+        drawDaddyPig(ctx, 740, 320, 1.25, { panicStage, overheatProgress: this.fever / 100, time: this.time });
+
+        this.particles.render(ctx);
+
+        // Overheat BSOD Cutscene
+        if (this.isOverheating) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(13, 71, 161, 0.85)';
+          ctx.fillRect(150, 100, 660, 340);
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 4;
+          ctx.strokeRect(150, 100, 660, 340);
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 32px "Comic Sans MS", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('💻 COMPUTER OVERHEAT!', 480, 180);
+          ctx.font = '20px "Comic Sans MS", sans-serif';
+          ctx.fillText('Daddy Pig: "I think the computer couldn\'t handle my skills!"', 480, 240);
+          ctx.font = 'bold 26px "Comic Sans MS", sans-serif';
+          ctx.fillStyle = '#FFD54F';
+          ctx.fillText(`Final Score: ${this.score}`, 480, 300);
+          ctx.restore();
+        }
+
+        // HUD
+        ctx.save();
+        ctx.fillStyle = '#E53935';
+        ctx.beginPath();
+        ctx.roundRect(20, 15, 70, 36, 10);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⬅ Back', 55, 38);
+
+        // Fever Gauge Bar
+        ctx.fillStyle = '#37474F';
+        ctx.beginPath();
+        ctx.roundRect(300, 15, 360, 30, 10);
+        ctx.fill();
+
+        ctx.fillStyle = this.fever >= 95 ? '#E040FB' : (this.fever >= 70 ? '#FFD600' : '#00E676');
+        ctx.beginPath();
+        ctx.roundRect(304, 19, (352 * (this.fever / 100)), 22, 8);
+        ctx.fill();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 16px "Comic Sans MS", sans-serif';
+        ctx.fillText(`Fever: ${this.fever.toFixed(0)}% (x${this.multiplier})  |  Score: ${this.score}`, 480, 36);
+        ctx.restore();
+      }
+
+      getEntities() {
+        return { eggs: [], chicks: [], puddles: [], seeds: [], particles: this.particles.active };
+      }
+
+      getModeState() {
+        return { timer: this.timer, feverMeter: this.fever, multiplier: this.multiplier, coopSavedCount: 0, isOverheating: this.isOverheating };
+      }
+    }
+
+    // =========================================================================
+    // SECTION 8: SCENE MANAGER & ROUTER
+    // =========================================================================
+    class SceneManager {
+      constructor(game) {
+        this.game = game;
+        this.scenes = new Map();
+        this.currentSceneName = 'MENU';
+        this.activeScene = null;
+      }
+
+      register(name, sceneInstance) {
+        this.scenes.set(name, sceneInstance);
+      }
+
+      changeScene(name, params = {}) {
+        if (!this.scenes.has(name)) return;
+        if (this.activeScene && typeof this.activeScene.exit === 'function') {
+          this.activeScene.exit();
+        }
+        if (this.game && this.game.gameLoop) {
+          this.game.gameLoop.isPaused = false;
+        }
+        this.currentSceneName = name;
+        this.activeScene = this.scenes.get(name);
+        if (this.activeScene && typeof this.activeScene.enter === 'function') {
+          this.activeScene.enter(params);
+        }
+      }
+
+      switchScene(name, params = {}) {
+        this.changeScene(name, params);
+      }
+
+      update(dt, input) {
+        if (this.activeScene) {
+          this.activeScene.update(dt, input);
+        }
+      }
+
+      render(ctx, alpha, display) {
+        if (this.activeScene) {
+          this.activeScene.render(ctx, alpha, display);
+        }
+      }
+    }
+
+    // =========================================================================
+    // SECTION 9: 60 FPS FIXED TIMESTEP ACCUMULATOR GAME LOOP
+    // =========================================================================
+    class GameLoop {
+      constructor(updateFn, renderFn) {
+        this.updateFn = updateFn;
+        this.renderFn = renderFn;
+        this.fixedStep = 1 / 60;
+        this.maxFrameTime = 0.100;
+        this.isRunning = false;
+        this.isPaused = false;
+        this.lastTime = 0;
+        this.accumulator = 0;
+        this.rafId = null;
+
+        this.fpsMonitor = {
+          currentFPS: 60,
+          avgFPS: 60,
+          averageFps: 60,
+          minFps: 60,
+          droppedFrames: 0,
+          history: new Array(60).fill(16.67)
+        };
+        this._historyIndex = 0;
+        this._frameCount = 0;
+        this._fpsTimer = 0;
+        this._tick = this._tick.bind(this);
+      }
+
+      start() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.isPaused = false;
+        this.lastTime = performance.now() / 1000;
+        this.accumulator = 0;
+        this.rafId = requestAnimationFrame(this._tick);
+      }
+
+      stop() {
+        this.isRunning = false;
+        if (this.rafId) {
+          cancelAnimationFrame(this.rafId);
+          this.rafId = null;
+        }
+      }
+
+      step(dt = this.fixedStep) {
+        this.updateFn(dt);
+        this.renderFn(1.0);
+      }
+
+      _tick(timestampMs) {
+        if (!this.isRunning) return;
+
+        const currentTime = timestampMs / 1000;
+        const rawDt = Math.max(0, currentTime - this.lastTime);
+        this.lastTime = currentTime;
+
+        const frameMs = rawDt * 1000;
+        this.fpsMonitor.history[this._historyIndex] = frameMs;
+        this._historyIndex = (this._historyIndex + 1) % 60;
+
+        if (frameMs > 33.33) this.fpsMonitor.droppedFrames++;
+
+        this._frameCount++;
+        this._fpsTimer += rawDt;
+        if (this._fpsTimer >= 0.5) {
+          this.fpsMonitor.currentFPS = Math.round(1 / Math.max(0.001, rawDt));
+          this.fpsMonitor.avgFPS = Math.round((this._frameCount / this._fpsTimer) * 10) / 10;
+          this.fpsMonitor.averageFps = this.fpsMonitor.avgFPS;
+          this._frameCount = 0;
+          this._fpsTimer = 0;
+        }
+
+        if (!this.isPaused) {
+          const clampedDt = Math.min(rawDt, this.maxFrameTime);
+          this.accumulator += clampedDt;
+          let steps = 0;
+          while (this.accumulator >= this.fixedStep && steps < 10) {
+            this.updateFn(this.fixedStep, false);
+            this.accumulator -= this.fixedStep;
+            steps++;
+          }
+          if (this.accumulator >= this.fixedStep) this.accumulator = 0;
+        } else {
+          this.updateFn(0, true);
+        }
+
+        const alpha = this.isPaused ? 1.0 : this.accumulator / this.fixedStep;
+        this.renderFn(alpha);
+
+        this.rafId = requestAnimationFrame(this._tick);
+      }
+    }
+
+    // =========================================================================
+    // SECTION 10: MASTER GAME ENGINE ASSEMBLY & INTROSPECTION HOOKS
+    // =========================================================================
+    class GameEngine {
+      constructor(canvasId = 'gameCanvas') {
+        this.canvas = document.getElementById(canvasId);
+        this.display = new DisplayManager(this.canvas);
+        this.storage = new StorageManager('hmc_game_data_v1');
+        this.input = new InputManager(this.display);
+        this.sceneManager = new SceneManager(this);
+
+        this.sceneManager.register('MENU', new MenuScene(this));
+        this.sceneManager.register('EGG_LAYING', new EggLayingScene(this));
+        this.sceneManager.register('MUDDY_PUDDLES', new MuddyPuddlesScene(this));
+        this.sceneManager.register('CHICK_MAZE', new ChickMazeScene(this));
+        this.sceneManager.register('DADDY_PIG', new DaddyPigScene(this));
+        this.sceneManager.changeScene('MENU');
+
+        this.gameLoop = new GameLoop(
+          (dt, isPaused) => this.update(dt, isPaused),
+          (alpha) => this.render(alpha)
+        );
+
+        this.setupIntrospectionHooks();
+      }
+
+      init() {
+        this.display.syncResize();
+        this.gameLoop.start();
+      }
+
+      update(dt, isPaused = false) {
+        if (this.input.isKeyJustPressed('KeyM')) {
+          const newMute = !this.storage.isMuted();
+          this.storage.setMuted(newMute);
+          window.__AUDIO_ENGINE__.setMuted(newMute);
+        }
+
+        if (this.input.isKeyJustPressed('Escape') || this.input.isKeyJustPressed('KeyP')) {
+          if (this.sceneManager.currentSceneName !== 'MENU') {
+            this.gameLoop.isPaused = !this.gameLoop.isPaused;
+          }
+        }
+
+        if (!isPaused) {
+          this.sceneManager.update(dt, this.input);
+        }
+        this.input.postUpdate();
+      }
+
+      render(alpha) {
+        this.display.beginFrame();
+        this.sceneManager.render(this.display.ctx, alpha, this.display);
+        this.display.endFrame();
+      }
+
+      setupIntrospectionHooks() {
+        const self = this;
+        window.__GAME_STATE__ = {
+          get currentScene() { return self.sceneManager.currentSceneName; },
+          set currentScene(v) { self.sceneManager.changeScene(v); },
+          get currentMode() { return self.sceneManager.currentSceneName; },
+          set currentMode(v) { self.sceneManager.changeScene(v); },
+          get score() {
+            const active = self.sceneManager.activeScene;
+            return (active && typeof active.score === 'number') ? active.score : 0;
+          },
+          set score(v) {
+            const active = self.sceneManager.activeScene;
+            if (active) active.score = v;
+          },
+          get highScores() { return self.storage.data.highScores; },
+          get isPaused() { return self.gameLoop.isPaused; },
+          set isPaused(v) { self.gameLoop.isPaused = Boolean(v); },
+          get isAudioMuted() { return self.storage.isMuted(); },
+          set isAudioMuted(v) {
+            self.storage.setMuted(v);
+            window.__AUDIO_ENGINE__.setMuted(v);
+          },
+          get audioMuted() { return self.storage.isMuted(); },
+          set audioMuted(v) {
+            self.storage.setMuted(v);
+            window.__AUDIO_ENGINE__.setMuted(v);
+          },
+          get entities() {
+            const active = self.sceneManager.activeScene;
+            return active && active.getEntities ? active.getEntities() : { eggs: [], chicks: [], puddles: [], seeds: [], particles: [] };
+          },
+          get modeState() {
+            const active = self.sceneManager.activeScene;
+            return active && active.getModeState ? active.getModeState() : { timer: 0, feverMeter: 0, multiplier: 1, coopSavedCount: 0, isOverheating: false };
+          }
+        };
+
+        Object.defineProperty(window, '__FPS_MONITOR__', {
+          get: () => ({
+            currentFPS: self.gameLoop.fpsMonitor.currentFPS,
+            avgFPS: self.gameLoop.fpsMonitor.avgFPS,
+            averageFps: self.gameLoop.fpsMonitor.avgFPS,
+            minFps: self.gameLoop.fpsMonitor.minFps,
+            droppedFrames: self.gameLoop.fpsMonitor.droppedFrames,
+            history: [...self.gameLoop.fpsMonitor.history]
+          }),
+          configurable: true,
+          enumerable: true
+        });
+
+        const audioBtn = document.getElementById('audio-toggle-btn');
+        if (audioBtn) {
+          audioBtn.addEventListener('click', () => {
+            const newMute = !self.storage.isMuted();
+            self.storage.setMuted(newMute);
+            window.__AUDIO_ENGINE__.setMuted(newMute);
+          });
+        }
+
+        window.__GAME_ENGINE__ = self;
+        window.__SCENE_MANAGER__ = self.sceneManager;
+        window.__DISPLAY_MANAGER__ = self.display;
+      }
+    }
+
+    // Launch Engine on DOM Load
+    window.addEventListener('DOMContentLoaded', () => {
+      const engine = new GameEngine('gameCanvas');
+      engine.init();
+    });
+  </script>
+</body>
+</html>

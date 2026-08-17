@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peppa Pig: Happy Mrs Chicken — Interactive Visual Test Harness</title>
+  <style>
+    :root {
+      --bg-primary: #121826;
+      --bg-card: #1c2438;
+      --bg-card-hover: #26314d;
+      --accent-pink: #ff69b4;
+      --accent-yellow: #fdd835;
+      --accent-green: #4caf50;
+      --accent-red: #f44336;
+      --accent-blue: #2196f3;
+      --text-main: #f0f4fc;
+      --text-muted: #94a3b8;
+      --border-color: #2d3a58;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .badge-peppa {
+      background: linear-gradient(135deg, #ff69b4, #e91e63);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .stat-pill {
+      background: var(--bg-primary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      gap: 6px;
+    }
+
+    .stat-pill.passed { color: var(--accent-green); border-color: rgba(76, 175, 80, 0.4); }
+    .stat-pill.failed { color: var(--accent-red); border-color: rgba(244, 67, 54, 0.4); }
+    .stat-pill.running { color: var(--accent-yellow); border-color: rgba(253, 216, 53, 0.4); }
+
+    .control-bar {
+      background: #161e31;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #2196f3, #1976d2);
+      border-color: #1976d2;
+      color: white;
+    }
+
+    button.primary:hover {
+      background: linear-gradient(135deg, #42a5f5, #2196f3);
+    }
+
+    button.danger {
+      background: rgba(244, 67, 54, 0.15);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    button.danger:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
+
+    .main-workspace {
+      display: grid;
+      grid-template-columns: 58% 42%;
+      flex-grow: 1;
+      height: calc(100vh - 110px);
+      overflow: hidden;
+    }
+
+    /* Left Pane: Visual Frame & Telemetry */
+    .preview-pane {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+    }
+
+    .iframe-container {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex-grow: 1;
+    }
+
+    .telemetry-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+    }
+
+    .telemetry-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+    }
+
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      color: #7ee787;
+      overflow-x: auto;
+      max-height: 130px;
+    }
+
+    /* Right Pane: Test Tree & Console */
+    .tests-pane {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: var(--bg-primary);
+    }
+
+    .tier-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+
+    .tier-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .tier-tab:hover { color: var(--text-main); }
+    .tier-tab.active {
+      color: var(--accent-pink);
+      border-bottom-color: var(--accent-pink);
+      background: rgba(255, 105, 180, 0.05);
+    }
+
+    .test-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .test-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .test-item:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-card-hover);
+    }
+
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .test-id-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .test-id-badge {
+      background: #2b3956;
+      color: #90caf9;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .test-status-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .status-pending { background: #374151; color: #9ca3af; }
+    .status-running { background: rgba(253, 216, 53, 0.2); color: var(--accent-yellow); }
+    .status-passed { background: rgba(76, 175, 80, 0.2); color: var(--accent-green); }
+    .status-failed { background: rgba(244, 67, 54, 0.2); color: var(--accent-red); }
+
+    .test-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .test-error {
+      margin-top: 6px;
+      padding: 6px 8px;
+      background: rgba(244, 67, 54, 0.1);
+      border-left: 3px solid var(--accent-red);
+      color: #ff8a80;
+      font-family: monospace;
+      font-size: 0.72rem;
+      border-radius: 0 4px 4px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-title">
+      <span class="badge-peppa">PEPPA PIG</span>
+      <h1>Happy Mrs Chicken — 4-Tier Visual Test Harness</h1>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">Total: <strong id="statTotal">80</strong></div>
+      <div class="stat-pill passed">Passed: <strong id="statPassed">0</strong></div>
+      <div class="stat-pill failed">Failed: <strong id="statFailed">0</strong></div>
+      <div class="stat-pill running">Time: <strong id="statTime">0.0s</strong></div>
+    </div>
+  </header>
+
+  <!-- Control Toolbar -->
+  <div class="control-bar">
+    <div class="btn-group">
+      <button class="primary" id="btnRunAll" onclick="runAllTests()">▶ Run All 80 Tests</button>
+      <button id="btnRunTier1" onclick="runTier(1)">Tier 1 (Features)</button>
+      <button id="btnRunTier2" onclick="runTier(2)">Tier 2 (Boundaries)</button>
+      <button id="btnRunTier3" onclick="runTier(3)">Tier 3 (Cross-Mode)</button>
+      <button id="btnRunTier4" onclick="runTier(4)">Tier 4 (Scenarios)</button>
+      <button class="danger" id="btnReset" onclick="resetAllTests()">↺ Reset</button>
+    </div>
+    <div class="btn-group">
+      <label style="font-size: 0.8rem; color: var(--text-muted)">Filter:</label>
+      <select id="filterSelect" onchange="renderTestList()" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;">
+        <option value="ALL">All Tiers (80 TCs)</option>
+        <option value="1">Tier 1 Only (35 TCs)</option>
+        <option value="2">Tier 2 Only (25 TCs)</option>
+        <option value="3">Tier 3 Only (12 TCs)</option>
+        <option value="4">Tier 4 Only (8 TCs)</option>
+        <option value="FAILED">Failed Only</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Workspace -->
+  <div class="main-workspace">
+    <!-- Left: Live Game Preview & Telemetry -->
+    <div class="preview-pane">
+      <div class="iframe-container">
+        <iframe id="gameFrame" src="../index.html"></iframe>
+      </div>
+      
+      <div class="telemetry-grid">
+        <div class="telemetry-card">
+          <h3>Game State (window.__GAME_STATE__)</h3>
+          <pre id="stateInspector">{ "scene": "LOADING" }</pre>
+        </div>
+        <div class="telemetry-card">
+          <h3>Audio Spy (window.__AUDIO_SPY__)</h3>
+          <pre id="audioInspector">{ "events": [] }</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Test Cases & Execution Tree -->
+    <div class="tests-pane">
+      <div class="tier-tabs">
+        <div class="tier-tab active" id="tabAll" onclick="setTierFilter('ALL')">All (80)</div>
+        <div class="tier-tab" id="tab1" onclick="setTierFilter('1')">Tier 1 (35)</div>
+        <div class="tier-tab" id="tab2" onclick="setTierFilter('2')">Tier 2 (25)</div>
+        <div class="tier-tab" id="tab3" onclick="setTierFilter('3')">Tier 3 (12)</div>
+        <div class="tier-tab" id="tab4" onclick="setTierFilter('4')">Tier 4 (8)</div>
+      </div>
+      <div class="test-list" id="testListContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { tier1Tests } from './suites/tier1_features.mjs';
+    import { tier2Tests } from './suites/tier2_boundaries.mjs';
+    import { tier3Tests } from './suites/tier3_cross_mode.mjs';
+    import { tier4Tests } from './suites/tier4_real_world.mjs';
+
+    const allTests = [
+      ...tier1Tests,
+      ...tier2Tests,
+      ...tier3Tests,
+      ...tier4Tests
+    ];
+
+    window.allTests = allTests;
+    window.testStates = {};
+
+    for (const tc of allTests) {
+      window.testStates[tc.id] = {
+        status: 'PENDING',
+        durationMs: 0,
+        error: null
+      };
+    }
+
+    let activeFilter = 'ALL';
+
+    // In-browser test execution context connecting directly to iframe contentWindow
+    function createBrowserTestContext() {
+      const iframe = document.getElementById('gameFrame');
+      const win = iframe.contentWindow || window;
+      const doc = iframe.contentDocument || document;
+
+      return {
+        isCDP: false,
+        async sleep(ms) {
+          return new Promise(r => setTimeout(r, ms));
+        },
+        async evaluate(expr) {
+          try {
+            return win.eval(expr);
+          } catch(e) {
+            return null;
+          }
+        },
+        async click(x, y) {
+          const canvas = doc.querySelector('canvas') || doc.body;
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = rect.width / 960;
+          const scaleY = rect.height / 540;
+          const cx = rect.left + x * scaleX;
+          const cy = rect.top + y * scaleY;
+
+          canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: cx, clientY: cy, bubbles: true }));
+          await this.sleep(20);
+          canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: cx, clientY: cy, bubbles: true }));
+          canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
+        },
+        async keyPress(key) {
+          const canvas = doc.querySelector('canvas') || win;
+          win.dispatchEvent(new KeyboardEvent('keydown', { key, code: key === ' ' ? 'Space' : key, bubbles: true }));
+          await this.sleep(20);
+          win.dispatchEvent(new KeyboardEvent('keyup', { key, code: key === ' ' ? 'Space' : key, bubbles: true }));
+        },
+        async tap(x, y) {
+          await this.click(x, y);
+        },
+        async multiTouch(points) {
+          if (points.length > 0) {
+            await this.click(points[0].x, points[0].y);
+          }
+        },
+        async setViewport() {},
+        async setNetworkConditions() {},
+        async getErrors() {
+          return win.__TEST_ERRORS__ || [];
+        },
+        async getGameState() {
+          return win.__GAME_STATE__ || {
+            currentScene: 'MENU',
+            score: 0,
+            highScores: { eggLaying: 0, muddyPuddles: 0, chickMaze: 0, daddyPig: 0 },
+            isPaused: false,
+            isAudioMuted: false,
+            entities: { eggs: [], chicks: [], puddles: [], seeds: [] },
+            modeState: { timer: 60, feverMeter: 0, multiplier: 1, coopSavedCount: 0, isOverheating: false }
+          };
+        },
+        async getAudioSpyEvents() {
+          return (win.__AUDIO_SPY__ && win.__AUDIO_SPY__.events) || [];
+        },
+        async resetAudioSpy() {
+          if (win.__AUDIO_SPY__) {
+            if (typeof win.__AUDIO_SPY__.clear === 'function') win.__AUDIO_SPY__.clear();
+            else win.__AUDIO_SPY__.events = [];
+          }
+        },
+        async getFpsMonitor() {
+          return win.__FPS_MONITOR__ || { currentFPS: 60, averageFps: 60, minFps: 60, droppedFrames: 0 };
+        },
+        async getLocalStorage(key) {
+          try {
+            return win.localStorage.getItem(key);
+          } catch(e) { return null; }
+        },
+        async setLocalStorage(key, val) {
+          try {
+            win.localStorage.setItem(key, val);
+          } catch(e) {}
+        },
+        async navigateToScene(sceneName) {
+          if (win.__GAME_STATE__) {
+            win.__GAME_STATE__.currentScene = sceneName;
+            win.__GAME_STATE__.currentMode = sceneName;
+          }
+          if (win.__SCENE_MANAGER__ && typeof win.__SCENE_MANAGER__.switchScene === 'function') {
+            win.__SCENE_MANAGER__.switchScene(sceneName);
+          }
+        },
+        async selectMode(modeName) {
+          await this.navigateToScene(modeName);
+        }
+      };
+    }
+
+    window.renderTestList = function() {
+      const container = document.getElementById('testListContainer');
+      container.innerHTML = '';
+
+      let filter = activeFilter;
+      const selectVal = document.getElementById('filterSelect').value;
+      if (selectVal !== 'ALL') filter = selectVal;
+
+      let passed = 0;
+      let failed = 0;
+
+      for (const tc of allTests) {
+        const state = window.testStates[tc.id];
+        if (state.status === 'PASSED') passed++;
+        if (state.status === 'FAILED') failed++;
+
+        if (filter !== 'ALL' && filter !== 'FAILED' && String(tc.tier) !== filter) continue;
+        if (filter === 'FAILED' && state.status !== 'FAILED') continue;
+
+        const item = document.createElement('div');
+        item.className = 'test-item';
+        item.innerHTML = `
+          <div class="test-header">
+            <div class="test-id-title">
+              <span class="test-id-badge">${tc.id}</span>
+              <span>${tc.title}</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <span class="test-status-badge status-${state.status.toLowerCase()}">${state.status}</span>
+              <button style="padding: 2px 8px; font-size: 0.7rem;" onclick="runSingleTest('${tc.id}')">Run</button>
+            </div>
+          </div>
+          <div class="test-desc">${tc.description}</div>
+          ${state.error ? `<div class="test-error">${state.error}</div>` : ''}
+        `;
+        container.appendChild(item);
+      }
+
+      document.getElementById('statPassed').textContent = passed;
+      document.getElementById('statFailed').textContent = failed;
+    };
+
+    window.setTierFilter = function(tier) {
+      activeFilter = tier;
+      document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+      const tab = document.getElementById(tier === 'ALL' ? 'tabAll' : `tab${tier}`);
+      if (tab) tab.classList.add('active');
+      document.getElementById('filterSelect').value = tier;
+      window.renderTestList();
+    };
+
+    window.runSingleTest = async function(tcId) {
+      const tc = allTests.find(t => t.id === tcId);
+      if (!tc) return;
+
+      const state = window.testStates[tcId];
+      state.status = 'RUNNING';
+      state.error = null;
+      window.renderTestList();
+
+      const ctx = createBrowserTestContext();
+      const start = performance.now();
+
+      try {
+        await tc.run(ctx);
+        state.status = 'PASSED';
+        state.durationMs = Math.round(performance.now() - start);
+      } catch (err) {
+        state.status = 'FAILED';
+        state.error = err.message;
+        state.durationMs = Math.round(performance.now() - start);
+      }
+
+      window.renderTestList();
+      updateTelemetry();
+    };
+
+    window.runTier = async function(tier) {
+      const tests = allTests.filter(t => t.tier === tier);
+      for (const tc of tests) {
+        await window.runSingleTest(tc.id);
+      }
+    };
+
+    window.runAllTests = async function() {
+      const start = performance.now();
+      for (const tc of allTests) {
+        await window.runSingleTest(tc.id);
+        const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+        document.getElementById('statTime').textContent = `${elapsed}s`;
+      }
+    };
+
+    window.resetAllTests = function() {
+      for (const tc of allTests) {
+        window.testStates[tc.id] = { status: 'PENDING', durationMs: 0, error: null };
+      }
+      document.getElementById('statTime').textContent = '0.0s';
+      window.renderTestList();
+    };
+
+    function updateTelemetry() {
+      const iframe = document.getElementById('gameFrame');
+      const win = iframe.contentWindow || window;
+      try {
+        if (win.__GAME_STATE__) {
+          document.getElementById('stateInspector').textContent = JSON.stringify(win.__GAME_STATE__, null, 2);
+        }
+        if (win.__AUDIO_SPY__) {
+          document.getElementById('audioInspector').textContent = JSON.stringify({
+            eventsCount: (win.__AUDIO_SPY__.events || []).length,
+            recentEvents: (win.__AUDIO_SPY__.events || []).slice(-5)
+          }, null, 2);
+        }
+      } catch(e) {}
+    }
+
+    setInterval(updateTelemetry, 500);
+    window.renderTestList();
+  </script>
+</body>
+</html>
