@@ -1,6 +1,6 @@
 /**
- * Mode 4: Daddy Pig Challenge (Hyper-Speed Frenzy Test)
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 4: Dad's Kitchen Dash (Hyper-Speed Frenzy Test)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -12,9 +12,9 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawDaddyPig } from '../graphics/characters/daddyPigRenderer';
+import { drawDad } from '../graphics/characters/dadRenderer';
 
-export class DaddyPigScene extends BaseScene {
+export class DadKitchenScene extends BaseScene {
   public time: number = 0;
   public fever: number = 0;
   public timer: number = 20.0;
@@ -56,22 +56,22 @@ export class DaddyPigScene extends BaseScene {
     Haptics.tap();
 
     const isPortrait = this.game.display.isPortrait;
-    const pigX = isPortrait ? this.game.display.vWidth / 2 : this.game.display.vWidth * 0.72;
-    const pigY = isPortrait ? this.game.display.vHeight * 0.38 : 240;
+    const dadX = isPortrait ? this.game.display.vWidth / 2 : this.game.display.vWidth * 0.72;
+    const dadY = isPortrait ? this.game.display.vHeight * 0.38 : 240;
 
     if (this.fever >= 65) {
-      this.particles.spawnSteam(pigX, pigY);
+      this.particles.spawnSteam(dadX, dadY);
     }
     if (this.fever >= 95) {
-      this.particles.spawnSparkles(pigX, pigY, 6);
+      this.particles.spawnSparkles(dadX, dadY, 6);
     }
 
     if (this.fever >= 100 && !this.isOverheating) {
       this.isOverheating = true;
       soundEngine.playSFX('crash');
       Haptics.fanfare();
-      this.particles.spawnConfetti(pigX, pigY, 25);
-      this.particles.spawnSteam(pigX, pigY);
+      this.particles.spawnConfetti(dadX, dadY, 25);
+      this.particles.spawnSteam(dadX, dadY);
       this.game.storage.saveHighScore('daddyPig', this.score);
     }
   }
@@ -116,7 +116,7 @@ export class DaddyPigScene extends BaseScene {
       ctx.fillStyle = '#FFFFFF';
       ctx.font = `bold ${isPortrait ? '28px' : '36px'} "Comic Sans MS", sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('💻 COMPUTER CRASH! 💥', vWidth / 2, vHeight * 0.32);
+      ctx.fillText('🍳 KITCHEN SIZZLE CRASH! 💥', vWidth / 2, vHeight * 0.32);
 
       ctx.font = 'bold 24px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFEB3B';
@@ -124,7 +124,7 @@ export class DaddyPigScene extends BaseScene {
 
       ctx.fillStyle = '#E0E0E0';
       ctx.font = '16px "Comic Sans MS", sans-serif';
-      ctx.fillText('Daddy Pig broke the computer again!', vWidth / 2, vHeight * 0.52);
+      ctx.fillText('Dad broke the kitchen again!', vWidth / 2, vHeight * 0.52);
 
       // High Score Record
       const best = this.game.storage.getHighScore('daddyPig');
@@ -165,11 +165,11 @@ export class DaddyPigScene extends BaseScene {
 
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
-    // Office Desk & Computer Setup
+    // Kitchen Counter & Setup
     const deskX = isPortrait ? vWidth / 2 : vWidth * 0.72;
     const deskY = isPortrait ? vHeight * 0.44 : 280;
 
-    // Wooden desk
+    // Kitchen counter
     ctx.fillStyle = '#8D6E63';
     ctx.strokeStyle = '#5D4037';
     ctx.lineWidth = 4;
@@ -178,7 +178,7 @@ export class DaddyPigScene extends BaseScene {
     ctx.fill();
     ctx.stroke();
 
-    // CRT Monitor
+    // Toaster / Kitchen Appliance
     ctx.fillStyle = '#CFD8DC';
     ctx.strokeStyle = '#37474F';
     ctx.lineWidth = 3;
@@ -187,17 +187,17 @@ export class DaddyPigScene extends BaseScene {
     ctx.fill();
     ctx.stroke();
 
-    // Monitor screen color changing with fever
+    // Appliance glow changing with fever
     const screenColor = this.fever >= 90 ? (Math.sin(this.time * 20) > 0 ? '#F44336' : '#FFEB3B') : (this.fever >= 65 ? '#FFA000' : '#4CAF50');
     ctx.fillStyle = screenColor;
     ctx.beginPath();
     ctx.roundRect(deskX - 80, deskY - 16, 50, 38, 4);
     ctx.fill();
 
-    // Daddy Pig Character
-    const pigX = isPortrait ? vWidth / 2 : vWidth * 0.72;
-    const pigY = isPortrait ? vHeight * 0.38 : 240;
-    drawDaddyPig(ctx, pigX, pigY, isPortrait ? 1.25 : 1.1, {
+    // Dad Character
+    const dadX = isPortrait ? vWidth / 2 : vWidth * 0.72;
+    const dadY = isPortrait ? vHeight * 0.38 : 240;
+    drawDad(ctx, dadX, dadY, isPortrait ? 1.25 : 1.1, {
       panicStage,
       time: this.time,
       sweatCount: panicStage > 0 ? panicStage * 2 : 0
@@ -288,3 +288,5 @@ export class DaddyPigScene extends BaseScene {
     };
   }
 }
+
+export const DaddyPigScene = DadKitchenScene;

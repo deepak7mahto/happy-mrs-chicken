@@ -1,6 +1,6 @@
 /**
  * SoundSynthesizer - Procedural Web Audio synthesis recipes for all 18 cartoon SFX
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { AudioContextHolder } from './AudioContextHolder';
@@ -214,7 +214,7 @@ export class SoundSynthesizer {
     this.playTone(4800, 0.03, 'sine', 0.1);
   }
 
-  public playSheepBleat(): void {
+  public playBunnySqueak(): void {
     if (!this.canPlay || !this.ctx || !this.sfxGain) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator(), lfo = this.ctx.createOscillator();
@@ -234,6 +234,10 @@ export class SoundSynthesizer {
     osc.connect(filter); filter.connect(gain); gain.connect(this.sfxGain);
     lfo.start(now); osc.start(now); lfo.stop(now + 0.35); osc.stop(now + 0.35);
     osc.onended = () => { osc.disconnect(); lfo.disconnect(); lfoG.disconnect(); filter.disconnect(); gain.disconnect(); };
+  }
+
+  public playSheepBleat(): void {
+    this.playBunnySqueak();
   }
 
   public playToddlerGiggle(): void {
@@ -260,7 +264,8 @@ export class SoundSynthesizer {
       case 'veggiePop': this.playVeggiePop(); break;
       case 'mudThud': this.playMudThud(); break;
       case 'bubblePop': this.playBubblePop(); break;
-      case 'sheepBleat': this.playSheepBleat(); break;
+      case 'bunnySqueak': this.playBunnySqueak(); break;
+      case 'sheepBleat' as any: this.playBunnySqueak(); break;
       case 'toddlerGiggle': this.playToddlerGiggle(); break;
     }
   }

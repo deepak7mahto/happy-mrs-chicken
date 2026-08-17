@@ -1,6 +1,6 @@
 /**
- * Mode 5: George's Dinosaur Balloon Pop
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 5: Leo's Balloon Pop (Dinosaur Balloon Pop)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,7 +14,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawGeorgePig } from '../graphics/characters/georgeRenderer';
+import { drawLeo } from '../graphics/characters/leoRenderer';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -133,7 +133,7 @@ export class DinosaurBalloonScene extends BaseScene {
       : (this.combo > 2 ? `+${pts} (${this.combo - 1}x)!` : `+${pts}`);
     this.particles.spawnScorePopup(b.x, b.y - 25, popupText);
 
-    // George Pig Reaction
+    // Leo Reaction
     this.chompTimer = 0.45;
     this.popTimer = 0.35;
 
@@ -229,14 +229,14 @@ export class DinosaurBalloonScene extends BaseScene {
       this.drawBalloon(ctx, b);
     }
 
-    // George Pig & Mr. Dinosaur
-    const georgeX = isPortrait ? vWidth * 0.76 : 140;
-    const georgeY = isPortrait ? vHeight - 145 : vHeight - 110;
-    const georgeScale = isPortrait ? 1.25 : 1.15;
+    // Leo & Plush Dinosaur
+    const leoX = isPortrait ? vWidth * 0.76 : 140;
+    const leoY = isPortrait ? vHeight - 145 : vHeight - 110;
+    const leoScale = isPortrait ? 1.25 : 1.15;
     const jawAngle = getJawRotationAngle(this.chompTimer);
     const popReaction = getBalloonPopReaction(this.popTimer);
 
-    drawGeorgePig(ctx, georgeX, georgeY, georgeScale, {
+    drawLeo(ctx, leoX, leoY, leoScale, {
       holdingDino: true,
       dinoChomp: jawAngle > 0 ? jawAngle / (Math.PI / 6) : 0,
       squash: popReaction.surpriseScale,

@@ -1,6 +1,6 @@
 /**
- * Mode 6: Mummy Pig's Pancake Flipper
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 6: Golden Pancake Flipper
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,7 +14,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawMummyPig } from '../graphics/characters/mummyPigRenderer';
+import { drawMom } from '../graphics/characters/momRenderer';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -224,9 +224,9 @@ export class PancakeFlipperScene extends BaseScene {
     ctx.fillRect(0, counterY - 14, vWidth, 14);
     ctx.restore();
 
-    // Mummy Pig
+    // Mom Character
     const panArt = getFryingPanAngle(this.flipPhase);
-    drawMummyPig(ctx, mummyX, mummyY, isPortrait ? 1.2 : 1.15, {
+    drawMom(ctx, mummyX, mummyY, isPortrait ? 1.2 : 1.15, {
       holdingPan: true,
       panAngle: panArt.panAngle,
       eyeBlink: this.animState.isBlinking,

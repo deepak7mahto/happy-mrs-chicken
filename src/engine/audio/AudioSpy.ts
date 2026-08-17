@@ -1,6 +1,6 @@
 /**
  * AudioSpy - Global telemetry recorder and test introspection harness
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { AudioSpyEvent, AudioSpy as IAudioSpy } from '../../types/audio';

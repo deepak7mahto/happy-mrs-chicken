@@ -1,6 +1,6 @@
 /**
  * Character Articulation & Pose Math Helpers for 8 Mini-Games
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 import {
@@ -13,13 +13,13 @@ import {
   easeOutElastic
 } from './animations';
 
-/** Mode 5: George Pig & Mr. Dinosaur Chomping Jaw Angle (0 to 30 deg / 0.52 rad) */
+/** Mode 5: Leo & Plush Dinosaur Chomping Jaw Angle (0 to 30 deg / 0.52 rad) */
 export function getJawRotationAngle(chompTimer: number, maxAngleRad: number = 0.52): number {
   if (chompTimer <= 0) return 0;
   return Math.abs(Math.sin(chompTimer * 10)) * maxAngleRad;
 }
 
-/** Mode 6: Mummy Pig Frying Pan Flip Articulation */
+/** Mode 6: Mom Frying Pan Flip Articulation */
 export function getFryingPanAngle(
   flipPhase: number,
   flipIntensity: number = 1.0
@@ -49,7 +49,7 @@ export function getFryingPanAngle(
   }
 }
 
-/** Mode 7: Grandpa Pig Vegetable Harvest Pull Tension */
+/** Mode 7: Grandpa Vegetable Harvest Pull Tension */
 export function getVeggiePullTension(
   tension: number,
   time: number = 0
@@ -62,7 +62,7 @@ export function getVeggiePullTension(
   return { pullY, strainAngle, strainTremor, sweatCount };
 }
 
-/** Mode 8: Suzy Sheep Hopscotch Jumping & Fluffy Wool Ears */
+/** Mode 8: Mimi the Bunny Hopscotch Jumping & Fluffy Ears */
 export function getHopscotchPhase(
   hopPhase: number
 ): { hopY: number; squashY: number; legSpread: number; earFlap: number } {
@@ -79,7 +79,7 @@ export function getHopscotchPhase(
   return { hopY, squashY, legSpread, earFlap };
 }
 
-/** Mode 1: Happy Mrs Chicken Egg Laying Squat */
+/** Mode 1: Happy Mrs Clucky Egg Laying Squat */
 export function getEggLayingSquat(
   squatProgress: number
 ): { squashY: number; wingFlap: number; squawkMouth: number; headBob: number } {
@@ -98,7 +98,7 @@ export function getEggLayingSquat(
   }
 }
 
-/** Mode 2: Peppa Pig Muddy Puddle Splash Reaction */
+/** Mode 2: Trishu Muddy Puddle Splash Reaction */
 export function getMudSplashReaction(
   jumpVelocity: number,
   isLanding: boolean,
@@ -117,7 +117,7 @@ export function getMudSplashReaction(
   return { squashY, armWave: Math.sin(now * 0.01) * 0.4, dressSway: 0 };
 }
 
-/** Mode 4: Daddy Pig Overheat Reaction & Crash Panic */
+/** Mode 4: Dad Overheat Reaction & Crash Panic */
 export function getDaddyPigPanic(
   panicStage: number,
   time: number
@@ -133,6 +133,8 @@ export function getDaddyPigPanic(
   return { shakeX, shakeY, eyeRadius, sweatCount, bellyBounce };
 }
 
+export const getDadPanic = getDaddyPigPanic;
+
 /** Mode 3: Baby Chick Waddle & Peep */
 export function getBabyChickWaddle(
   walkCycle: number,
@@ -146,7 +148,7 @@ export function getBabyChickWaddle(
   };
 }
 
-/** Mode 8: Suzy Sheep Bubble Blowing Pose */
+/** Mode 8: Mimi the Bunny Bubble Blowing Pose */
 export function getBubbleBlowPose(
   blowTimer: number
 ): { mouthPucker: number; armAngle: number; wandAngle: number; wandScale: number } {
@@ -156,7 +158,7 @@ export function getBubbleBlowPose(
   return { mouthPucker: pucker, armAngle, wandAngle: armAngle * 1.1, wandScale: 1.0 + Math.sin(t * Math.PI * 4) * 0.05 * pucker };
 }
 
-/** Mode 5: George Pig Dinosaur Balloon Pop Startle Reaction */
+/** Mode 5: Leo Balloon Pop Startle Reaction */
 export function getBalloonPopReaction(
   popTimer: number
 ): { surpriseScale: number; eyeWiden: number; dinoJump: number } {

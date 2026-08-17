@@ -1,6 +1,6 @@
 /**
  * BGMSequencer - 128 BPM Multi-Track Algorithmic Nursery Music Sequencer
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { AudioContextHolder } from './AudioContextHolder';

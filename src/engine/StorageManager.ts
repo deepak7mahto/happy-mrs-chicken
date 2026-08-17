@@ -1,6 +1,6 @@
 /**
  * StorageManager - LocalStorage persistence for 8-Game Mini-Game Suite
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { StorageData, HighScores, IStorageManager } from '../types/storage';

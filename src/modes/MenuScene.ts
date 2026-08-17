@@ -1,6 +1,6 @@
 /**
  * Mode 0: Main Menu / 8-Game Arcade Selection Suite
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -13,14 +13,14 @@ import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
 import {
-  drawMrsChicken,
-  drawPeppaPig,
+  drawMrsClucky,
+  drawTrishu,
   drawBabyChick,
-  drawDaddyPig,
-  drawGeorgePig,
-  drawMummyPig,
-  drawGrandpaPig,
-  drawSuzySheep
+  drawDad,
+  drawLeo,
+  drawMom,
+  drawGrandpa,
+  drawMimi
 } from '../graphics/characters';
 
 interface MenuCardInfo {
@@ -34,14 +34,14 @@ interface MenuCardInfo {
 }
 
 const MENU_CARDS: MenuCardInfo[] = [
-  { id: 'EGG_LAYING', title: 'Mrs Chicken', sub: 'Lay & hatch eggs!', badge: 'Classic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'eggLaying' },
-  { id: 'MUDDY_PUDDLES', title: 'Muddy Puddles', sub: 'Jump & splash mud!', badge: 'Splash', color: '#FFCDD2', borderColor: '#E57373', scoreKey: 'muddyPuddles' },
-  { id: 'CHICK_MAZE', title: 'Chick Maze', sub: 'Guide lost chicks!', badge: 'Puzzle', color: '#C8E6C9', borderColor: '#81C784', scoreKey: 'chickMaze' },
-  { id: 'DADDY_PIG', title: 'Daddy Pig', sub: 'Speed frenzy test!', badge: 'Frenzy', color: '#B2EBF2', borderColor: '#4DD0E1', scoreKey: 'daddyPig' },
-  { id: 'DINOSAUR_BALLOON', title: 'Dino Balloons', sub: 'Pop dino balloons!', badge: 'Pop', color: '#D1C4E9', borderColor: '#9575CD', scoreKey: 'dinosaurBalloon' },
+  { id: 'EGG_LAYING', title: 'Mrs Clucky', sub: 'Lay & hatch eggs!', badge: 'Classic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'eggLaying' },
+  { id: 'MUDDY_PUDDLES', title: 'Puddle Splash', sub: 'Jump & splash!', badge: 'Splash', color: '#FFCDD2', borderColor: '#E57373', scoreKey: 'muddyPuddles' },
+  { id: 'CHICK_MAZE', title: 'Chick Trail', sub: 'Guide lost chicks!', badge: 'Puzzle', color: '#C8E6C9', borderColor: '#81C784', scoreKey: 'chickMaze' },
+  { id: 'DADDY_PIG', title: "Dad's Kitchen", sub: 'Breakfast frenzy!', badge: 'Frenzy', color: '#B2EBF2', borderColor: '#4DD0E1', scoreKey: 'daddyPig' },
+  { id: 'DINOSAUR_BALLOON', title: 'Balloon Pop', sub: 'Pop all balloons!', badge: 'Pop', color: '#D1C4E9', borderColor: '#9575CD', scoreKey: 'dinosaurBalloon' },
   { id: 'PANCAKE_FLIPPER', title: 'Pancake Flip', sub: 'Flip & stack high!', badge: 'Chef', color: '#FFE0B2', borderColor: '#FFB74D', scoreKey: 'pancakeFlipper' },
-  { id: 'VEGETABLE_HARVEST', title: 'Garden Harvest', sub: 'Pull giant veggies!', badge: 'Garden', color: '#DCEDC8', borderColor: '#AED581', scoreKey: 'vegetableHarvest' },
-  { id: 'HOPSCOTCH_BUBBLE', title: 'Suzy Hopscotch', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' }
+  { id: 'VEGETABLE_HARVEST', title: 'Veggie Harvest', sub: 'Pull giant veggies!', badge: 'Garden', color: '#DCEDC8', borderColor: '#AED581', scoreKey: 'vegetableHarvest' },
+  { id: 'HOPSCOTCH_BUBBLE', title: 'Bubble Hop', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' }
 ];
 
 export class MenuScene extends BaseScene {
@@ -178,7 +178,7 @@ export class MenuScene extends BaseScene {
       ctx.fill();
       ctx.stroke();
 
-      drawMrsChicken(ctx, cx - 4, cy, charScale * 0.95, {
+      drawMrsClucky(ctx, cx - 4, cy, charScale * 0.95, {
         squash: 1.0 + Math.sin(time * 4) * 0.1,
         flap: Math.sin(time * 6) * 0.22,
         headBob: Math.sin(time * 3) * 2,
@@ -202,7 +202,7 @@ export class MenuScene extends BaseScene {
         ctx.fill();
       }
 
-      drawPeppaPig(ctx, cx, cy, charScale * 0.95, {
+      drawTrishu(ctx, cx, cy, charScale * 0.95, {
         jumpY,
         squish,
         squash: squish,
@@ -226,7 +226,7 @@ export class MenuScene extends BaseScene {
       });
     } else if (modeId === 'DADDY_PIG') {
       const panic = Math.floor((time * 0.7) % 4);
-      drawDaddyPig(ctx, cx, cy - 4, charScale * 0.9, {
+      drawDad(ctx, cx, cy - 4, charScale * 0.9, {
         panicStage: panic,
         time,
         sweatCount: panic > 0 ? panic * 2 : 0,
@@ -258,7 +258,7 @@ export class MenuScene extends BaseScene {
       ctx.stroke();
       ctx.restore();
 
-      drawGeorgePig(ctx, cx - 6, cy, charScale * 0.95, {
+      drawLeo(ctx, cx - 6, cy, charScale * 0.95, {
         holdingDino: true,
         dinoChomp,
         jumpY: Math.sin(time * 3.5) * 3,
@@ -270,7 +270,7 @@ export class MenuScene extends BaseScene {
       const pancakeFlight = Math.sin(flipCycle);
       const panAngle = pancakeFlight > 0 ? pancakeFlight * 0.25 : 0;
 
-      drawMummyPig(ctx, cx - 10, cy, charScale * 0.9, {
+      drawMom(ctx, cx - 10, cy, charScale * 0.9, {
         holdingPan: true,
         panAngle,
         smiling: true,
@@ -303,7 +303,7 @@ export class MenuScene extends BaseScene {
       ctx.arc(cx + 20, cy + 16 - pullTension * 6, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      drawGrandpaPig(ctx, cx - 8, cy, charScale * 0.88, {
+      drawGrandpa(ctx, cx - 8, cy, charScale * 0.88, {
         pulling: true,
         pullTension,
         welliesMuddy: true,
@@ -329,7 +329,7 @@ export class MenuScene extends BaseScene {
       ctx.fill();
       ctx.restore();
 
-      drawSuzySheep(ctx, cx - 6, cy, charScale * 0.92, {
+      drawMimi(ctx, cx - 6, cy, charScale * 0.92, {
         hopY,
         earFlap: Math.sin(hopCycle) * 0.28,
         holdingWand: true,
@@ -358,9 +358,9 @@ export class MenuScene extends BaseScene {
 
     ctx.strokeStyle = '#3E2723';
     ctx.lineWidth = isPortrait ? 6 : 7;
-    ctx.strokeText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+    ctx.strokeText('Adventures of Trishu', 0, 0);
     ctx.fillStyle = '#FFE600';
-    ctx.fillText('Peppa Pig: Happy Mrs Chicken', 0, 0);
+    ctx.fillText('Adventures of Trishu', 0, 0);
     ctx.restore();
 
     // Mode Cards Grid

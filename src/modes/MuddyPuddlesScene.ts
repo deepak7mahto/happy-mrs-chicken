@@ -1,6 +1,6 @@
 /**
- * Mode 2: Muddy Puddles
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 2: Muddy Puddles (Puddle Splash Adventure)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,7 +14,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills, drawMuddyPuddle } from '../graphics/environmentRenderer';
-import { drawPeppaPig } from '../graphics/characters/peppaRenderer';
+import { drawTrishu } from '../graphics/characters/trishuRenderer';
 import { createCharacterAnimState, updateCharacterAnimState } from '../graphics/animations';
 
 export class MuddyPuddlesScene extends BaseScene {
@@ -23,7 +23,7 @@ export class MuddyPuddlesScene extends BaseScene {
   public puddles: PuddleEntity[] = [];
   public particles: ParticleEngine;
   public animState: CharacterAnimState;
-  public peppa = { x: 270, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
+  public trishu = { x: 270, y: 410, vx: 0, jumpY: 0, isJumping: false, jumpV: 0, squish: 1.0 };
   public multiplier: number = 1;
   public muddyBootsTimer: number = 0;
   private spawnTimer: number = 0;
@@ -45,7 +45,7 @@ export class MuddyPuddlesScene extends BaseScene {
 
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
-    this.peppa = {
+    this.trishu = {
       x: this.game.display.vWidth / 2,
       y: groundY,
       vx: 0,
@@ -85,10 +85,10 @@ export class MuddyPuddlesScene extends BaseScene {
   }
 
   jump(): void {
-    if (this.peppa.isJumping) return;
-    this.peppa.isJumping = true;
-    this.peppa.jumpV = -460;
-    this.peppa.squish = 1.25;
+    if (this.trishu.isJumping) return;
+    this.trishu.isJumping = true;
+    this.trishu.jumpV = -460;
+    this.trishu.squish = 1.25;
     Haptics.tap();
   }
 
@@ -105,7 +105,7 @@ export class MuddyPuddlesScene extends BaseScene {
 
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
-    this.peppa.y = groundY;
+    this.trishu.y = groundY;
 
     // Spawner
     this.spawnTimer += dt;
@@ -116,43 +116,43 @@ export class MuddyPuddlesScene extends BaseScene {
 
     // Keyboard controls
     if (input.isKeyDown('ArrowLeft') || input.isKeyDown('KeyA')) {
-      this.peppa.vx = -240;
+      this.trishu.vx = -240;
     } else if (input.isKeyDown('ArrowRight') || input.isKeyDown('KeyD')) {
-      this.peppa.vx = 240;
+      this.trishu.vx = 240;
     } else {
-      this.peppa.vx = 0;
+      this.trishu.vx = 0;
     }
 
     // Toddler Tap / Jump
     if (input.isActionJustPressed()) {
       const p = input.primaryPointer;
       if (p.inside && p.y > 80 && input.pointers.size > 0) {
-        this.peppa.x = p.x;
+        this.trishu.x = p.x;
         this.jump();
       } else {
         this.jump();
       }
     }
 
-    // Peppa Jump Physics
-    const minPeppaX = 50;
-    const maxPeppaX = this.game.display.vWidth - 50;
-    this.peppa.x = Math.max(minPeppaX, Math.min(maxPeppaX, this.peppa.x + this.peppa.vx * dt));
+    // Trishu Jump Physics
+    const minTrishuX = 50;
+    const maxTrishuX = this.game.display.vWidth - 50;
+    this.trishu.x = Math.max(minTrishuX, Math.min(maxTrishuX, this.trishu.x + this.trishu.vx * dt));
 
-    if (this.peppa.isJumping) {
-      this.peppa.jumpV += 1400 * dt;
-      this.peppa.jumpY += this.peppa.jumpV * dt;
+    if (this.trishu.isJumping) {
+      this.trishu.jumpV += 1400 * dt;
+      this.trishu.jumpY += this.trishu.jumpV * dt;
 
-      if (this.peppa.jumpY >= 0) {
-        this.peppa.jumpY = 0;
-        this.peppa.isJumping = false;
-        this.peppa.squish = 0.7;
+      if (this.trishu.jumpY >= 0) {
+        this.trishu.jumpY = 0;
+        this.trishu.isJumping = false;
+        this.trishu.squish = 0.7;
 
         // Check collision with puddles
         let hit = false;
         for (let i = this.puddles.length - 1; i >= 0; i--) {
           const pud = this.puddles[i];
-          const dx = (this.peppa.x - pud.x) / pud.rx;
+          const dx = (this.trishu.x - pud.x) / pud.rx;
           const dy = (groundY - pud.y) / pud.ry;
           const dNorm = Math.sqrt(dx * dx + dy * dy);
 
@@ -195,9 +195,9 @@ export class MuddyPuddlesScene extends BaseScene {
       }
     }
 
-    this.peppa.squish += (1.0 - this.peppa.squish) * (dt * 12);
-    this.animState.jumpY = this.peppa.jumpY;
-    this.animState.squash = this.peppa.squish;
+    this.trishu.squish += (1.0 - this.trishu.squish) * (dt * 12);
+    this.animState.jumpY = this.trishu.jumpY;
+    this.animState.squash = this.trishu.squish;
 
     // Update puddles
     for (let i = this.puddles.length - 1; i >= 0; i--) {
@@ -219,12 +219,12 @@ export class MuddyPuddlesScene extends BaseScene {
       drawMuddyPuddle(ctx, pud.x, pud.y, pud.rx, pud.ry, { type: pud.type, ripplePhase: pud.ripplePhase });
     }
 
-    // Peppa Pig
-    drawPeppaPig(ctx, this.peppa.x, this.peppa.y, isPortrait ? 1.15 : 1.0, {
+    // Trishu Character
+    drawTrishu(ctx, this.trishu.x, this.trishu.y, isPortrait ? 1.15 : 1.0, {
       animState: this.animState,
-      jumpY: this.peppa.jumpY,
-      squish: this.peppa.squish,
-      squash: this.peppa.squish,
+      jumpY: this.trishu.jumpY,
+      squish: this.trishu.squish,
+      squash: this.trishu.squish,
       armWave: this.time * 8,
       eyeBlink: this.animState.isBlinking,
       muddyBoots: this.muddyBootsTimer > 0,

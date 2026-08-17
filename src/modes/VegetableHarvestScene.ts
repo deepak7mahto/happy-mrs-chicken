@@ -1,6 +1,6 @@
 /**
- * Mode 7: Grandpa Pig's Vegetable Harvest
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 7: Grandpa's Veggie Harvest
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,7 +14,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawGrandpaPig } from '../graphics/characters/grandpaPigRenderer';
+import { drawGrandpa } from '../graphics/characters/grandpaRenderer';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -300,7 +300,7 @@ export class VegetableHarvestScene extends BaseScene {
     this.drawWheelbarrow(ctx, wbX, wbY, this.harvestedCount);
 
     const pullArt = getVeggiePullTension(this.currentPullTension, this.time);
-    drawGrandpaPig(ctx, grandpaX, grandpaY + pullArt.pullY, isPortrait ? 1.15 : 1.1, {
+    drawGrandpa(ctx, grandpaX, grandpaY + pullArt.pullY, isPortrait ? 1.15 : 1.1, {
       pulling: this.activePullMoundIdx >= 0,
       pullTension: this.currentPullTension,
       welliesMuddy: true,

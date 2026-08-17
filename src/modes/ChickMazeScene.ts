@@ -1,6 +1,6 @@
 /**
- * Mode 3: Chick Maze / Sorting
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 3: Chick Trail (Chick Maze / Sorting)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 

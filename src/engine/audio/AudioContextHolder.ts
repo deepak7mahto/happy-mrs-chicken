@@ -1,6 +1,6 @@
 /**
  * AudioContextHolder - Web Audio Context lifecycle, unlock management, and graph topology
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion
+ * Adventures of Trishu 8-Game Suite
  */
 
 export class AudioContextHolder {

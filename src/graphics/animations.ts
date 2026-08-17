@@ -1,6 +1,6 @@
 /**
  * Shared Animation Controller & Procedural Vector Easing Suite
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { CharacterAnimState } from '../types/characters';

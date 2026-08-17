@@ -8,7 +8,7 @@ import { MenuScene } from '../modes/MenuScene';
 import { EggLayingScene } from '../modes/EggLayingScene';
 import { MuddyPuddlesScene } from '../modes/MuddyPuddlesScene';
 import { ChickMazeScene } from '../modes/ChickMazeScene';
-import { DaddyPigScene } from '../modes/DaddyPigScene';
+import { DadKitchenScene } from '../modes/DadKitchenScene';
 import { DinosaurBalloonScene } from '../modes/DinosaurBalloonScene';
 import { PancakeFlipperScene } from '../modes/PancakeFlipperScene';
 import { VegetableHarvestScene } from '../modes/VegetableHarvestScene';
@@ -33,7 +33,7 @@ export class GameEngine {
     this.scenes.set('EGG_LAYING', new EggLayingScene(this));
     this.scenes.set('MUDDY_PUDDLES', new MuddyPuddlesScene(this));
     this.scenes.set('CHICK_MAZE', new ChickMazeScene(this));
-    this.scenes.set('DADDY_PIG', new DaddyPigScene(this));
+    this.scenes.set('DADDY_PIG', new DadKitchenScene(this));
     this.scenes.set('DINOSAUR_BALLOON', new DinosaurBalloonScene(this));
     this.scenes.set('PANCAKE_FLIPPER', new PancakeFlipperScene(this));
     this.scenes.set('VEGETABLE_HARVEST', new VegetableHarvestScene(this));

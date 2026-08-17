@@ -1,6 +1,6 @@
 /**
- * Mode 1: Happy Mrs Chicken (Classic Egg-Laying Mode)
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 1: Happy Mrs Clucky (Classic Egg-Laying Mode)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,7 +14,7 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills, drawHayNest, drawEgg } from '../graphics/environmentRenderer';
-import { drawMrsChicken } from '../graphics/characters/chickenRenderer';
+import { drawMrsClucky } from '../graphics/characters/chickenRenderer';
 import { drawBabyChick } from '../graphics/characters/chickRenderer';
 import { createCharacterAnimState, updateCharacterAnimState } from '../graphics/animations';
 
@@ -298,7 +298,7 @@ export class EggLayingScene extends BaseScene {
       });
     }
 
-    drawMrsChicken(ctx, this.chicken.x, this.chicken.y, isPortrait ? 1.2 : 1.1, {
+    drawMrsClucky(ctx, this.chicken.x, this.chicken.y, isPortrait ? 1.2 : 1.1, {
       animState: this.animState,
       squash: this.chicken.squash,
       squawk: this.chicken.squawk,

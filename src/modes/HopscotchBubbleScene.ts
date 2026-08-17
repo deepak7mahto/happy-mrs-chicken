@@ -1,6 +1,6 @@
 /**
- * Mode 8: Suzy Sheep's Hopscotch & Bubble Trail
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Mode 8: Rainbow Bubble Hopscotch (Mimi & Trishu)
+ * Adventures of Trishu 8-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -14,8 +14,8 @@ import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawSuzySheep } from '../graphics/characters/suzySheepRenderer';
-import { drawPeppaPig } from '../graphics/characters/peppaRenderer';
+import { drawMimi } from '../graphics/characters/mimiRenderer';
+import { drawTrishu } from '../graphics/characters/trishuRenderer';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -45,13 +45,16 @@ export class HopscotchBubbleScene extends BaseScene {
   public tiles: HopscotchTile[] = [];
   public particles: ParticleEngine;
   public animState: CharacterAnimState;
-  public peppaAnimState: CharacterAnimState;
+  public trishuAnimState: CharacterAnimState;
 
-  public suzy = {
+  public mimi = {
     x: 100, y: 400, currentSquare: 1, targetSquare: 1,
     isHopping: false, hopTimer: 0, hopDuration: 0.38,
     startX: 100, startY: 400, targetX: 100, targetY: 400
   };
+
+  // Backward compatibility alias for suzy
+  public get suzy() { return this.mimi; }
 
   private spawnTimer: number = 0;
 
@@ -59,7 +62,7 @@ export class HopscotchBubbleScene extends BaseScene {
     super(game);
     this.particles = new ParticleEngine(150);
     this.animState = createCharacterAnimState();
-    this.peppaAnimState = createCharacterAnimState();
+    this.trishuAnimState = createCharacterAnimState();
   }
 
   enter(): void {
@@ -71,10 +74,10 @@ export class HopscotchBubbleScene extends BaseScene {
     this.bubbles = [];
     this.particles.clear();
     this.animState = createCharacterAnimState();
-    this.peppaAnimState = createCharacterAnimState();
+    this.trishuAnimState = createCharacterAnimState();
 
     this.initTiles();
-    this.resetSuzyPosition();
+    this.resetMimiPosition();
 
     const vHeight = this.game.display.vHeight;
     for (let i = 0; i < 6; i++) {
@@ -98,165 +101,186 @@ export class HopscotchBubbleScene extends BaseScene {
       const endY = vHeight * 0.28;
       const stepY = (startY - endY) / (totalTiles - 1);
       for (let i = 1; i <= totalTiles; i++) {
-        const offset = Math.sin((i - 1) * 0.8) * 80;
-        this.tiles.push({
-          index: i,
-          x: vWidth * 0.5 + offset,
-          y: startY - (i - 1) * stepY,
-          w: 52, h: 46,
-          color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length]
-        });
+        const row = i - 1;
+        const y = startY - row * stepY;
+        let x = vWidth * 0.5;
+        let w = 70;
+        const h = Math.min(50, stepY * 0.85);
+
+        if (i === 4 || i === 7) x = vWidth * 0.38;
+        else if (i === 5 || i === 8) x = vWidth * 0.62;
+        if (i === 4 || i === 5 || i === 7 || i === 8) w = 62;
+
+        this.tiles.push({ index: i, x, y, w, h, color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length] });
       }
     } else {
-      const startX = 140;
-      const endX = vWidth - 220;
+      const startX = vWidth * 0.14;
+      const endX = vWidth * 0.72;
       const stepX = (endX - startX) / (totalTiles - 1);
-      const baseY = vHeight * 0.72;
+      const baseGroundY = vHeight * 0.74;
       for (let i = 1; i <= totalTiles; i++) {
-        const offset = Math.sin((i - 1) * 0.9) * 35;
-        this.tiles.push({
-          index: i,
-          x: startX + (i - 1) * stepX,
-          y: baseY + offset,
-          w: 50, h: 46,
-          color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length]
-        });
+        const col = i - 1;
+        const x = startX + col * stepX;
+        let y = baseGroundY;
+        const w = Math.min(64, stepX * 0.88);
+        let h = 58;
+
+        if (i === 4 || i === 7) y = baseGroundY - 24;
+        else if (i === 5 || i === 8) y = baseGroundY + 24;
+        if (i === 4 || i === 5 || i === 7 || i === 8) h = 48;
+
+        this.tiles.push({ index: i, x, y, w, h, color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length] });
       }
     }
   }
 
-  private resetSuzyPosition(): void {
-    const firstTile = this.tiles[0];
-    const x = firstTile ? firstTile.x : 100;
-    const y = firstTile ? firstTile.y : 400;
-    this.suzy.currentSquare = 1;
-    this.suzy.targetSquare = 1;
-    this.suzy.isHopping = false;
-    this.suzy.hopTimer = 0;
-    this.suzy.x = x;
-    this.suzy.y = y;
-    this.suzy.startX = x;
-    this.suzy.startY = y;
-    this.suzy.targetX = x;
-    this.suzy.targetY = y;
+  private resetMimiPosition(): void {
+    if (this.tiles.length > 0) {
+      const t1 = this.tiles[0];
+      this.mimi.x = t1.x;
+      this.mimi.y = t1.y - 12;
+      this.mimi.startX = this.mimi.x;
+      this.mimi.startY = this.mimi.y;
+      this.mimi.targetX = this.mimi.x;
+      this.mimi.targetY = this.mimi.y;
+      this.mimi.currentSquare = 1;
+      this.mimi.targetSquare = 1;
+      this.mimi.isHopping = false;
+      this.mimi.hopTimer = 0;
+    }
   }
 
-  private spawnBubble(customY?: number): void {
+  public resetSuzyPosition(): void {
+    this.resetMimiPosition();
+  }
+
+  private spawnBubble(initialY?: number): void {
     const vWidth = this.game.display.vWidth;
     const vHeight = this.game.display.vHeight;
-    const margin = 50;
-    const x = margin + Math.random() * (vWidth - margin * 2);
-    const y = customY !== undefined ? customY : vHeight + 35;
-    const radius = 22 + Math.random() * 12;
-    const vy = -(30 + Math.random() * 25);
+    const radius = 16 + Math.random() * 16;
+    const minX = radius + 20;
+    const maxX = vWidth - radius - 20;
+    const x = minX + Math.random() * (maxX - minX);
+    const y = initialY !== undefined ? initialY : vHeight + radius + 10;
+    const vy = -(35 + Math.random() * 45);
+
     this.bubbles.push({
-      x, y, radius, vy,
+      x,
+      y,
+      radius,
+      vy,
       wobbleOffset: Math.random() * Math.PI * 2,
       popped: false
     });
   }
 
-  public advanceSuzy(): void {
-    if (this.suzy.isHopping || this.suzy.currentSquare >= 10) return;
-    const nextIdx = this.suzy.currentSquare + 1;
-    const targetTile = this.tiles.find(t => t.index === nextIdx);
-    if (!targetTile) return;
-
-    this.suzy.isHopping = true;
-    this.suzy.hopTimer = 0;
-    this.suzy.targetSquare = nextIdx;
-    this.suzy.startX = this.suzy.x;
-    this.suzy.startY = this.suzy.y;
-    this.suzy.targetX = targetTile.x;
-    this.suzy.targetY = targetTile.y;
-    soundEngine.playSFX('sheepBleat');
-    Haptics.tap();
-  }
-
-  private popBubble(index: number): void {
-    const b = this.bubbles[index];
-    if (!b || b.popped) return;
+  private popBubble(idx: number): void {
+    if (idx < 0 || idx >= this.bubbles.length) return;
+    const b = this.bubbles[idx];
+    if (b.popped) return;
     b.popped = true;
     this.bubblesPoppedCount++;
     this.score += 50;
+
     soundEngine.playSFX('bubblePop');
-    soundEngine.playSFX('sheepBleat');
+    soundEngine.playSFX('bunnySqueak');
     Haptics.tap();
+
     this.particles.spawnSoapBubbles(b.x, b.y, 8);
     this.particles.spawnSparkles(b.x, b.y, 6);
     this.particles.spawnScorePopup(b.x, b.y - 20, '+50 🫧');
-    this.advanceSuzy();
+    this.game.storage.saveHighScore('hopscotchBubble', this.score);
   }
 
-  private triggerPicnicCelebration(): void {
-    this.isCelebrating = true;
-    this.celebrationTimer = 0;
-    this.score += 500;
-    soundEngine.playSFX('fanfare');
-    soundEngine.playSFX('sheepBleat');
-    soundEngine.playSFX('toddlerGiggle');
-    Haptics.fanfare();
+  public advanceMimi(): void {
+    if (this.mimi.isHopping || this.isCelebrating) return;
+    const nextSquare = this.mimi.currentSquare + 1;
 
-    const isPortrait = this.game.display.isPortrait;
-    const vWidth = this.game.display.vWidth;
-    const vHeight = this.game.display.vHeight;
-    const picnicX = isPortrait ? vWidth * 0.5 : vWidth - 110;
-    const picnicY = isPortrait ? vHeight * 0.18 : vHeight * 0.7;
-    this.particles.spawnConfetti(picnicX, picnicY, 35);
-    this.particles.spawnSparkles(picnicX, picnicY, 15);
-    this.particles.spawnScorePopup(picnicX, picnicY - 35, '🧺 Picnic Party! 🎉 +500');
-    this.game.storage.saveHighScore('hopscotchBubble', this.score);
+    if (nextSquare <= this.tiles.length) {
+      const targetTile = this.tiles[nextSquare - 1];
+      this.mimi.isHopping = true;
+      this.mimi.hopTimer = 0;
+      this.mimi.targetSquare = nextSquare;
+      this.mimi.startX = this.mimi.x;
+      this.mimi.startY = this.mimi.y;
+      this.mimi.targetX = targetTile.x;
+      this.mimi.targetY = targetTile.y - 12;
+
+      soundEngine.playSFX('click');
+      Haptics.medium();
+
+      if (nextSquare === this.tiles.length) {
+        this.isCelebrating = true;
+        this.celebrationTimer = 3.8;
+        this.score += 500;
+        soundEngine.playSFX('fanfare');
+        soundEngine.playSFX('toddlerGiggle');
+        Haptics.fanfare();
+        const vWidth = this.game.display.vWidth;
+        const vHeight = this.game.display.vHeight;
+        this.particles.spawnConfetti(vWidth / 2, vHeight / 2, 40);
+        this.particles.spawnSparkles(vWidth / 2, vHeight / 2, 20);
+        this.particles.spawnScorePopup(vWidth / 2, vHeight * 0.4, '🧺 Picnic Party! 🎉 +500');
+        this.game.storage.saveHighScore('hopscotchBubble', this.score);
+      }
+    } else {
+      this.resetMimiPosition();
+    }
+  }
+
+  public advanceSuzy(): void {
+    this.advanceMimi();
   }
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
-    this.spawnTimer += dt;
-    this.animState = updateCharacterAnimState(this.animState, dt);
-    this.peppaAnimState = updateCharacterAnimState(this.peppaAnimState, dt);
+    updateCharacterAnimState(this.animState, dt);
+    updateCharacterAnimState(this.trishuAnimState, dt);
 
     if (this.isCelebrating) {
-      this.celebrationTimer += dt;
-      if (this.celebrationTimer >= 3.8) {
+      this.celebrationTimer -= dt;
+      if (this.celebrationTimer <= 0) {
         this.isCelebrating = false;
-        this.resetSuzyPosition();
+        this.resetMimiPosition();
       }
     }
 
-    if (this.suzy.isHopping) {
-      this.suzy.hopTimer += dt;
-      const u = Math.min(1.0, this.suzy.hopTimer / this.suzy.hopDuration);
-      this.suzy.x = this.suzy.startX + (this.suzy.targetX - this.suzy.startX) * u;
-      this.suzy.y = this.suzy.startY + (this.suzy.targetY - this.suzy.startY) * u;
-      if (u >= 1.0) {
-        this.suzy.isHopping = false;
-        this.suzy.currentSquare = this.suzy.targetSquare;
-        this.particles.spawnSparkles(this.suzy.x, this.suzy.y + 20, 5);
-        if (this.suzy.currentSquare >= 10 && !this.isCelebrating) {
-          this.triggerPicnicCelebration();
-        }
+    // Mimi Hop Update
+    if (this.mimi.isHopping) {
+      this.mimi.hopTimer += dt;
+      const progress = Math.min(1.0, this.mimi.hopTimer / this.mimi.hopDuration);
+      this.mimi.x = this.mimi.startX + (this.mimi.targetX - this.mimi.startX) * progress;
+      this.mimi.y = this.mimi.startY + (this.mimi.targetY - this.mimi.startY) * progress;
+
+      if (progress >= 1.0) {
+        this.mimi.isHopping = false;
+        this.mimi.currentSquare = this.mimi.targetSquare;
+        this.mimi.x = this.mimi.targetX;
+        this.mimi.y = this.mimi.targetY;
       }
     }
 
-    if (this.bubbles.filter(b => !b.popped).length < 8 && this.spawnTimer >= 0.8) {
-      this.spawnBubble();
+    // Bubbles update
+    this.spawnTimer += dt;
+    if (this.spawnTimer >= 1.4) {
       this.spawnTimer = 0;
+      if (this.bubbles.length < 12) this.spawnBubble();
     }
 
-    for (let i = 0; i < this.bubbles.length; i++) {
+    for (let i = this.bubbles.length - 1; i >= 0; i--) {
       const b = this.bubbles[i];
-      if (b.popped) continue;
       b.y += b.vy * dt;
-      b.wobbleOffset += 2.4 * dt;
-      b.x += Math.sin(b.wobbleOffset) * 18 * dt;
+      b.x += Math.sin(this.time * 2.5 + b.wobbleOffset) * 24 * dt;
+      if (b.y < -b.radius - 20) this.bubbles.splice(i, 1);
     }
-    this.bubbles = this.bubbles.filter(b => !b.popped && b.y > -60);
 
+    // Pointer Taps
     const pointersToCheck: Array<{ x: number; y: number }> = [];
+    if (input.isActionJustPressed()) {
+      pointersToCheck.push({ x: input.primaryPointer.x, y: input.primaryPointer.y });
+    }
     for (const ptr of input.pointers.values()) {
       if (ptr.justPressed) pointersToCheck.push({ x: ptr.x, y: ptr.y });
-    }
-    if (input.actionJustPressed) {
-      pointersToCheck.push({ x: input.primaryPointer.x, y: input.primaryPointer.y });
     }
 
     for (const pt of pointersToCheck) {
@@ -270,12 +294,12 @@ export class HopscotchBubbleScene extends BaseScene {
           break;
         }
       }
-      if (!hitBubble && !this.suzy.isHopping) this.advanceSuzy();
+      if (!hitBubble && !this.mimi.isHopping) this.advanceMimi();
     }
 
     if (input.isKeyJustPressed('Space') || input.isKeyJustPressed('ArrowRight')) {
       if (this.bubbles.length > 0 && !this.bubbles[0].popped) this.popBubble(0);
-      else this.advanceSuzy();
+      else this.advanceMimi();
     }
 
     this.particles.update(dt);
@@ -293,18 +317,18 @@ export class HopscotchBubbleScene extends BaseScene {
     const picnicY = isPortrait ? vHeight * 0.18 : vHeight * 0.7;
     this.drawPicnicBlanket(ctx, picnicX, picnicY);
 
-    const peppaX = isPortrait ? picnicX + 65 : picnicX + 45;
-    const peppaY = isPortrait ? picnicY - 20 : picnicY - 35;
-    drawPeppaPig(ctx, peppaX, peppaY, isPortrait ? 1.05 : 1.0, {
+    const trishuX = isPortrait ? picnicX + 65 : picnicX + 45;
+    const trishuY = isPortrait ? picnicY - 20 : picnicY - 35;
+    drawTrishu(ctx, trishuX, trishuY, isPortrait ? 1.05 : 1.0, {
       expression: this.isCelebrating ? 'excited' : 'happy',
-      eyeBlink: this.peppaAnimState.isBlinking,
+      eyeBlink: this.trishuAnimState.isBlinking,
       facingLeft: true,
-      animState: this.peppaAnimState
+      animState: this.trishuAnimState
     });
 
-    const hopProgress = this.suzy.isHopping ? this.suzy.hopTimer / this.suzy.hopDuration : 0;
+    const hopProgress = this.mimi.isHopping ? this.mimi.hopTimer / this.mimi.hopDuration : 0;
     const hopArt = getHopscotchPhase(hopProgress);
-    drawSuzySheep(ctx, this.suzy.x, this.suzy.y + hopArt.hopY, isPortrait ? 1.15 : 1.1, {
+    drawMimi(ctx, this.mimi.x, this.mimi.y + hopArt.hopY, isPortrait ? 1.15 : 1.1, {
       hopY: hopArt.hopY,
       earFlap: hopArt.earFlap,
       holdingWand: true,
@@ -351,18 +375,14 @@ export class HopscotchBubbleScene extends BaseScene {
     ctx.fill();
     ctx.stroke();
 
+    // Basket
     ctx.fillStyle = '#8D6E63';
     ctx.beginPath();
-    ctx.roundRect(-24, -10, 48, 22, 4);
+    ctx.roundRect(-16, -10, 32, 22, 4);
     ctx.fill();
-
     ctx.fillStyle = '#FF4081';
     ctx.beginPath();
-    ctx.arc(-8, -14, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#76FF03';
-    ctx.beginPath();
-    ctx.arc(8, -14, 6, 0, Math.PI * 2);
+    ctx.arc(0, -10, 14, Math.PI, 0);
     ctx.fill();
     ctx.restore();
   }
@@ -370,24 +390,24 @@ export class HopscotchBubbleScene extends BaseScene {
   private drawBubble(ctx: CanvasRenderingContext2D, b: BubbleEntity): void {
     ctx.save();
     ctx.translate(b.x, b.y);
-    const r = b.radius;
-    const grad = ctx.createRadialGradient(-r * 0.2, -r * 0.2, r * 0.1, 0, 0, r);
+    const grad = ctx.createRadialGradient(-b.radius * 0.3, -b.radius * 0.3, b.radius * 0.1, 0, 0, b.radius);
     grad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
-    grad.addColorStop(0.5, 'rgba(128, 216, 255, 0.45)');
-    grad.addColorStop(0.8, 'rgba(234, 128, 252, 0.4)');
-    grad.addColorStop(1, 'rgba(255, 128, 171, 0.55)');
+    grad.addColorStop(0.4, 'rgba(179, 136, 255, 0.35)');
+    grad.addColorStop(0.8, 'rgba(100, 200, 250, 0.45)');
+    grad.addColorStop(1, 'rgba(255, 128, 171, 0.65)');
 
     ctx.fillStyle = grad;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 2.0;
     ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    // Specular Highlight
+    ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.ellipse(-r * 0.38, -r * 0.38, r * 0.25, r * 0.15, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.arc(-b.radius * 0.35, -b.radius * 0.35, b.radius * 0.25, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -396,7 +416,7 @@ export class HopscotchBubbleScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const scoreX = display.vWidth / 2;
     const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
-    const badgeW = isPortrait ? 300 : 270;
+    const badgeW = isPortrait ? 300 : 280;
     const badgeH = 46;
 
     ctx.save();
@@ -412,7 +432,7 @@ export class HopscotchBubbleScene extends BaseScene {
     ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🫧 Tile: ${this.suzy.currentSquare}/10  |  Score: ${this.score}`, scoreX, scoreY + badgeH / 2);
+    ctx.fillText(`🫧 Tile: ${this.mimi.currentSquare}/10  |  Score: ${this.score}`, scoreX, scoreY + badgeH / 2);
 
     if (this.isCelebrating) {
       ctx.fillStyle = 'rgba(255, 64, 129, 0.95)';
@@ -430,10 +450,11 @@ export class HopscotchBubbleScene extends BaseScene {
     return {
       bubbles: this.bubbles.filter(b => !b.popped),
       bubblesCount: this.bubbles.filter(b => !b.popped).length,
-      suzy: { x: this.suzy.x, y: this.suzy.y },
-      currentTile: this.suzy.currentSquare,
+      mimi: { x: this.mimi.x, y: this.mimi.y },
+      suzy: { x: this.mimi.x, y: this.mimi.y },
+      currentTile: this.mimi.currentSquare,
       totalTiles: 10,
-      isHopping: this.suzy.isHopping,
+      isHopping: this.mimi.isHopping,
       isCelebrating: this.isCelebrating,
       eggs: [], chicks: [], puddles: [], seeds: [],
       particles: this.particles.active
@@ -443,12 +464,12 @@ export class HopscotchBubbleScene extends BaseScene {
   override getModeState(): Record<string, unknown> {
     return {
       score: this.score,
-      currentTile: this.suzy.currentSquare,
-      targetTile: this.suzy.targetSquare,
+      currentTile: this.mimi.currentSquare,
+      targetTile: this.mimi.targetSquare,
       totalTiles: 10,
-      isHopping: this.suzy.isHopping,
+      isHopping: this.mimi.isHopping,
       isCelebrating: this.isCelebrating,
-      reachedPicnic: this.suzy.currentSquare >= 10,
+      reachedPicnic: this.mimi.currentSquare >= 10,
       bubblesPopped: this.bubblesPoppedCount,
       timer: this.time,
       multiplier: 1,
