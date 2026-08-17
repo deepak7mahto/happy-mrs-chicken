@@ -233,26 +233,29 @@ export class MuddyPuddlesScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Score & Timer Badge
+    // Score & Timer Badge (Positioned below HUD in portrait)
     const scoreX = display.vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
+    const badgeW = isPortrait ? 300 : 280;
+    const badgeH = 46;
+
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 135, scoreY, 270, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#FFCDD2';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(
       `Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s${this.multiplier > 1 ? `  (x${this.multiplier})` : ''}`,
       scoreX,
-      scoreY + 22
+      scoreY + badgeH / 2
     );
     ctx.restore();
   }

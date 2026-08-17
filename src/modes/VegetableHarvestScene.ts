@@ -411,22 +411,26 @@ export class VegetableHarvestScene extends BaseScene {
   }
 
   private renderHUD(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
+    const isPortrait = display.isPortrait;
     const scoreX = display.vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
+    const badgeW = isPortrait ? 300 : 270;
+    const badgeH = 46;
+
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 130, scoreY, 260, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#8D6E63';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🥕 Harvest: ${this.harvestedCount}  |  Score: ${this.score}`, scoreX, scoreY + 22);
+    ctx.fillText(`🥕 Harvest: ${this.harvestedCount}  |  Score: ${this.score}`, scoreX, scoreY + badgeH / 2);
     ctx.restore();
   }
 

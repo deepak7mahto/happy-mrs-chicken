@@ -330,13 +330,16 @@ export class DinosaurBalloonScene extends BaseScene {
   }
 
   private renderHUD(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
+    const isPortrait = display.isPortrait;
     const scoreX = display.vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
+    const badgeW = isPortrait ? 270 : 240;
+    const badgeH = 46;
 
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 110, scoreY, 220, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#81C784';
     ctx.lineWidth = 2.5;
@@ -345,15 +348,15 @@ export class DinosaurBalloonScene extends BaseScene {
     // Dinosaur Balloon Icon
     ctx.fillStyle = '#4CAF50';
     ctx.beginPath();
-    ctx.arc(scoreX - 78, scoreY + 21, 10, 0, Math.PI * 2);
+    ctx.arc(scoreX - badgeW / 2 + 28, scoreY + badgeH / 2, 10, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const comboText = this.combo > 1 ? ` (${this.combo}x)` : '';
-    ctx.fillText(`Score: ${this.score}${comboText}`, scoreX - 58, scoreY + 22);
+    ctx.fillText(`Score: ${this.score}${comboText}`, scoreX - badgeW / 2 + 48, scoreY + badgeH / 2 + 1);
     ctx.restore();
   }
 

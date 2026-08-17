@@ -308,13 +308,16 @@ export class EggLayingScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Score Badge
+    // Score Badge (Positioned below HUD in portrait)
     const scoreX = display.vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
+    const badgeW = isPortrait ? 210 : 190;
+    const badgeH = 46;
+
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 85, scoreY, 170, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#FFE082';
     ctx.lineWidth = 2.5;
@@ -322,17 +325,17 @@ export class EggLayingScene extends BaseScene {
 
     ctx.fillStyle = '#FFF9C4';
     ctx.beginPath();
-    ctx.ellipse(scoreX - 52, scoreY + 21, 9, 12, 0, 0, Math.PI * 2);
+    ctx.ellipse(scoreX - badgeW / 2 + 30, scoreY + badgeH / 2, 10, 13, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#E0BA60';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`Eggs: ${this.score}`, scoreX - 32, scoreY + 22);
+    ctx.fillText(`Eggs: ${this.score}`, scoreX - badgeW / 2 + 50, scoreY + badgeH / 2 + 1);
     ctx.restore();
   }
 

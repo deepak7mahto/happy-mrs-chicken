@@ -294,23 +294,26 @@ export class ChickMazeScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Score Badge
+    // Score Badge (Positioned below HUD in portrait)
     const scoreX = vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
+    const badgeW = isPortrait ? 270 : 240;
+    const badgeH = 46;
+
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 110, scoreY, 220, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#C8E6C9';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`Saved Chicks: ${this.coopSavedCount}  |  ★ ${this.score}`, scoreX, scoreY + 22);
+    ctx.fillText(`Saved Chicks: ${this.coopSavedCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
     ctx.restore();
   }
 

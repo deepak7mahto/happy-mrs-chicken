@@ -350,14 +350,14 @@ export class MenuScene extends BaseScene {
     ctx.save();
     const titleBob = Math.sin(this.time * 2.5) * 3;
     const titleX = vWidth / 2;
-    const titleY = (isPortrait ? Math.max(34, vHeight * 0.045) : 34) + titleBob;
+    const titleY = (isPortrait ? Math.max(38, vHeight * 0.048) : 34) + titleBob;
     ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '26px' : '32px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '30px' : '36px'} "Comic Sans MS", cursive, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = isPortrait ? 5 : 6;
+    ctx.lineWidth = isPortrait ? 6 : 7;
     ctx.strokeText('Peppa Pig: Happy Mrs Chicken', 0, 0);
     ctx.fillStyle = '#FFE600';
     ctx.fillText('Peppa Pig: Happy Mrs Chicken', 0, 0);
@@ -389,30 +389,30 @@ export class MenuScene extends BaseScene {
       ctx.stroke();
 
       // Category Badge (Top-Left)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2 + 8, -card.h / 2 + 6, 56, 18, 9);
+      ctx.roundRect(-card.w / 2 + 6, -card.h / 2 + 5, 62, 22, 11);
       ctx.fill();
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#37474F';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, -card.w / 2 + 36, -card.h / 2 + 15);
+      ctx.fillText(card.badge, -card.w / 2 + 37, -card.h / 2 + 16);
 
       // Best Score Badge (Top-Right)
       ctx.fillStyle = '#E53935';
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 76, -card.h / 2 + 6, 68, 18, 9);
+      ctx.roundRect(card.w / 2 - 82, -card.h / 2 + 5, 76, 22, 11);
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 13px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 42, -card.h / 2 + 15);
+      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 44, -card.h / 2 + 16);
 
       // Character Preview (Center)
       const previewY = -card.h * 0.06;
@@ -421,12 +421,12 @@ export class MenuScene extends BaseScene {
       // Title & Subtitle Labels (Bottom)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = 'bold 15px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = `bold ${isPortrait ? '19px' : '18px'} "Comic Sans MS", cursive, sans-serif`;
       ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, 0, card.h / 2 - 28);
+      ctx.fillText(card.title, 0, card.h / 2 - 30);
 
-      ctx.font = '11px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#546E7A';
+      ctx.font = `bold ${isPortrait ? '13px' : '12px'} "Comic Sans MS", sans-serif`;
+      ctx.fillStyle = '#455A64';
       ctx.fillText(card.sub, 0, card.h / 2 - 13);
 
       ctx.restore();

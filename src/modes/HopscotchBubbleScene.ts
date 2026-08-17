@@ -393,31 +393,35 @@ export class HopscotchBubbleScene extends BaseScene {
   }
 
   private renderHUD(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
+    const isPortrait = display.isPortrait;
     const scoreX = display.vWidth / 2;
-    const scoreY = Math.max(20, Math.min(30, display.vHeight * 0.03));
+    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
+    const badgeW = isPortrait ? 300 : 270;
+    const badgeH = 46;
+
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.beginPath();
-    ctx.roundRect(scoreX - 130, scoreY, 260, 42, 21);
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
     ctx.fill();
     ctx.strokeStyle = '#B388FF';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🫧 Tile: ${this.suzy.currentSquare}/10  |  Score: ${this.score}`, scoreX, scoreY + 22);
+    ctx.fillText(`🫧 Tile: ${this.suzy.currentSquare}/10  |  Score: ${this.score}`, scoreX, scoreY + badgeH / 2);
 
     if (this.isCelebrating) {
-      ctx.fillStyle = 'rgba(255, 64, 129, 0.9)';
+      ctx.fillStyle = 'rgba(255, 64, 129, 0.95)';
       ctx.beginPath();
-      ctx.roundRect(scoreX - 140, scoreY + 52, 280, 44, 22);
+      ctx.roundRect(scoreX - 140, scoreY + 54, 280, 44, 22);
       ctx.fill();
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
-      ctx.fillText('🧺 Picnic Party! 🎉', scoreX, scoreY + 75);
+      ctx.fillText('🧺 Picnic Party! 🎉', scoreX, scoreY + 76);
     }
     ctx.restore();
   }
