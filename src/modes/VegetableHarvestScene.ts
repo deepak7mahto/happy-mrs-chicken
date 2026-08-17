@@ -291,7 +291,7 @@ export class VegetableHarvestScene extends BaseScene {
       ctx.restore();
     }
 
-    // Wheelbarrow & Grandpa Pig
+    // Wheelbarrow & Grandpa
     const wbX = isPortrait ? vWidth * 0.22 : 120;
     const wbY = isPortrait ? vHeight * 0.38 : vHeight * 0.72;
     const grandpaX = isPortrait ? vWidth * 0.52 : 95;

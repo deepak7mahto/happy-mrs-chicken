@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Headless Automated E2E Test Runner & Mock Environment
- * Peppa Pig: Happy Mrs Chicken 8-Game Deluxe Expansion Suite
+ * Adventures of Trishu 8-Game Suite
  */
 
 import { spawnSync } from 'node:child_process';
