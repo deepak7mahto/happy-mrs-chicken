@@ -26,6 +26,8 @@ export class EggLayingScene extends BaseScene {
     flap: 0
   };
   private lastLayTime: number = 0;
+  private lastUserTapTime: number = 0;
+  private roamTimer: number = 0;
 
   constructor(game: GameEngine) {
     super(game);
@@ -38,6 +40,8 @@ export class EggLayingScene extends BaseScene {
     this.chicks = [];
     this.particles.clear();
     this.time = 0;
+    this.roamTimer = 0;
+    this.lastUserTapTime = 0;
 
     const isPortrait = this.game.display.isPortrait;
     const startX = this.game.display.vWidth / 2;
@@ -75,8 +79,21 @@ export class EggLayingScene extends BaseScene {
     this.particles.spawnFeathers(x, y, 3);
   }
 
+  pickRandomRoamTarget(): void {
+    const isPortrait = this.game.display.isPortrait;
+    const groundY = isPortrait ? this.game.display.vHeight - 140 : this.game.display.vHeight - 80;
+    const minX = 70;
+    const maxX = this.game.display.vWidth - 70;
+    const minY = 80;
+    const maxY = groundY - 90;
+
+    this.chicken.targetX = minX + Math.random() * (maxX - minX);
+    this.chicken.targetY = minY + Math.random() * (maxY - minY);
+  }
+
   update(dt: number, input: InputManager): void {
     this.time += dt;
+    this.roamTimer += dt;
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 140 : this.game.display.vHeight - 80;
     const minChickenY = 80;
@@ -84,6 +101,7 @@ export class EggLayingScene extends BaseScene {
 
     // Handle Tap to Fly and Lay Eggs wherever user touches
     if (input.isActionJustPressed()) {
+      this.lastUserTapTime = performance.now();
       const ptr = input.primaryPointer;
       if (ptr && ptr.inside && ptr.y > 60) {
         // Set target position for chicken
@@ -104,11 +122,18 @@ export class EggLayingScene extends BaseScene {
     const dy = this.chicken.targetY - this.chicken.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
+    // Autonomous whole-screen roaming when idle
+    const timeSinceTap = (performance.now() - this.lastUserTapTime) / 1000;
+    if (timeSinceTap > 1.2 && (dist < 25 || this.roamTimer >= 3.5)) {
+      this.roamTimer = 0;
+      this.pickRandomRoamTarget();
+    }
+
     if (dist > 6) {
-      const speed = Math.min(650, dist * 8 + 180);
+      const speed = Math.min(550, dist * 6 + 140);
       this.chicken.x += (dx / dist) * speed * dt;
       this.chicken.y += (dy / dist) * speed * dt;
-      this.chicken.flap = Math.sin(this.time * 20) * 0.4;
+      this.chicken.flap = Math.sin(this.time * 18) * 0.4;
       this.chicken.facingLeft = dx < 0;
     } else {
       this.chicken.flap = Math.sin(this.time * 6) * 0.15;
