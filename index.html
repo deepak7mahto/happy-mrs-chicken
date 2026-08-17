@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Happy Mrs Chicken">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="./manifest.json">
+  <title>Peppa Pig: Happy Mrs Chicken</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body, #root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+      overscroll-behavior: none;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: #0f172a;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1e293b;
+      cursor: pointer;
+      touch-action: none;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-DmdJ-Cq6.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/rolldown-runtime-CbXtAM7H.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-react-dJNZQ1rU.js">
+  <link rel="modulepreload" crossorigin href="./assets/audio-engine-BoHYdlGE.js">
+  <link rel="modulepreload" crossorigin href="./assets/graphics-engine-G2Raubkn.js">
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
