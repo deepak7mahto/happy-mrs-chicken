@@ -1,4 +1,6 @@
-# Original User Request
+# Original User Request (Historical Archive)
+
+> **Note**: This project has been rebranded to **Adventures of Trishu** — an original intellectual property with custom character designs and mini-game themes.
 
 ## Initial Request — 2026-08-16T12:10:53+05:30
 

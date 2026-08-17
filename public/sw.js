@@ -1,4 +1,4 @@
-const CACHE_NAME = 'happy-mrs-chicken-v3-8games';
+const CACHE_NAME = 'adventures-of-trishu-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

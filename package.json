@@ -1,7 +1,7 @@
 {
-  "name": "peppa-pig-happy-mrs-chicken",
-  "version": "2.0.0",
-  "description": "Peppa Pig: Happy Mrs Chicken - TypeScript + React + Vite Modular Game Suite",
+  "name": "adventures-of-trishu",
+  "version": "3.0.0",
+  "description": "Adventures of Trishu - 8-Game Kids Mini-Game Suite (TypeScript + React + Vite)",
   "homepage": "https://deepak7mahto.github.io/happy-mrs-chicken/",
   "scripts": {
     "dev": "vite",
@@ -11,8 +11,8 @@
     "test": "node tests/e2e_runner.mjs"
   },
   "keywords": [
-    "peppa-pig",
-    "happy-mrs-chicken",
+    "adventures-of-trishu",
+    "kids-game",
     "react",
     "typescript",
     "vite",
