@@ -1,25 +1,41 @@
 {
   "name": "peppa-pig-happy-mrs-chicken",
-  "version": "1.0.0",
-  "description": "Peppa Pig: Happy Mrs Chicken Standalone Browser Game Suite",
+  "version": "2.0.0",
+  "description": "Peppa Pig: Happy Mrs Chicken - TypeScript + React + Vite Modular Game Suite",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "test": "node tests/unit_runner.mjs",
     "test:unit": "node tests/unit_runner.mjs",
     "test:e2e": "node tests/e2e_runner.mjs",
     "test:tier1": "node tests/e2e_runner.mjs --tier=1",
     "test:tier2": "node tests/e2e_runner.mjs --tier=2",
     "test:tier3": "node tests/e2e_runner.mjs --tier=3",
-    "test:tier4": "node tests/e2e_runner.mjs --tier=4",
-    "serve": "python3 -m http.server 8080"
+    "test:tier4": "node tests/e2e_runner.mjs --tier=4"
   },
   "keywords": [
     "peppa-pig",
     "happy-mrs-chicken",
+    "react",
+    "typescript",
+    "vite",
     "html5-game",
     "canvas-2d",
     "web-audio"
   ],
   "author": "teamwork",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
 }

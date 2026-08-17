@@ -358,6 +358,7 @@ export async function launchOrConnectChrome(options = {}) {
       '--no-default-browser-check',
       '--mute-audio=false', // Ensure Web Audio can run
       '--autoplay-policy=no-user-gesture-required',
+      '--allow-file-access-from-files',
       'about:blank'
     ];
 

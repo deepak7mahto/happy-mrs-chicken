@@ -1,0 +1,18 @@
+{
+  "name": "Peppa Pig: Happy Mrs Chicken",
+  "short_name": "Mrs Chicken",
+  "description": "Fun, educational Happy Mrs Chicken cartoon game for kids!",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FFE600' stroke='%2337474F' stroke-width='4'/%3E%3Cellipse cx='50' cy='56' rx='28' ry='22' fill='%23FFFFFF' stroke='%2337474F' stroke-width='3'/%3E%3Ccircle cx='50' cy='36' r='14' fill='%23FFFFFF' stroke='%2337474F' stroke-width='3'/%3E%3Ccircle cx='46' cy='34' r='3' fill='%23212121'/%3E%3Cpolygon points='54,34 68,38 54,42' fill='%23FF6F00' stroke='%23E65100' stroke-width='2'/%3E%3Cpath d='M44,22 C44,16 48,16 50,22 C52,14 56,16 56,22' fill='%23E53935' stroke='%23B71C1C' stroke-width='2'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

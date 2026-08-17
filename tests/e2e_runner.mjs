@@ -29,7 +29,8 @@ import { tier4Tests } from './suites/tier4_real_world.mjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const DEFAULT_URL = `file://${path.join(PROJECT_ROOT, 'index.html')}`;
+const distPath = path.join(PROJECT_ROOT, 'dist', 'index.html');
+const DEFAULT_URL = fs.existsSync(distPath) ? `file://${distPath}` : `file://${path.join(PROJECT_ROOT, 'index.html')}`;
 
 // Parse CLI Arguments
 function parseArgs() {

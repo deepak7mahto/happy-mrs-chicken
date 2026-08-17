@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-08-17T08:32:21.392Z",
+  "timestamp": "2026-08-17T08:52:02.314Z",
   "summary": {
     "total": 80,
     "passed": 80,
     "failed": 0,
-    "durationMs": 51388
+    "durationMs": 51524
   },
   "tests": [
     {
@@ -12,42 +12,42 @@
       "tier": 1,
       "title": "Initial load displays arcade menu with 4 mode cards",
       "status": "PASSED",
-      "durationMs": 7
+      "durationMs": 36
     },
     {
       "id": "TC02",
       "tier": 1,
       "title": "Audio toggle button flips mute state in state and localStorage",
       "status": "PASSED",
-      "durationMs": 250
+      "durationMs": 256
     },
     {
       "id": "TC03",
       "tier": 1,
       "title": "Selecting Mode 1 transitions scene to EGG_LAYING",
       "status": "PASSED",
-      "durationMs": 177
+      "durationMs": 182
     },
     {
       "id": "TC04",
       "tier": 1,
       "title": "Selecting Mode 2 transitions scene to MUDDY_PUDDLES",
       "status": "PASSED",
-      "durationMs": 176
+      "durationMs": 182
     },
     {
       "id": "TC05",
       "tier": 1,
       "title": "Selecting Mode 3 transitions scene to CHICK_MAZE",
       "status": "PASSED",
-      "durationMs": 180
+      "durationMs": 181
     },
     {
       "id": "TC06",
       "tier": 1,
       "title": "Selecting Mode 4 transitions scene to DADDY_PIG",
       "status": "PASSED",
-      "durationMs": 179
+      "durationMs": 184
     },
     {
       "id": "TC07",
@@ -61,14 +61,14 @@
       "tier": 1,
       "title": "Spacebar triggers egg laying and records cluck and eggPop audio events",
       "status": "PASSED",
-      "durationMs": 130
+      "durationMs": 139
     },
     {
       "id": "TC09",
       "tier": 1,
       "title": "Mouse click / screen tap triggers egg laying",
       "status": "PASSED",
-      "durationMs": 126
+      "durationMs": 127
     },
     {
       "id": "TC10",
@@ -82,119 +82,119 @@
       "tier": 1,
       "title": "Eggs stack when falling onto existing settled eggs",
       "status": "PASSED",
-      "durationMs": 1038
+      "durationMs": 1048
     },
     {
       "id": "TC12",
       "tier": 1,
       "title": "Reaching nest capacity triggers hatching state on settled eggs",
       "status": "PASSED",
-      "durationMs": 1946
+      "durationMs": 1992
     },
     {
       "id": "TC13",
       "tier": 1,
       "title": "Hatching egg progresses through cracking stages and emits crack/hatch audio events",
       "status": "PASSED",
-      "durationMs": 2763
+      "durationMs": 2814
     },
     {
       "id": "TC14",
       "tier": 1,
       "title": "Hatched baby chick scampers off-screen and is cleanly removed from entity pool",
       "status": "PASSED",
-      "durationMs": 3632
+      "durationMs": 3631
     },
     {
       "id": "TC15",
       "tier": 1,
       "title": "Puddles spawn dynamically over time with valid positions and sizes",
       "status": "PASSED",
-      "durationMs": 1005
+      "durationMs": 1006
     },
     {
       "id": "TC16",
       "tier": 1,
       "title": "Spacebar / tap initiates character jump with parabolic velocity curve",
       "status": "PASSED",
-      "durationMs": 176
+      "durationMs": 181
     },
     {
       "id": "TC17",
       "tier": 1,
       "title": "Landing inside a puddle creates splash particles and fires splash audio event",
       "status": "PASSED",
-      "durationMs": 627
+      "durationMs": 634
     },
     {
       "id": "TC18",
       "tier": 1,
       "title": "Center-hit landing grants bonus splash multiplier points",
       "status": "PASSED",
-      "durationMs": 729
+      "durationMs": 733
     },
     {
       "id": "TC19",
       "tier": 1,
       "title": "Landing on golden puddle awards +3s time extension",
       "status": "PASSED",
-      "durationMs": 3
+      "durationMs": 1
     },
     {
       "id": "TC20",
       "tier": 1,
       "title": "60-second timer decrements smoothly in real-time",
       "status": "PASSED",
-      "durationMs": 1107
+      "durationMs": 1106
     },
     {
       "id": "TC21",
       "tier": 1,
       "title": "Timer expiring at 0 triggers game over modal with score summary",
       "status": "PASSED",
-      "durationMs": 307
+      "durationMs": 304
     },
     {
       "id": "TC22",
       "tier": 1,
       "title": "Garden maze initializes with fence obstacles and wandering chicks",
       "status": "PASSED",
-      "durationMs": 203
+      "durationMs": 211
     },
     {
       "id": "TC23",
       "tier": 1,
       "title": "Clicking/tapping on garden grid drops a corn seed entity",
       "status": "PASSED",
-      "durationMs": 133
+      "durationMs": 131
     },
     {
       "id": "TC24",
       "tier": 1,
       "title": "Seed placement emits seedDrop audio chime",
       "status": "PASSED",
-      "durationMs": 133
+      "durationMs": 128
     },
     {
       "id": "TC25",
       "tier": 1,
       "title": "Nearby wandering chicks steer toward active corn seed",
       "status": "PASSED",
-      "durationMs": 331
+      "durationMs": 328
     },
     {
       "id": "TC26",
       "tier": 1,
       "title": "Chicks consume seed upon arrival, causing seed entity to disappear",
       "status": "PASSED",
-      "durationMs": 1532
+      "durationMs": 1525
     },
     {
       "id": "TC27",
       "tier": 1,
       "title": "Guiding chick into coop increments coopSavedCount and triggers cheer effect",
       "status": "PASSED",
-      "durationMs": 2
+      "durationMs": 3
     },
     {
       "id": "TC28",
@@ -208,112 +208,112 @@
       "tier": 1,
       "title": "Rapid tapping increments score and fills fever meter",
       "status": "PASSED",
-      "durationMs": 523
+      "durationMs": 536
     },
     {
       "id": "TC30",
       "tier": 1,
       "title": "Fever meter reaching threshold activates rainbow egg multiplier (>= 2x)",
       "status": "PASSED",
-      "durationMs": 1091
+      "durationMs": 1126
     },
     {
       "id": "TC31",
       "tier": 1,
       "title": "Sustained rapid input triggers visual panic stages (sweat, shake, steam)",
       "status": "PASSED",
-      "durationMs": 895
+      "durationMs": 907
     },
     {
       "id": "TC32",
       "tier": 1,
       "title": "Fever decay occurs when tapping slows down",
       "status": "PASSED",
-      "durationMs": 1618
+      "durationMs": 1641
     },
     {
       "id": "TC33",
       "tier": 1,
       "title": "Reaching maximum frenzy / high score threshold triggers computer smoke particles",
       "status": "PASSED",
-      "durationMs": 1255
+      "durationMs": 1252
     },
     {
       "id": "TC34",
       "tier": 1,
       "title": "Humorous Computer Overheat / Blue Screen cutscene triggers with crash audio jingle",
       "status": "PASSED",
-      "durationMs": 503
+      "durationMs": 506
     },
     {
       "id": "TC35",
       "tier": 1,
       "title": "New high score is persisted to localStorage under hmc_game_data_v1",
       "status": "PASSED",
-      "durationMs": 752
+      "durationMs": 748
     },
     {
       "id": "TC36",
       "tier": 2,
       "title": "Burst spamming 50 taps/sec does not softlock or freeze canvas",
       "status": "PASSED",
-      "durationMs": 1242
+      "durationMs": 1187
     },
     {
       "id": "TC37",
       "tier": 2,
       "title": "Simultaneous multi-touch taps register without NaN coordinates",
       "status": "PASSED",
-      "durationMs": 159
+      "durationMs": 166
     },
     {
       "id": "TC38",
       "tier": 2,
       "title": "Rapid mode switching spam cleanly unmounts previous mode state",
       "status": "PASSED",
-      "durationMs": 221
+      "durationMs": 225
     },
     {
       "id": "TC39",
       "tier": 2,
       "title": "Continuous key holding does not flood runaway entities",
       "status": "PASSED",
-      "durationMs": 699
+      "durationMs": 709
     },
     {
       "id": "TC40",
       "tier": 2,
       "title": "Rapid mute button spamming maintains synchronized audio state",
       "status": "PASSED",
-      "durationMs": 446
+      "durationMs": 457
     },
     {
       "id": "TC41",
       "tier": 2,
       "title": "Ultra-wide desktop (21:9 / 3440x1440) maintains letterboxing",
       "status": "PASSED",
-      "durationMs": 166
+      "durationMs": 162
     },
     {
       "id": "TC42",
       "tier": 2,
       "title": "Ultra-narrow mobile portrait (9:16 / 375x812) scales down proportionally",
       "status": "PASSED",
-      "durationMs": 160
+      "durationMs": 155
     },
     {
       "id": "TC43",
       "tier": 2,
       "title": "High-DPI / Retina Screen (DPR = 3.0) internal buffer scaling",
       "status": "PASSED",
-      "durationMs": 115
+      "durationMs": 109
     },
     {
       "id": "TC44",
       "tier": 2,
       "title": "Dynamic orientation flip adapts canvas within 1 animation frame",
       "status": "PASSED",
-      "durationMs": 218
+      "durationMs": 206
     },
     {
       "id": "TC45",
@@ -334,7 +334,7 @@
       "tier": 2,
       "title": "Background tab audio throttling / visibilitychange handling",
       "status": "PASSED",
-      "durationMs": 102
+      "durationMs": 103
     },
     {
       "id": "TC48",
@@ -355,49 +355,49 @@
       "tier": 2,
       "title": "Active voice count stays bounded during rapid gameplay",
       "status": "PASSED",
-      "durationMs": 734
+      "durationMs": 725
     },
     {
       "id": "TC51",
       "tier": 2,
       "title": "Chicks bumping into outer garden walls deflect without tunneling",
       "status": "PASSED",
-      "durationMs": 502
+      "durationMs": 503
     },
     {
       "id": "TC52",
       "tier": 2,
       "title": "Screen boundary clamping keeps all interactive entities in view",
       "status": "PASSED",
-      "durationMs": 6
+      "durationMs": 5
     },
     {
       "id": "TC53",
       "tier": 2,
       "title": "100% of spawned puddles lie within playable lawn bounds",
       "status": "PASSED",
-      "durationMs": 1501
+      "durationMs": 1503
     },
     {
       "id": "TC54",
       "tier": 2,
       "title": "Idle player in Mode 1 maintains 60 FPS and idle breathing animation",
       "status": "PASSED",
-      "durationMs": 1021
+      "durationMs": 1005
     },
     {
       "id": "TC55",
       "tier": 2,
       "title": "Idle player in Mode 2 lets timer expire cleanly to Game Over",
       "status": "PASSED",
-      "durationMs": 11
+      "durationMs": 1
     },
     {
       "id": "TC56",
       "tier": 2,
       "title": "Extreme score value (999,999+) renders formatted without UI overflow",
       "status": "PASSED",
-      "durationMs": 105
+      "durationMs": 102
     },
     {
       "id": "TC57",
@@ -418,56 +418,56 @@
       "tier": 2,
       "title": "Negative time prevention clamps timer at 0.00s",
       "status": "PASSED",
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "TC60",
       "tier": 2,
       "title": "Infinity / NaN coordinate input sanitization guard",
       "status": "PASSED",
-      "durationMs": 53
+      "durationMs": 52
     },
     {
       "id": "TC61",
       "tier": 3,
       "title": "Switching game modes while BGM is active preserves clean audio playback without overlap",
       "status": "PASSED",
-      "durationMs": 452
+      "durationMs": 447
     },
     {
       "id": "TC62",
       "tier": 3,
       "title": "Mode switch mid-particle burst clears particles without residual rendering on Menu",
       "status": "PASSED",
-      "durationMs": 220
+      "durationMs": 224
     },
     {
       "id": "TC63",
       "tier": 3,
       "title": "Pausing game mid-timer preserves exact remaining time and resumes accurately",
       "status": "PASSED",
-      "durationMs": 857
+      "durationMs": 850
     },
     {
       "id": "TC64",
       "tier": 3,
       "title": "Return to Menu mid-game cleanly cancels mode loops and resets active state",
       "status": "PASSED",
-      "durationMs": 103
+      "durationMs": 102
     },
     {
       "id": "TC65",
       "tier": 3,
       "title": "Muting audio during intense particle bursts preserves 60 FPS rendering",
       "status": "PASSED",
-      "durationMs": 573
+      "durationMs": 559
     },
     {
       "id": "TC66",
       "tier": 3,
       "title": "Keyboard + touch hybrid input simultaneously registers valid inputs",
       "status": "PASSED",
-      "durationMs": 126
+      "durationMs": 124
     },
     {
       "id": "TC67",
@@ -481,21 +481,21 @@
       "tier": 3,
       "title": "Fever mode decay in Daddy Pig smoothly transitions multiplier back to 1x",
       "status": "PASSED",
-      "durationMs": 1973
+      "durationMs": 1939
     },
     {
       "id": "TC69",
       "tier": 3,
       "title": "Chick Maze continuous drag pointer creates connected seed trail",
       "status": "PASSED",
-      "durationMs": 175
+      "durationMs": 169
     },
     {
       "id": "TC70",
       "tier": 3,
       "title": "AudioContext interrupted/suspended recovery resumes without exception",
       "status": "PASSED",
-      "durationMs": 124
+      "durationMs": 123
     },
     {
       "id": "TC71",
@@ -516,56 +516,56 @@
       "tier": 4,
       "title": "Complete Mode 1 Playthrough: Lay 15 eggs, observe hatching, chicks scamper off",
       "status": "PASSED",
-      "durationMs": 3426
+      "durationMs": 3435
     },
     {
       "id": "TC74",
       "tier": 4,
       "title": "Complete Mode 2 Playthrough: Multi-puddle splash sequence to game over recap",
       "status": "PASSED",
-      "durationMs": 2127
+      "durationMs": 2141
     },
     {
       "id": "TC75",
       "tier": 4,
       "title": "Complete Mode 3 Playthrough: Garden seed trail guiding chicks into coop",
       "status": "PASSED",
-      "durationMs": 1576
+      "durationMs": 1584
     },
     {
       "id": "TC76",
       "tier": 4,
       "title": "Complete Mode 4 Playthrough: Daddy Pig high-speed fever to crash cutscene",
       "status": "PASSED",
-      "durationMs": 2178
+      "durationMs": 2127
     },
     {
       "id": "TC77",
       "tier": 4,
       "title": "Mobile Touch Emulation: TouchStart, TouchMove, and TouchEnd across all modes",
       "status": "PASSED",
-      "durationMs": 491
+      "durationMs": 508
     },
     {
       "id": "TC78",
       "tier": 4,
       "title": "Endurance & Stability: Continuous 60 FPS rendering with zero memory leaks",
       "status": "PASSED",
-      "durationMs": 1257
+      "durationMs": 1266
     },
     {
       "id": "TC79",
       "tier": 4,
       "title": "Offline Isolation: Zero outbound CDN network requests and 100% offline execution",
       "status": "PASSED",
-      "durationMs": 307
+      "durationMs": 314
     },
     {
       "id": "TC80",
       "tier": 4,
       "title": "The Grand Tour: Menu -> Mode 1 -> Menu -> Mode 2 -> Menu -> Mode 3 -> Menu -> Mode 4 -> Menu",
       "status": "PASSED",
-      "durationMs": 1459
+      "durationMs": 1486
     }
   ]
 }
