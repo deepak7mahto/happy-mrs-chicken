@@ -655,7 +655,7 @@ export async function runAllSuites() {
   const bail = process.argv.includes('--bail');
 
   console.log('\n\x1b[1m\x1b[36m============================================================\x1b[0m');
-  console.log('\x1b[1m\x1b[36m   Peppa Pig: Happy Mrs Chicken - Automated Test Runner     \x1b[0m');
+  console.log('\x1b[1m\x1b[36m     Adventures of Trishu - Automated Test Runner           \x1b[0m');
   console.log('\x1b[1m\x1b[36m============================================================\x1b[0m\n');
 
   let totalTests = 0;
@@ -743,7 +743,7 @@ const isDirectRun = process.argv[1] && (
 async function main() {
   const testDir = resolve(__dirname);
   const files = readdirSync(testDir)
-    .filter(f => f.startsWith('tier') && (f.endsWith('.ts') || f.endsWith('.mjs') || f.endsWith('.js')))
+    .filter(f => (f.endsWith('.test.ts') || f.endsWith('.test.mjs') || f.endsWith('.test.js')) && !f.startsWith('.'))
     .sort();
 
   for (const f of files) {

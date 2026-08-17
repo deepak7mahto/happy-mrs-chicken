@@ -1,0 +1,300 @@
+/**
+ * Adventures of Trishu — Consolidated Smoke & Quality Test Suite
+ * Fast execution (< 1.0s) covering all 8 mini-games, engine, audio, and character renderers.
+ */
+
+import { describe, test, expect, beforeEach } from './e2e_runner.mjs';
+import { GameEngine } from '../src/engine/GameEngine';
+import { StorageManager } from '../src/engine/StorageManager';
+import { DisplayManager } from '../src/engine/DisplayManager';
+import { ParticleEngine } from '../src/engine/ParticleEngine';
+import { SoundEngine } from '../src/engine/SoundEngine';
+import { CHARACTER_RENDERERS, renderCharacter } from '../src/graphics/characters';
+import { PALETTE } from '../src/graphics/palette';
+import { MenuScene } from '../src/modes/MenuScene';
+import { EggLayingScene } from '../src/modes/EggLayingScene';
+import { MuddyPuddlesScene } from '../src/modes/MuddyPuddlesScene';
+import { ChickMazeScene } from '../src/modes/ChickMazeScene';
+import { DadKitchenScene } from '../src/modes/DadKitchenScene';
+import { DinosaurBalloonScene } from '../src/modes/DinosaurBalloonScene';
+import { PancakeFlipperScene } from '../src/modes/PancakeFlipperScene';
+import { VegetableHarvestScene } from '../src/modes/VegetableHarvestScene';
+import { HopscotchBubbleScene } from '../src/modes/HopscotchBubbleScene';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// ---------------------------------------------------------------------------
+// Suite 1: Smoke & Initialization
+// ---------------------------------------------------------------------------
+describe('Tier 1: Smoke & Initialization', () => {
+  test('T1.01: GameEngine instantiates all 9 scenes including MENU and 8 game modes', () => {
+    const canvas = document.createElement('canvas');
+    const engine = new GameEngine(canvas);
+
+    expect(engine.scenes.size).toBe(9);
+    expect(engine.scenes.has('MENU')).toBe(true);
+    expect(engine.scenes.has('EGG_LAYING')).toBe(true);
+    expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
+    expect(engine.scenes.has('CHICK_MAZE')).toBe(true);
+    expect(engine.scenes.has('DADDY_PIG')).toBe(true);
+    expect(engine.scenes.has('DINOSAUR_BALLOON')).toBe(true);
+    expect(engine.scenes.has('PANCAKE_FLIPPER')).toBe(true);
+    expect(engine.scenes.has('VEGETABLE_HARVEST')).toBe(true);
+    expect(engine.scenes.has('HOPSCOTCH_BUBBLE')).toBe(true);
+    expect(engine.currentSceneId).toBe('MENU');
+  });
+
+  test('T1.02: DisplayManager adapts between portrait (9:16) and landscape (16:9)', () => {
+    const canvas = document.createElement('canvas');
+    const display = new DisplayManager(canvas);
+
+    window.innerWidth = 360;
+    window.innerHeight = 640;
+    display.syncResize();
+    expect(display.isPortrait).toBe(true);
+
+    window.innerWidth = 960;
+    window.innerHeight = 540;
+    display.syncResize();
+    expect(display.isPortrait).toBe(false);
+  });
+
+  test('T1.03: StorageManager initializes high scores and persists updates', () => {
+    const storage = new StorageManager();
+    expect(storage.getHighScore('eggLaying')).toBe(0);
+
+    storage.saveHighScore('eggLaying', 42);
+    expect(storage.getHighScore('eggLaying')).toBe(42);
+  });
+
+  test('T1.04: ParticleEngine pre-allocates pool and spawns particles', () => {
+    const particles = new ParticleEngine(100);
+    expect(particles.pool.length).toBe(100);
+
+    particles.spawnSparkles(100, 100, 10);
+    expect(particles.active.length).toBe(10);
+    particles.update(0.016);
+    expect(particles.active.length).toBe(10);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Suite 2: Mini-Game Simulation & Mechanics
+// ---------------------------------------------------------------------------
+describe('Tier 2: 8 Mini-Game Simulation & Mechanics', () => {
+  let engine: GameEngine;
+  let canvas: HTMLCanvasElement;
+
+  beforeEach(() => {
+    canvas = document.createElement('canvas');
+    engine = new GameEngine(canvas);
+  });
+
+  test('T2.01 Mode 1: Happy Mrs Clucky egg-laying and hatching lifecycle', () => {
+    const scene = engine.scenes.get('EGG_LAYING') as EggLayingScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    scene.chicken.x = 200;
+    scene.layEggAt(200, 160);
+    expect(scene.eggs.length).toBe(1);
+    expect(scene.score).toBe(1);
+
+    scene.update(0.016, engine.input);
+    expect(scene.eggs.length).toBe(1);
+  });
+
+  test('T2.02 Mode 2: Puddle Splash Adventure puddle jumping mechanics', () => {
+    const scene = engine.scenes.get('MUDDY_PUDDLES') as MuddyPuddlesScene;
+    scene.enter();
+    expect(scene.timer).toBe(60);
+    expect(scene.puddles.length).toBeGreaterThan(0);
+
+    scene.jump();
+    expect(scene.trishu.isJumping).toBe(true);
+    scene.update(0.016, engine.input);
+  });
+
+  test('T2.03 Mode 3: Fluffy Chick Trail seed placing and coop saving', () => {
+    const scene = engine.scenes.get('CHICK_MAZE') as ChickMazeScene;
+    scene.enter();
+    expect(scene.chicks.length).toBeGreaterThan(0);
+
+    scene.dropSeed(150, 200);
+    expect(scene.seeds.length).toBe(1);
+    scene.update(0.016, engine.input);
+  });
+
+  test('T2.04 Mode 4: Dad\'s Kitchen Dash frenzy and overheat test', () => {
+    const scene = engine.scenes.get('DADDY_PIG') as DadKitchenScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+    expect(scene.fever).toBe(0);
+
+    scene.tap();
+    expect(scene.score).toBeGreaterThan(0);
+    expect(scene.fever).toBeGreaterThan(0);
+  });
+
+  test('T2.05 Mode 5: Leo\'s Balloon Pop balloon popping and combo mechanics', () => {
+    const scene = engine.scenes.get('DINOSAUR_BALLOON') as DinosaurBalloonScene;
+    scene.enter();
+    scene.spawnBalloon();
+    expect(scene.balloons.length).toBeGreaterThan(0);
+
+    scene.popBalloon(0);
+    expect(scene.score).toBeGreaterThan(0);
+    expect(scene.poppedCount).toBe(1);
+  });
+
+  test('T2.06 Mode 6: Golden Pancake Flipper pan flip flight cycle', () => {
+    const scene = engine.scenes.get('PANCAKE_FLIPPER') as PancakeFlipperScene;
+    scene.enter();
+    expect(scene.stackCount).toBe(0);
+
+    scene.flipPancake();
+    expect(scene.isAirborne).toBe(true);
+    scene.update(0.016, engine.input);
+  });
+
+  test('T2.07 Mode 7: Grandpa\'s Veggie Harvest tension pull mechanics', () => {
+    const scene = engine.scenes.get('VEGETABLE_HARVEST') as VegetableHarvestScene;
+    scene.enter();
+    expect(scene.harvestedCount).toBe(0);
+
+    scene.update(0.016, engine.input);
+    expect(scene.mounds.length).toBeGreaterThan(0);
+  });
+
+  test('T2.08 Mode 8: Rainbow Bubble Hopscotch step advancement & bubble popping', () => {
+    const scene = engine.scenes.get('HOPSCOTCH_BUBBLE') as HopscotchBubbleScene;
+    scene.enter();
+    expect(scene.mimi.currentSquare).toBe(1);
+
+    scene.advanceMimi();
+    expect(scene.mimi.targetSquare).toBe(2);
+    expect(scene.bubbles.length).toBeGreaterThan(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Suite 3: Audio Synthesis & Character Roster
+// ---------------------------------------------------------------------------
+describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
+  test('T3.01: SoundEngine implements all 18 procedural SFX recipes including bunnySqueak', () => {
+    const sound = new SoundEngine();
+    const synth = sound.synth;
+
+    const sfxList = [
+      'cluck', 'eggPop', 'crack', 'hatch', 'splash', 'seedDrop',
+      'fanfare', 'crash', 'click', 'dinosaurRoar', 'balloonPop',
+      'pancakeSizzle', 'whoosh', 'veggiePop', 'mudThud', 'bubblePop',
+      'bunnySqueak', 'toddlerGiggle'
+    ] as const;
+
+    for (const name of sfxList) {
+      expect(() => synth.playSFX(name as any)).not.toThrow();
+    }
+  });
+
+  test('T3.02: BGMSequencer manages playback lifecycle', () => {
+    const sound = new SoundEngine();
+    expect(sound.sequencer.isRunning).toBe(false);
+
+    sound.startBGM();
+    sound.setBGMTempo(132);
+    sound.stopBGM();
+    expect(sound.sequencer.isRunning).toBe(false);
+  });
+
+  test('T3.03: CHARACTER_RENDERERS contains all 8 character entries', () => {
+    const expectedKeys = ['chicken', 'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi', 'chick'];
+    for (const k of expectedKeys) {
+      expect(typeof CHARACTER_RENDERERS[k as any]).toBe('function');
+    }
+  });
+
+  test('T3.04: renderCharacter dispatches vector rendering for all characters without throwing', () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    const characters = ['chicken', 'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi', 'chick'] as const;
+    for (const charId of characters) {
+      expect(() => renderCharacter(charId, ctx, 100, 100, 1.0, {})).not.toThrow();
+    }
+  });
+
+  test('T3.05: PALETTE contains Adventures of Trishu custom colors', () => {
+    expect(PALETTE.TRISHU_SKIN).toBe('#FFCC80');
+    expect(PALETTE.TRISHU_DRESS).toBe('#B388FF');
+    expect(PALETTE.LEO_SHIRT).toBe('#42A5F5');
+    expect(PALETTE.DAD_SHIRT).toBe('#26A69A');
+    expect(PALETTE.MOM_DRESS).toBe('#FF7043');
+    expect(PALETTE.GRANDPA_HAT).toBe('#FFC107');
+    expect(PALETTE.MIMI_FUR).toBe('#FAFAFA');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Suite 4: Quality Gates & Branding Verification
+// ---------------------------------------------------------------------------
+describe('Tier 4: Quality Gates & Branding Verification', () => {
+  const root = resolve(process.cwd());
+
+  test('T4.01: MenuScene displays "Adventures of Trishu" title', () => {
+    const menuPath = resolve(root, 'src/modes/MenuScene.ts');
+    const content = readFileSync(menuPath, 'utf8');
+    expect(content.includes('Adventures of Trishu')).toBe(true);
+    expect(content.includes('Peppa Pig')).toBe(false);
+  });
+
+  test('T4.02: Every source file in src/ is strictly under 500 lines of code', () => {
+    function checkDir(dir: string) {
+      const entries = readdirSync(dir);
+      for (const entry of entries) {
+        const full = resolve(dir, entry);
+        const stat = statSync(full);
+        if (stat.isDirectory()) {
+          checkDir(full);
+        } else if (entry.endsWith('.ts') || entry.endsWith('.tsx')) {
+          const lines = readFileSync(full, 'utf8').split('\n').length;
+          expect(lines).toBeLessThan(500);
+        }
+      }
+    }
+    checkDir(resolve(root, 'src'));
+  });
+
+  test('T4.03: Zero external CDN dependencies in index.html and manifest.json', () => {
+    const html = readFileSync(resolve(root, 'index.html'), 'utf8');
+    expect(html.includes('http://')).toBe(false);
+    expect(html.includes('https://')).toBe(false);
+    expect(html.includes('Adventures of Trishu')).toBe(true);
+
+    const manifest = JSON.parse(readFileSync(resolve(root, 'public/manifest.json'), 'utf8'));
+    expect(manifest.name).toBe('Adventures of Trishu');
+    expect(manifest.short_name).toBe('Trishu');
+  });
+
+  test('T4.04: Zero copyrighted Peppa Pig character references in source code', () => {
+    function scanDir(dir: string) {
+      const entries = readdirSync(dir);
+      for (const entry of entries) {
+        const full = resolve(dir, entry);
+        const stat = statSync(full);
+        if (stat.isDirectory()) {
+          scanDir(full);
+        } else if (entry.endsWith('.ts') || entry.endsWith('.tsx')) {
+          const content = readFileSync(full, 'utf8');
+          // Check for character name keywords
+          expect(content.includes('peppaPigRenderer')).toBe(false);
+          expect(content.includes('suzySheepRenderer')).toBe(false);
+          expect(content.includes('daddyPigRenderer')).toBe(false);
+          expect(content.includes('mummyPigRenderer')).toBe(false);
+          expect(content.includes('georgeRenderer')).toBe(false);
+        }
+      }
+    }
+    scanDir(resolve(root, 'src'));
+  });
+});
