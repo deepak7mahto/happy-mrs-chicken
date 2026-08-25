@@ -11,7 +11,7 @@ export * from './storage';
 export * from './characters';
 export * from './particles';
 
-// Canonical 8 Active Mini-Game Modes
+// Canonical 9 Active Mini-Game Modes
 export type ActiveGameModeId =
   | 'EGG_LAYING'
   | 'MUDDY_PUDDLES'
@@ -20,7 +20,8 @@ export type ActiveGameModeId =
   | 'DINOSAUR_BALLOON'
   | 'PANCAKE_FLIPPER'
   | 'VEGETABLE_HARVEST'
-  | 'HOPSCOTCH_BUBBLE';
+  | 'HOPSCOTCH_BUBBLE'
+  | 'MIX_MATCH';
 
 // Full Scene ID Union (including MENU and slug aliases)
 export type GameModeId =
@@ -33,7 +34,8 @@ export type GameModeId =
   | 'pancake-flip'
   | 'balloon-pop'
   | 'seed-sort'
-  | 'dino-maze';
+  | 'dino-maze'
+  | 'mix-match';
 
 export type GameModeSlug =
   | 'classic'
@@ -43,7 +45,8 @@ export type GameModeSlug =
   | 'balloon-pop'
   | 'pancake-flip'
   | 'egg-tap'
-  | 'chick-catch';
+  | 'chick-catch'
+  | 'mix-match';
 
 export interface GameModeMetadata {
   id: ActiveGameModeId;
@@ -67,7 +70,8 @@ export const GAME_MODES_LIST: readonly ActiveGameModeId[] = [
   'DINOSAUR_BALLOON',
   'PANCAKE_FLIPPER',
   'VEGETABLE_HARVEST',
-  'HOPSCOTCH_BUBBLE'
+  'HOPSCOTCH_BUBBLE',
+  'MIX_MATCH'
 ] as const;
 
 export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
@@ -78,7 +82,8 @@ export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
   DINOSAUR_BALLOON: 'balloon-pop',
   PANCAKE_FLIPPER: 'pancake-flip',
   VEGETABLE_HARVEST: 'egg-tap',
-  HOPSCOTCH_BUBBLE: 'chick-catch'
+  HOPSCOTCH_BUBBLE: 'chick-catch',
+  MIX_MATCH: 'mix-match'
 };
 
 export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
@@ -89,7 +94,8 @@ export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
   'balloon-pop': 'DINOSAUR_BALLOON',
   'pancake-flip': 'PANCAKE_FLIPPER',
   'egg-tap': 'VEGETABLE_HARVEST',
-  'chick-catch': 'HOPSCOTCH_BUBBLE'
+  'chick-catch': 'HOPSCOTCH_BUBBLE',
+  'mix-match': 'MIX_MATCH'
 };
 
 export interface MiniGame {

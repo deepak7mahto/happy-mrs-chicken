@@ -1,6 +1,6 @@
 /**
- * Mode 0: Main Menu / 8-Game Arcade Selection Suite
- * Adventures of Trishu 8-Game Suite
+ * Mode 0: Main Menu / 9-Game Arcade Selection Suite
+ * Adventures of Trishu Mini-Game Suite
  * Strictly under 500 Lines of Code
  */
 
@@ -20,7 +20,8 @@ import {
   drawLeo,
   drawMom,
   drawGrandpa,
-  drawMimi
+  drawMimi,
+  drawCompositeCharacter
 } from '../graphics/characters';
 
 interface MenuCardInfo {
@@ -41,7 +42,8 @@ const MENU_CARDS: MenuCardInfo[] = [
   { id: 'DINOSAUR_BALLOON', title: 'Balloon Pop', sub: 'Pop all balloons!', badge: 'Pop', color: '#D1C4E9', borderColor: '#9575CD', scoreKey: 'dinosaurBalloon' },
   { id: 'PANCAKE_FLIPPER', title: 'Pancake Flip', sub: 'Flip & stack high!', badge: 'Chef', color: '#FFE0B2', borderColor: '#FFB74D', scoreKey: 'pancakeFlipper' },
   { id: 'VEGETABLE_HARVEST', title: 'Veggie Harvest', sub: 'Pull giant veggies!', badge: 'Garden', color: '#DCEDC8', borderColor: '#AED581', scoreKey: 'vegetableHarvest' },
-  { id: 'HOPSCOTCH_BUBBLE', title: 'Bubble Hop', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' }
+  { id: 'HOPSCOTCH_BUBBLE', title: 'Bubble Hop', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' },
+  { id: 'MIX_MATCH', title: 'Body Shuffler', sub: 'Mix funny bodies!', badge: 'Funny', color: '#E1BEE7', borderColor: '#BA68C8', scoreKey: 'mixMatch' }
 ];
 
 export class MenuScene extends BaseScene {
@@ -67,62 +69,50 @@ export class MenuScene extends BaseScene {
     const cards: ModeCardDef[] = [];
 
     if (isPortrait) {
-      // 2 columns x 4 rows
+      // 2 columns x 4 rows + 1 full-width 9th card
       const padX = 14;
-      const gapX = 12;
+      const gapX = 10;
       const cardW = (vWidth - padX * 2 - gapX) / 2;
-      const titleAreaH = Math.max(70, Math.min(90, vHeight * 0.09));
-      const bottomPad = 20;
+      const titleAreaH = Math.max(65, Math.min(85, vHeight * 0.08));
+      const bottomPad = 12;
       const gridH = vHeight - titleAreaH - bottomPad;
-      const gapY = 10;
-      const cardH = (gridH - 3 * gapY) / 4;
+      const gapY = 8;
+      const cardH = (gridH - 4 * gapY) / 5;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
-        const col = i % 2;
-        const row = Math.floor(i / 2);
-        const x = padX + cardW / 2 + col * (cardW + gapX);
-        const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
-        cards.push({
-          id: info.id,
-          title: info.title,
-          sub: info.sub,
-          badge: info.badge,
-          color: info.color,
-          x,
-          y,
-          w: cardW,
-          h: cardH
-        });
+        if (i < 8) {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const x = padX + cardW / 2 + col * (cardW + gapX);
+          const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
+          cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
+        } else {
+          // 9th Card centered across bottom
+          const fullW = vWidth - padX * 2;
+          const x = vWidth / 2;
+          const y = titleAreaH + cardH / 2 + 4 * (cardH + gapY);
+          cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: fullW, h: cardH });
+        }
       }
     } else {
-      // 4 columns x 2 rows (Landscape 16:9)
-      const padX = 20;
-      const gapX = 14;
-      const cardW = (vWidth - padX * 2 - 3 * gapX) / 4;
-      const titleAreaH = 68;
-      const bottomPad = 18;
+      // 3 columns x 3 rows (Landscape 16:9)
+      const padX = 24;
+      const gapX = 16;
+      const cardW = (vWidth - padX * 2 - 2 * gapX) / 3;
+      const titleAreaH = 60;
+      const bottomPad = 14;
       const gridH = vHeight - titleAreaH - bottomPad;
-      const gapY = 12;
-      const cardH = (gridH - gapY) / 2;
+      const gapY = 10;
+      const cardH = (gridH - 2 * gapY) / 3;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
-        const col = i % 4;
-        const row = Math.floor(i / 4);
+        const col = i % 3;
+        const row = Math.floor(i / 3);
         const x = padX + cardW / 2 + col * (cardW + gapX);
         const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
-        cards.push({
-          id: info.id,
-          title: info.title,
-          sub: info.sub,
-          badge: info.badge,
-          color: info.color,
-          x,
-          y,
-          w: cardW,
-          h: cardH
-        });
+        cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
       }
     }
 
@@ -165,7 +155,6 @@ export class MenuScene extends BaseScene {
     const charScale = Math.min(0.42, Math.max(0.32, cardW / 560));
 
     if (modeId === 'EGG_LAYING') {
-      // Mini straw nest & golden egg
       ctx.fillStyle = '#D7CCC8';
       ctx.beginPath();
       ctx.ellipse(cx, cy + 22, 22, 7, 0, 0, Math.PI * 2);
@@ -194,14 +183,6 @@ export class MenuScene extends BaseScene {
       ctx.ellipse(cx, cy + 22, 22, 7, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      if (jumpPhase < 0.25) {
-        ctx.fillStyle = '#795548';
-        ctx.beginPath();
-        ctx.arc(cx - 15, cy + 16, 2.5, 0, Math.PI * 2);
-        ctx.arc(cx + 15, cy + 15, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
       drawTrishu(ctx, cx, cy, charScale * 0.95, {
         jumpY,
         squish,
@@ -211,13 +192,6 @@ export class MenuScene extends BaseScene {
         eyeBlink: Math.sin(time * 2) > 0.85
       });
     } else if (modeId === 'CHICK_MAZE') {
-      ctx.fillStyle = '#FDD835';
-      ctx.beginPath();
-      ctx.arc(cx - 16, cy + 18, 2.5, 0, Math.PI * 2);
-      ctx.arc(cx - 8, cy + 20, 2.0, 0, Math.PI * 2);
-      ctx.arc(cx + 14, cy + 19, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-
       drawBabyChick(ctx, cx, cy, charScale * 1.3, {
         walkCycle: time * 8,
         isPeeping: Math.sin(time * 3.5) > 0.3,
@@ -233,34 +207,9 @@ export class MenuScene extends BaseScene {
         eyeBlink: Math.sin(time * 2.2) > 0.85
       });
     } else if (modeId === 'DINOSAUR_BALLOON') {
-      const dinoChomp = Math.abs(Math.sin(time * 5.5));
-      const balloonBob = Math.sin(time * 3) * 5;
-
-      ctx.save();
-      ctx.fillStyle = '#4CAF50';
-      ctx.strokeStyle = '#2E7D32';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(cx + 22, cy - 18 + balloonBob, 9, 11, 0.1, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.beginPath();
-      ctx.arc(cx + 19, cy - 21 + balloonBob, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = '#81C784';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(cx + 22, cy - 7 + balloonBob);
-      ctx.quadraticCurveTo(cx + 26, cy + 6, cx + 16, cy + 12);
-      ctx.stroke();
-      ctx.restore();
-
       drawLeo(ctx, cx - 6, cy, charScale * 0.95, {
         holdingDino: true,
-        dinoChomp,
+        dinoChomp: Math.abs(Math.sin(time * 5.5)),
         jumpY: Math.sin(time * 3.5) * 3,
         expression: 'happy',
         eyeBlink: Math.sin(time * 2) > 0.88
@@ -268,74 +217,48 @@ export class MenuScene extends BaseScene {
     } else if (modeId === 'PANCAKE_FLIPPER') {
       const flipCycle = (time * 2.2) % (Math.PI * 2);
       const pancakeFlight = Math.sin(flipCycle);
-      const panAngle = pancakeFlight > 0 ? pancakeFlight * 0.25 : 0;
-
       drawMom(ctx, cx - 10, cy, charScale * 0.9, {
         holdingPan: true,
-        panAngle,
+        panAngle: pancakeFlight > 0 ? pancakeFlight * 0.25 : 0,
         smiling: true,
         eyeBlink: Math.sin(time * 1.6) > 0.85
       });
-
-      if (pancakeFlight > 0.05) {
-        ctx.save();
-        ctx.translate(cx + 22, cy - 8 - pancakeFlight * 26);
-        ctx.rotate(flipCycle * 2.5);
-        ctx.fillStyle = '#FFA726';
-        ctx.strokeStyle = '#E65100';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 10, 3.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-      }
     } else if (modeId === 'VEGETABLE_HARVEST') {
-      const pullTension = (Math.sin(time * 3.2) + 1) * 0.5;
-
-      ctx.fillStyle = '#5D4037';
-      ctx.beginPath();
-      ctx.ellipse(cx + 20, cy + 22, 16, 6, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#43A047';
-      ctx.beginPath();
-      ctx.arc(cx + 20, cy + 16 - pullTension * 6, 4, 0, Math.PI * 2);
-      ctx.fill();
-
       drawGrandpa(ctx, cx - 8, cy, charScale * 0.88, {
         pulling: true,
-        pullTension,
+        pullTension: (Math.sin(time * 3.2) + 1) * 0.5,
         welliesMuddy: true,
         eyeBlink: Math.sin(time * 2.1) > 0.85
       });
     } else if (modeId === 'HOPSCOTCH_BUBBLE') {
       const hopCycle = (time * 4) % (Math.PI * 2);
-      const hopY = -Math.abs(Math.sin(hopCycle)) * 12;
-      const bubBob = Math.sin(time * 3) * 5;
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(187, 222, 251, 0.45)';
-      ctx.strokeStyle = 'rgba(33, 150, 243, 0.85)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(cx + 24, cy - 14 + bubBob, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(cx + 21, cy - 17 + bubBob, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
       drawMimi(ctx, cx - 6, cy, charScale * 0.92, {
-        hopY,
+        hopY: -Math.abs(Math.sin(hopCycle)) * 12,
         earFlap: Math.sin(hopCycle) * 0.28,
         holdingWand: true,
         blowingBubble: true,
         eyeBlink: Math.sin(time * 1.9) > 0.85
       });
+    } else if (modeId === 'MIX_MATCH') {
+      const cycle = Math.floor(time * 1.2);
+      drawCompositeCharacter(
+        ctx,
+        (cycle + 4) % 7,
+        (cycle + 2) % 7,
+        cycle % 7,
+        cx,
+        cy,
+        charScale * 0.85,
+        {
+          blinkTimer: 0,
+          isBlinking: Math.sin(time * 2) > 0.88,
+          breathTimer: 0,
+          breathScale: 1.0,
+          wobbleTimer: 0,
+          wobbleAngle: Math.sin(time * 6) * 0.1,
+          headBob: Math.sin(time * 12) * 2
+        }
+      );
     }
   }
 
@@ -350,14 +273,14 @@ export class MenuScene extends BaseScene {
     ctx.save();
     const titleBob = Math.sin(this.time * 2.5) * 3;
     const titleX = vWidth / 2;
-    const titleY = (isPortrait ? Math.max(38, vHeight * 0.048) : 34) + titleBob;
+    const titleY = (isPortrait ? Math.max(34, vHeight * 0.042) : 30) + titleBob;
     ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '30px' : '36px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '28px' : '34px'} "Comic Sans MS", cursive, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = isPortrait ? 6 : 7;
+    ctx.lineWidth = isPortrait ? 5 : 6;
     ctx.strokeText('Adventures of Trishu', 0, 0);
     ctx.fillStyle = '#FFE600';
     ctx.fillText('Adventures of Trishu', 0, 0);
@@ -382,7 +305,7 @@ export class MenuScene extends BaseScene {
       // Card Background
       ctx.fillStyle = card.color;
       ctx.strokeStyle = info.borderColor;
-      ctx.lineWidth = 3.5;
+      ctx.lineWidth = 3.2;
       ctx.beginPath();
       ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 16);
       ctx.fill();
@@ -391,28 +314,28 @@ export class MenuScene extends BaseScene {
       // Category Badge (Top-Left)
       ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2 + 6, -card.h / 2 + 5, 62, 22, 11);
+      ctx.roundRect(-card.w / 2 + 6, -card.h / 2 + 5, 58, 20, 10);
       ctx.fill();
-      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 11px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#37474F';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, -card.w / 2 + 37, -card.h / 2 + 16);
+      ctx.fillText(card.badge, -card.w / 2 + 35, -card.h / 2 + 15);
 
       // Best Score Badge (Top-Right)
       ctx.fillStyle = '#E53935';
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 82, -card.h / 2 + 5, 76, 22, 11);
+      ctx.roundRect(card.w / 2 - 76, -card.h / 2 + 5, 70, 20, 10);
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = 'bold 13px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
       ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 44, -card.h / 2 + 16);
+      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 41, -card.h / 2 + 15);
 
       // Character Preview (Center)
       const previewY = -card.h * 0.06;
@@ -421,13 +344,13 @@ export class MenuScene extends BaseScene {
       // Title & Subtitle Labels (Bottom)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `bold ${isPortrait ? '19px' : '18px'} "Comic Sans MS", cursive, sans-serif`;
+      ctx.font = `bold ${isPortrait ? '17px' : '16px'} "Comic Sans MS", cursive, sans-serif`;
       ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, 0, card.h / 2 - 30);
+      ctx.fillText(card.title, 0, card.h / 2 - 26);
 
-      ctx.font = `bold ${isPortrait ? '13px' : '12px'} "Comic Sans MS", sans-serif`;
+      ctx.font = `bold ${isPortrait ? '12px' : '11px'} "Comic Sans MS", sans-serif`;
       ctx.fillStyle = '#455A64';
-      ctx.fillText(card.sub, 0, card.h / 2 - 13);
+      ctx.fillText(card.sub, 0, card.h / 2 - 11);
 
       ctx.restore();
     }

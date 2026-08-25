@@ -25,6 +25,7 @@ export interface CharacterAnimState {
   jumpY?: number;
   squash?: number;
   squawk?: number;
+  headBob?: number;
   panicStage?: number;
   armWave?: number;
   facingLeft?: boolean;

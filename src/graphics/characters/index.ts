@@ -75,5 +75,6 @@ export function renderCharacter(
   }
 }
 
-// Re-export Character Types
+// Re-export Character Types & Modular Body Parts
 export * from '../../types/characters';
+export * from './modularBodyParts';

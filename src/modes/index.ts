@@ -1,6 +1,6 @@
 /**
  * Mini-Game Scenes Barrel & Exports
- * Adventures of Trishu 8-Game Suite
+ * Adventures of Trishu Mini-Game Suite
  */
 
 export * from './BaseScene';
@@ -13,3 +13,4 @@ export * from './DinosaurBalloonScene';
 export * from './PancakeFlipperScene';
 export * from './VegetableHarvestScene';
 export * from './HopscotchBubbleScene';
+export * from './MixMatchScene';

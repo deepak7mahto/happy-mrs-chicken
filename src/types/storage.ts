@@ -12,6 +12,7 @@ export interface HighScores {
   pancakeFlipper: number;   // Mode 6: Golden Pancake Flipper
   vegetableHarvest: number; // Mode 7: Grandpa's Veggie Harvest
   hopscotchBubble: number;  // Mode 8: Rainbow Bubble Hopscotch
+  mixMatch: number;         // Mode 9: Trishu's Mix & Match Funny Studio
   [key: string]: number;
 }
 

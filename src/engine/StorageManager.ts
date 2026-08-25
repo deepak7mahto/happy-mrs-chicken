@@ -15,7 +15,8 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   dinosaurBalloon: 0,
   pancakeFlipper: 0,
   vegetableHarvest: 0,
-  hopscotchBubble: 0
+  hopscotchBubble: 0,
+  mixMatch: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -28,6 +29,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   PANCAKE_FLIPPER: 'pancakeFlipper',
   VEGETABLE_HARVEST: 'vegetableHarvest',
   HOPSCOTCH_BUBBLE: 'hopscotchBubble',
+  MIX_MATCH: 'mixMatch',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -38,6 +40,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'balloon-pop': 'dinosaurBalloon',
   'seed-sort': 'chickMaze',
   'dino-maze': 'daddyPig',
+  'mix-match': 'mixMatch',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -79,7 +82,8 @@ export class StorageManager implements IStorageManager {
               dinosaurBalloon: Number(rawScores.dinosaurBalloon) || 0,
               pancakeFlipper: Number(rawScores.pancakeFlipper) || 0,
               vegetableHarvest: Number(rawScores.vegetableHarvest) || 0,
-              hopscotchBubble: Number(rawScores.hopscotchBubble) || 0
+              hopscotchBubble: Number(rawScores.hopscotchBubble) || 0,
+              mixMatch: Number(rawScores.mixMatch) || 0
             };
 
             const rawSettings = parsed.settings || {};

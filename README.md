@@ -41,6 +41,10 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
    * Tap shimmering soap bubbles with glockenspiel chimes to guide Mimi the Bunny along the 10-step hopscotch path.
    * Reach the picnic blanket with Trishu for victory fanfare and celebration!
 
+9. **Trishu's Mix & Match Funny Studio**
+   * Shuffle and randomize character heads, torsos, and legs across all 7 characters.
+   * Big bouncy **"🎲 SHUFFLE"** button, interactive character wiggle & dance reactions, and **"📸 SNAP PHOTO"** photo booth album!
+
 ---
 
 ## 🎨 Vector Graphics & Character Roster

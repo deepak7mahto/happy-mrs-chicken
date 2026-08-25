@@ -1,6 +1,6 @@
 /**
  * Adventures of Trishu — Consolidated Smoke & Quality Test Suite
- * Fast execution (< 1.0s) covering all 8 mini-games, engine, audio, and character renderers.
+ * Fast execution (< 1.0s) covering all 9 mini-games, engine, audio, and character renderers.
  */
 
 import { describe, test, expect, beforeEach } from './e2e_runner.mjs';
@@ -10,6 +10,13 @@ import { DisplayManager } from '../src/engine/DisplayManager';
 import { ParticleEngine } from '../src/engine/ParticleEngine';
 import { SoundEngine } from '../src/engine/SoundEngine';
 import { CHARACTER_RENDERERS, renderCharacter } from '../src/graphics/characters';
+import {
+  drawHeadPart,
+  drawTorsoPart,
+  drawLegsPart,
+  drawCompositeCharacter,
+  CHARACTER_PARTS
+} from '../src/graphics/characters/modularBodyParts';
 import { PALETTE } from '../src/graphics/palette';
 import { MenuScene } from '../src/modes/MenuScene';
 import { EggLayingScene } from '../src/modes/EggLayingScene';
@@ -20,6 +27,7 @@ import { DinosaurBalloonScene } from '../src/modes/DinosaurBalloonScene';
 import { PancakeFlipperScene } from '../src/modes/PancakeFlipperScene';
 import { VegetableHarvestScene } from '../src/modes/VegetableHarvestScene';
 import { HopscotchBubbleScene } from '../src/modes/HopscotchBubbleScene';
+import { MixMatchScene } from '../src/modes/MixMatchScene';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -27,11 +35,11 @@ import { resolve } from 'node:path';
 // Suite 1: Smoke & Initialization
 // ---------------------------------------------------------------------------
 describe('Tier 1: Smoke & Initialization', () => {
-  test('T1.01: GameEngine instantiates all 9 scenes including MENU and 8 game modes', () => {
+  test('T1.01: GameEngine instantiates all 10 scenes including MENU and 9 game modes', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(9);
+    expect(engine.scenes.size).toBe(10);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
     expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
@@ -41,6 +49,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('PANCAKE_FLIPPER')).toBe(true);
     expect(engine.scenes.has('VEGETABLE_HARVEST')).toBe(true);
     expect(engine.scenes.has('HOPSCOTCH_BUBBLE')).toBe(true);
+    expect(engine.scenes.has('MIX_MATCH')).toBe(true);
     expect(engine.currentSceneId).toBe('MENU');
   });
 
@@ -62,9 +71,10 @@ describe('Tier 1: Smoke & Initialization', () => {
   test('T1.03: StorageManager initializes high scores and persists updates', () => {
     const storage = new StorageManager();
     expect(storage.getHighScore('eggLaying')).toBe(0);
+    expect(storage.getHighScore('mixMatch')).toBe(0);
 
-    storage.saveHighScore('eggLaying', 42);
-    expect(storage.getHighScore('eggLaying')).toBe(42);
+    storage.saveHighScore('mixMatch', 250);
+    expect(storage.getHighScore('mixMatch')).toBe(250);
   });
 
   test('T1.04: ParticleEngine pre-allocates pool and spawns particles', () => {
@@ -81,7 +91,7 @@ describe('Tier 1: Smoke & Initialization', () => {
 // ---------------------------------------------------------------------------
 // Suite 2: Mini-Game Simulation & Mechanics
 // ---------------------------------------------------------------------------
-describe('Tier 2: 8 Mini-Game Simulation & Mechanics', () => {
+describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
   let engine: GameEngine;
   let canvas: HTMLCanvasElement;
 
@@ -175,6 +185,30 @@ describe('Tier 2: 8 Mini-Game Simulation & Mechanics', () => {
     expect(scene.mimi.targetSquare).toBe(2);
     expect(scene.bubbles.length).toBeGreaterThan(0);
   });
+
+  test('T2.09 Mode 9: Trishu\'s Mix & Match Funny Studio part cycling and photo snap', () => {
+    const scene = engine.scenes.get('MIX_MATCH') as MixMatchScene;
+    scene.enter();
+    expect(scene.headIdx).toBe(0);
+    expect(scene.torsoIdx).toBe(0);
+    expect(scene.legsIdx).toBe(0);
+
+    scene.nextHead(1);
+    expect(scene.headIdx).toBe(1);
+
+    scene.nextTorso(2);
+    expect(scene.torsoIdx).toBe(2);
+
+    scene.nextLegs(3);
+    expect(scene.legsIdx).toBe(3);
+
+    scene.shuffle();
+    expect(scene.isShuffling).toBe(true);
+
+    scene.snapPhoto();
+    expect(scene.photosSnapped).toBe(1);
+    expect(scene.score).toBeGreaterThan(0);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -233,6 +267,24 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
     expect(PALETTE.GRANDPA_HAT).toBe('#FFC107');
     expect(PALETTE.MIMI_FUR).toBe('#FAFAFA');
   });
+
+  test('T3.06: Modular body parts renderers (drawHeadPart, drawTorsoPart, drawLegsPart, drawCompositeCharacter) execute without throwing', () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    expect(CHARACTER_PARTS.heads.length).toBe(7);
+    expect(CHARACTER_PARTS.torsos.length).toBe(7);
+    expect(CHARACTER_PARTS.legs.length).toBe(7);
+
+    for (let i = 0; i < 7; i++) {
+      expect(() => drawHeadPart(ctx, i, 50, 50, 1.0)).not.toThrow();
+      expect(() => drawTorsoPart(ctx, i, 50, 50, 1.0)).not.toThrow();
+      expect(() => drawLegsPart(ctx, i, 50, 50, 1.0)).not.toThrow();
+    }
+
+    expect(() => drawCompositeCharacter(ctx, 0, 1, 2, 50, 50, 1.0)).not.toThrow();
+    expect(() => drawCompositeCharacter(ctx, 4, 5, 6, 50, 50, 1.0)).not.toThrow();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -286,7 +338,6 @@ describe('Tier 4: Quality Gates & Branding Verification', () => {
           scanDir(full);
         } else if (entry.endsWith('.ts') || entry.endsWith('.tsx')) {
           const content = readFileSync(full, 'utf8');
-          // Check for character name keywords
           expect(content.includes('peppaPigRenderer')).toBe(false);
           expect(content.includes('suzySheepRenderer')).toBe(false);
           expect(content.includes('daddyPigRenderer')).toBe(false);
