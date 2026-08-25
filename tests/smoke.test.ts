@@ -184,6 +184,24 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
     scene.advanceMimi();
     expect(scene.mimi.targetSquare).toBe(2);
     expect(scene.bubbles.length).toBeGreaterThan(0);
+
+    // Test Bubble Wand Burst
+    const initialBubbleCount = scene.bubbles.length;
+    scene.blowBubbleBurst(3);
+
+    // Test GIANT bubble popping and splitting
+    scene.spawnBubble(200, 'GIANT', 150, 40);
+    const giantIdx = scene.bubbles.length - 1;
+    const countBeforeSplit = scene.bubbles.length;
+    scene.popBubble(giantIdx);
+    expect(scene.bubblesPoppedCount).toBeGreaterThan(0);
+    expect(scene.bubbles.length).toBeGreaterThan(countBeforeSplit); // Split added mini-bubbles
+
+    // Test CHICK bubble and parachuting chick release
+    scene.spawnBubble(200, 'CHICK', 180, 25);
+    const chickBubbleIdx = scene.bubbles.length - 1;
+    scene.popBubble(chickBubbleIdx);
+    expect(scene.parachutingChicks.length).toBeGreaterThan(0);
   });
 
   test('T2.09 Mode 9: Trishu\'s Mix & Match Funny Studio part cycling and photo snap', () => {

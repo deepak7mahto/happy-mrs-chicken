@@ -216,6 +216,8 @@ export interface VegetableEntity {
   isHarvested: boolean;
 }
 
+export type BubbleType = 'STANDARD' | 'GIANT' | 'CHICK' | 'STAR' | 'RAINBOW';
+
 export interface BubbleEntity {
   x: number;
   y: number;
@@ -223,4 +225,9 @@ export interface BubbleEntity {
   vy: number;
   wobbleOffset: number;
   popped: boolean;
+  type?: BubbleType;
+  color?: string;
+  splitCount?: number;
+  hue?: number;
 }
+

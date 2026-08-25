@@ -166,6 +166,10 @@ export class InputManager {
     return this.actionJustPressed;
   }
 
+  isActionDown(): boolean {
+    return this.actionIsDown;
+  }
+
   on(eventName: string, callback: (data: unknown) => void): void {
     if (!this._listeners.has(eventName)) this._listeners.set(eventName, []);
     this._listeners.get(eventName)!.push(callback);

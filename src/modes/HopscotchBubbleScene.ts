@@ -1,6 +1,6 @@
 /**
  * Mode 8: Rainbow Bubble Hopscotch (Mimi & Trishu)
- * Adventures of Trishu 8-Game Suite
+ * Adventures of Trishu — Enhanced Sensory Child Bubble Popping Experience
  * Strictly under 500 Lines of Code
  */
 
@@ -8,7 +8,7 @@ import { BaseScene } from './BaseScene';
 import { GameEngine } from '../engine/GameEngine';
 import { InputManager } from '../engine/InputManager';
 import { DisplayManager } from '../engine/DisplayManager';
-import { BubbleEntity } from '../types/game';
+import { BubbleEntity, BubbleType } from '../types/game';
 import { CharacterAnimState } from '../types/characters';
 import { ParticleEngine } from '../engine/ParticleEngine';
 import { soundEngine } from '../engine/SoundEngine';
@@ -21,20 +21,21 @@ import {
   updateCharacterAnimState,
   getHopscotchPhase
 } from '../graphics/animations';
+import {
+  HopscotchTileDef,
+  ParachutingChickDef,
+  CHALK_COLORS,
+  createHopscotchTiles,
+  drawChalkSquare,
+  drawPicnicBlanket,
+  drawParachutingChick,
+  drawBubbleEntity,
+  drawBubbleBlowerBtn,
+  drawBubbleGameHUD
+} from '../graphics/bubbleGameRenderer';
 
-interface HopscotchTile {
-  index: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  color: string;
-}
-
-const CHALK_COLORS = [
-  '#FF80AB', '#80D8FF', '#B388FF', '#FFD180', '#CCFF90',
-  '#FFE57F', '#FF8A80', '#A7FFEB', '#EA80FC', '#FFD54F'
-];
+const PENTATONIC_PITCHES = [1.0, 1.122, 1.26, 1.498, 1.682, 2.0];
+const COMBO_WORDS = ['Pop! 🫧', 'Super Pop! ⭐', 'Mega Pop! 🌈', 'Bubble Magic! ✨', 'Pop-tastic! 🎉'];
 
 export class HopscotchBubbleScene extends BaseScene {
   public time: number = 0;
@@ -42,10 +43,17 @@ export class HopscotchBubbleScene extends BaseScene {
   public isCelebrating: boolean = false;
   public celebrationTimer: number = 0;
   public bubbles: BubbleEntity[] = [];
-  public tiles: HopscotchTile[] = [];
+  public tiles: HopscotchTileDef[] = [];
+  public parachutingChicks: ParachutingChickDef[] = [];
   public particles: ParticleEngine;
   public animState: CharacterAnimState;
   public trishuAnimState: CharacterAnimState;
+
+  public combo: number = 0;
+  public comboTimer: number = 0;
+  private noteIndex: number = 0;
+  private spawnTimer: number = 0;
+  private bubbleWandPulse: number = 0;
 
   public mimi = {
     x: 100, y: 400, currentSquare: 1, targetSquare: 1,
@@ -53,14 +61,11 @@ export class HopscotchBubbleScene extends BaseScene {
     startX: 100, startY: 400, targetX: 100, targetY: 400
   };
 
-  // Backward compatibility alias for suzy
   public get suzy() { return this.mimi; }
-
-  private spawnTimer: number = 0;
 
   constructor(game: GameEngine) {
     super(game);
-    this.particles = new ParticleEngine(150);
+    this.particles = new ParticleEngine(180);
     this.animState = createCharacterAnimState();
     this.trishuAnimState = createCharacterAnimState();
   }
@@ -69,69 +74,29 @@ export class HopscotchBubbleScene extends BaseScene {
     this.score = 0;
     this.bubblesPoppedCount = 0;
     this.time = 0;
+    this.combo = 0;
+    this.comboTimer = 0;
+    this.noteIndex = 0;
     this.isCelebrating = false;
     this.celebrationTimer = 0;
     this.bubbles = [];
+    this.parachutingChicks = [];
     this.particles.clear();
     this.animState = createCharacterAnimState();
     this.trishuAnimState = createCharacterAnimState();
 
-    this.initTiles();
+    this.tiles = createHopscotchTiles(this.game.display.vWidth, this.game.display.vHeight, this.game.display.isPortrait);
     this.resetMimiPosition();
 
     const vHeight = this.game.display.vHeight;
-    for (let i = 0; i < 6; i++) {
-      this.spawnBubble(vHeight * 0.2 + i * (vHeight * 0.12));
+    for (let i = 0; i < 9; i++) {
+      this.spawnBubble(vHeight * 0.15 + i * (vHeight * 0.09));
     }
   }
 
   exit(): void {
     this.particles.clear();
-  }
-
-  private initTiles(): void {
-    const isPortrait = this.game.display.isPortrait;
-    const vWidth = this.game.display.vWidth;
-    const vHeight = this.game.display.vHeight;
-    this.tiles = [];
-    const totalTiles = 10;
-
-    if (isPortrait) {
-      const startY = vHeight * 0.82;
-      const endY = vHeight * 0.28;
-      const stepY = (startY - endY) / (totalTiles - 1);
-      for (let i = 1; i <= totalTiles; i++) {
-        const row = i - 1;
-        const y = startY - row * stepY;
-        let x = vWidth * 0.5;
-        let w = 70;
-        const h = Math.min(50, stepY * 0.85);
-
-        if (i === 4 || i === 7) x = vWidth * 0.38;
-        else if (i === 5 || i === 8) x = vWidth * 0.62;
-        if (i === 4 || i === 5 || i === 7 || i === 8) w = 62;
-
-        this.tiles.push({ index: i, x, y, w, h, color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length] });
-      }
-    } else {
-      const startX = vWidth * 0.14;
-      const endX = vWidth * 0.72;
-      const stepX = (endX - startX) / (totalTiles - 1);
-      const baseGroundY = vHeight * 0.74;
-      for (let i = 1; i <= totalTiles; i++) {
-        const col = i - 1;
-        const x = startX + col * stepX;
-        let y = baseGroundY;
-        const w = Math.min(64, stepX * 0.88);
-        let h = 58;
-
-        if (i === 4 || i === 7) y = baseGroundY - 24;
-        else if (i === 5 || i === 8) y = baseGroundY + 24;
-        if (i === 4 || i === 5 || i === 7 || i === 8) h = 48;
-
-        this.tiles.push({ index: i, x, y, w, h, color: CHALK_COLORS[(i - 1) % CHALK_COLORS.length] });
-      }
-    }
+    this.parachutingChicks = [];
   }
 
   private resetMimiPosition(): void {
@@ -154,41 +119,97 @@ export class HopscotchBubbleScene extends BaseScene {
     this.resetMimiPosition();
   }
 
-  private spawnBubble(initialY?: number): void {
+  public spawnBubble(initialY?: number, forcedType?: BubbleType, spawnX?: number, radiusOverride?: number): void {
     const vWidth = this.game.display.vWidth;
     const vHeight = this.game.display.vHeight;
-    const radius = 16 + Math.random() * 16;
+
+    const roll = Math.random();
+    const type: BubbleType = forcedType ?? (roll < 0.5 ? 'RAINBOW' : roll < 0.72 ? 'GIANT' : roll < 0.88 ? 'CHICK' : 'STAR');
+    const radius = radiusOverride ?? (type === 'GIANT' ? 34 + Math.random() * 12 : 18 + Math.random() * 14);
     const minX = radius + 20;
     const maxX = vWidth - radius - 20;
-    const x = minX + Math.random() * (maxX - minX);
+    const x = spawnX !== undefined ? spawnX : minX + Math.random() * (maxX - minX);
     const y = initialY !== undefined ? initialY : vHeight + radius + 10;
-    const vy = -(35 + Math.random() * 45);
+    const vy = -(32 + Math.random() * 40);
 
     this.bubbles.push({
-      x,
-      y,
-      radius,
-      vy,
+      x, y, radius, vy,
       wobbleOffset: Math.random() * Math.PI * 2,
-      popped: false
+      popped: false,
+      type,
+      hue: Math.floor(Math.random() * 360)
     });
   }
 
-  private popBubble(idx: number): void {
+  public blowBubbleBurst(count: number = 5): void {
+    this.bubbleWandPulse = 0.6;
+    soundEngine.playSFX('whoosh');
+    soundEngine.playSFX('bunnySqueak');
+    Haptics.medium();
+
+    const originX = this.mimi.x + 20;
+    const originY = this.mimi.y - 15;
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        if (!this.bubbles) return;
+        const bX = originX + (Math.random() - 0.5) * 30;
+        const bY = originY + (Math.random() - 0.5) * 20;
+        this.spawnBubble(bY, i === 0 ? 'GIANT' : i === 1 ? 'CHICK' : 'RAINBOW', bX, 18 + Math.random() * 12);
+        this.particles.spawnSoapBubbles(bX, bY, 3);
+      }, i * 70);
+    }
+  }
+
+  public popBubble(idx: number): void {
     if (idx < 0 || idx >= this.bubbles.length) return;
     const b = this.bubbles[idx];
     if (b.popped) return;
     b.popped = true;
+
     this.bubblesPoppedCount++;
-    this.score += 50;
+    this.combo++;
+    this.comboTimer = 2.2;
 
-    soundEngine.playSFX('bubblePop');
-    soundEngine.playSFX('bunnySqueak');
+    const pitch = PENTATONIC_PITCHES[this.noteIndex % PENTATONIC_PITCHES.length];
+    this.noteIndex++;
+
+    let points = 50;
+    if (b.type === 'GIANT') {
+      points = 120;
+      soundEngine.playSFX('bubblePop', { pitch: 0.65, volume: 1.2 });
+      this.particles.spawnSoapBubbles(b.x, b.y, 14);
+      this.particles.spawnSparkles(b.x, b.y, 10);
+      this.spawnBubble(b.y - 10, 'RAINBOW', b.x - 22, 16);
+      this.spawnBubble(b.y - 10, 'RAINBOW', b.x + 22, 16);
+    } else if (b.type === 'CHICK') {
+      points = 150;
+      soundEngine.playSFX('bubblePop', { pitch: 1.3 });
+      soundEngine.playSFX('cluck', { type: 'high' });
+      this.particles.spawnSoapBubbles(b.x, b.y, 10);
+      this.particles.spawnSparkles(b.x, b.y, 8);
+      this.parachutingChicks.push({
+        x: b.x, y: b.y,
+        vx: (Math.random() - 0.5) * 20, vy: 35 + Math.random() * 20,
+        swayPhase: Math.random() * Math.PI * 2,
+        parachuteColor: CHALK_COLORS[Math.floor(Math.random() * CHALK_COLORS.length)],
+        landed: false, life: 4.5
+      });
+    } else if (b.type === 'STAR') {
+      points = 100;
+      soundEngine.playSFX('bubblePop', { pitch: 1.8 });
+      soundEngine.playSFX('fanfare');
+      this.particles.spawnSparkles(b.x, b.y, 16);
+      this.particles.spawnConfetti(b.x, b.y, 14);
+    } else {
+      soundEngine.playSFX('bubblePop', { pitch });
+      this.particles.spawnSoapBubbles(b.x, b.y, 8);
+      this.particles.spawnSparkles(b.x, b.y, 6);
+    }
+
     Haptics.tap();
-
-    this.particles.spawnSoapBubbles(b.x, b.y, 8);
-    this.particles.spawnSparkles(b.x, b.y, 6);
-    this.particles.spawnScorePopup(b.x, b.y - 20, '+50 🫧');
+    this.score += points;
+    const comboText = this.combo > 3 ? COMBO_WORDS[Math.min(COMBO_WORDS.length - 1, Math.floor(this.combo / 3))] : `+${points} 🫧`;
+    this.particles.spawnScorePopup(b.x, b.y - 20, comboText);
     this.game.storage.saveHighScore('hopscotchBubble', this.score);
   }
 
@@ -218,8 +239,8 @@ export class HopscotchBubbleScene extends BaseScene {
         Haptics.fanfare();
         const vWidth = this.game.display.vWidth;
         const vHeight = this.game.display.vHeight;
-        this.particles.spawnConfetti(vWidth / 2, vHeight / 2, 40);
-        this.particles.spawnSparkles(vWidth / 2, vHeight / 2, 20);
+        this.particles.spawnConfetti(vWidth / 2, vHeight / 2, 45);
+        this.particles.spawnSparkles(vWidth / 2, vHeight / 2, 25);
         this.particles.spawnScorePopup(vWidth / 2, vHeight * 0.4, '🧺 Picnic Party! 🎉 +500');
         this.game.storage.saveHighScore('hopscotchBubble', this.score);
       }
@@ -234,8 +255,14 @@ export class HopscotchBubbleScene extends BaseScene {
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
+    if (this.bubbleWandPulse > 0) this.bubbleWandPulse -= dt;
     updateCharacterAnimState(this.animState, dt);
     updateCharacterAnimState(this.trishuAnimState, dt);
+
+    if (this.comboTimer > 0) {
+      this.comboTimer -= dt;
+      if (this.comboTimer <= 0) this.combo = 0;
+    }
 
     if (this.isCelebrating) {
       this.celebrationTimer -= dt;
@@ -245,13 +272,11 @@ export class HopscotchBubbleScene extends BaseScene {
       }
     }
 
-    // Mimi Hop Update
     if (this.mimi.isHopping) {
       this.mimi.hopTimer += dt;
       const progress = Math.min(1.0, this.mimi.hopTimer / this.mimi.hopDuration);
       this.mimi.x = this.mimi.startX + (this.mimi.targetX - this.mimi.startX) * progress;
       this.mimi.y = this.mimi.startY + (this.mimi.targetY - this.mimi.startY) * progress;
-
       if (progress >= 1.0) {
         this.mimi.isHopping = false;
         this.mimi.currentSquare = this.mimi.targetSquare;
@@ -260,27 +285,40 @@ export class HopscotchBubbleScene extends BaseScene {
       }
     }
 
-    // Bubbles update
     this.spawnTimer += dt;
-    if (this.spawnTimer >= 1.4) {
+    if (this.spawnTimer >= 0.9) {
       this.spawnTimer = 0;
-      if (this.bubbles.length < 12) this.spawnBubble();
+      if (this.bubbles.length < 16) this.spawnBubble();
     }
 
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
       const b = this.bubbles[i];
       b.y += b.vy * dt;
-      b.x += Math.sin(this.time * 2.5 + b.wobbleOffset) * 24 * dt;
+      b.x += Math.sin(this.time * 2.5 + b.wobbleOffset) * 26 * dt;
       if (b.y < -b.radius - 20) this.bubbles.splice(i, 1);
     }
 
-    // Pointer Taps
-    const pointersToCheck: Array<{ x: number; y: number }> = [];
+    for (let i = this.parachutingChicks.length - 1; i >= 0; i--) {
+      const c = this.parachutingChicks[i];
+      c.life -= dt;
+      c.y += c.vy * dt;
+      c.x += Math.sin(this.time * 3 + c.swayPhase) * 20 * dt;
+      if (c.life <= 0 || c.y > this.game.display.vHeight * 0.88) {
+        this.particles.spawnSparkles(c.x, c.y, 4);
+        this.parachutingChicks.splice(i, 1);
+      }
+    }
+
+    const pointersToCheck: Array<{ x: number; y: number; isJustPressed: boolean }> = [];
     if (input.isActionJustPressed()) {
-      pointersToCheck.push({ x: input.primaryPointer.x, y: input.primaryPointer.y });
+      pointersToCheck.push({ x: input.primaryPointer.x, y: input.primaryPointer.y, isJustPressed: true });
+    } else if (input.isActionDown()) {
+      pointersToCheck.push({ x: input.primaryPointer.x, y: input.primaryPointer.y, isJustPressed: false });
     }
     for (const ptr of input.pointers.values()) {
-      if (ptr.justPressed) pointersToCheck.push({ x: ptr.x, y: ptr.y });
+      if (ptr.justPressed || ptr.isDown) {
+        pointersToCheck.push({ x: ptr.x, y: ptr.y, isJustPressed: ptr.justPressed });
+      }
     }
 
     for (const pt of pointersToCheck) {
@@ -288,18 +326,48 @@ export class HopscotchBubbleScene extends BaseScene {
       for (let i = this.bubbles.length - 1; i >= 0; i--) {
         const b = this.bubbles[i];
         if (b.popped) continue;
-        if (Math.hypot(pt.x - b.x, pt.y - b.y) <= b.radius + 12) {
+        if (Math.hypot(pt.x - b.x, pt.y - b.y) <= b.radius + 15) {
           this.popBubble(i);
           hitBubble = true;
           break;
         }
       }
-      if (!hitBubble && !this.mimi.isHopping) this.advanceMimi();
+
+      for (let i = this.parachutingChicks.length - 1; i >= 0; i--) {
+        const c = this.parachutingChicks[i];
+        if (Math.hypot(pt.x - c.x, pt.y - c.y) <= 28) {
+          soundEngine.playSFX('cluck', { type: 'high' });
+          this.score += 80;
+          this.particles.spawnScorePopup(c.x, c.y - 15, '🐥 Peep! +80');
+          this.particles.spawnSparkles(c.x, c.y, 8);
+          this.parachutingChicks.splice(i, 1);
+          hitBubble = true;
+          break;
+        }
+      }
+
+      if (pt.isJustPressed && Math.hypot(pt.x - this.mimi.x, pt.y - this.mimi.y) <= 45) {
+        this.blowBubbleBurst(4);
+        hitBubble = true;
+      }
+
+      const blowerX = this.game.display.vWidth - 50;
+      const blowerY = this.game.display.vHeight - 48;
+      if (pt.isJustPressed && Math.hypot(pt.x - blowerX, pt.y - blowerY) <= 38) {
+        this.blowBubbleBurst(6);
+        hitBubble = true;
+      }
+
+      if (!hitBubble && pt.isJustPressed && !this.mimi.isHopping) {
+        this.advanceMimi();
+      }
     }
 
     if (input.isKeyJustPressed('Space') || input.isKeyJustPressed('ArrowRight')) {
       if (this.bubbles.length > 0 && !this.bubbles[0].popped) this.popBubble(0);
       else this.advanceMimi();
+    } else if (input.isKeyJustPressed('KeyB')) {
+      this.blowBubbleBurst(5);
     }
 
     this.particles.update(dt);
@@ -311,16 +379,16 @@ export class HopscotchBubbleScene extends BaseScene {
     const isPortrait = display.isPortrait;
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
-    for (const tile of this.tiles) this.drawChalkSquare(ctx, tile);
+    for (const tile of this.tiles) drawChalkSquare(ctx, tile);
 
     const picnicX = isPortrait ? vWidth * 0.5 : vWidth - 110;
     const picnicY = isPortrait ? vHeight * 0.18 : vHeight * 0.7;
-    this.drawPicnicBlanket(ctx, picnicX, picnicY);
+    drawPicnicBlanket(ctx, picnicX, picnicY);
 
     const trishuX = isPortrait ? picnicX + 65 : picnicX + 45;
     const trishuY = isPortrait ? picnicY - 20 : picnicY - 35;
     drawTrishu(ctx, trishuX, trishuY, isPortrait ? 1.05 : 1.0, {
-      expression: this.isCelebrating ? 'excited' : 'happy',
+      expression: this.isCelebrating || this.combo >= 4 ? 'excited' : 'happy',
       eyeBlink: this.trishuAnimState.isBlinking,
       facingLeft: true,
       animState: this.trishuAnimState
@@ -332,118 +400,19 @@ export class HopscotchBubbleScene extends BaseScene {
       hopY: hopArt.hopY,
       earFlap: hopArt.earFlap,
       holdingWand: true,
+      blowingBubble: this.bubbleWandPulse > 0,
       eyeBlink: this.animState.isBlinking,
       animState: this.animState
     });
 
+    for (const c of this.parachutingChicks) drawParachutingChick(ctx, c);
     for (const b of this.bubbles) {
-      if (b.popped) continue;
-      this.drawBubble(ctx, b);
+      if (!b.popped) drawBubbleEntity(ctx, b);
     }
 
+    drawBubbleBlowerBtn(ctx, vWidth - 50, vHeight - 48);
     this.particles.render(ctx);
-    this.renderHUD(ctx, display);
-  }
-
-  private drawChalkSquare(ctx: CanvasRenderingContext2D, tile: HopscotchTile): void {
-    ctx.save();
-    ctx.translate(tile.x, tile.y);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
-    ctx.strokeStyle = tile.color;
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.roundRect(-tile.w / 2, -tile.h / 2, tile.w, tile.h, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`${tile.index}`, 0, 1);
-    ctx.restore();
-  }
-
-  private drawPicnicBlanket(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#E53935';
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(0, 10, 65, 30, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Basket
-    ctx.fillStyle = '#8D6E63';
-    ctx.beginPath();
-    ctx.roundRect(-16, -10, 32, 22, 4);
-    ctx.fill();
-    ctx.fillStyle = '#FF4081';
-    ctx.beginPath();
-    ctx.arc(0, -10, 14, Math.PI, 0);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  private drawBubble(ctx: CanvasRenderingContext2D, b: BubbleEntity): void {
-    ctx.save();
-    ctx.translate(b.x, b.y);
-    const grad = ctx.createRadialGradient(-b.radius * 0.3, -b.radius * 0.3, b.radius * 0.1, 0, 0, b.radius);
-    grad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
-    grad.addColorStop(0.4, 'rgba(179, 136, 255, 0.35)');
-    grad.addColorStop(0.8, 'rgba(100, 200, 250, 0.45)');
-    grad.addColorStop(1, 'rgba(255, 128, 171, 0.65)');
-
-    ctx.fillStyle = grad;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.lineWidth = 2.0;
-    ctx.beginPath();
-    ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Specular Highlight
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(-b.radius * 0.35, -b.radius * 0.35, b.radius * 0.25, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  private renderHUD(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
-    const isPortrait = display.isPortrait;
-    const scoreX = display.vWidth / 2;
-    const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
-    const badgeW = isPortrait ? 300 : 280;
-    const badgeH = 46;
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
-    ctx.fill();
-    ctx.strokeStyle = '#B388FF';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`🫧 Tile: ${this.mimi.currentSquare}/10  |  Score: ${this.score}`, scoreX, scoreY + badgeH / 2);
-
-    if (this.isCelebrating) {
-      ctx.fillStyle = 'rgba(255, 64, 129, 0.95)';
-      ctx.beginPath();
-      ctx.roundRect(scoreX - 140, scoreY + 54, 280, 44, 22);
-      ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
-      ctx.fillText('🧺 Picnic Party! 🎉', scoreX, scoreY + 76);
-    }
-    ctx.restore();
+    drawBubbleGameHUD(ctx, display, this.bubblesPoppedCount, this.score, this.isCelebrating);
   }
 
   override getEntities(): Record<string, unknown> {

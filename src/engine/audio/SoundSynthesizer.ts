@@ -209,9 +209,11 @@ export class SoundSynthesizer {
     this.playSplash(0.6);
   }
 
-  public playBubblePop(): void {
-    this.playTone(1200, 0.05, 'sine', 0.2);
-    this.playTone(4800, 0.03, 'sine', 0.1);
+  public playBubblePop(options: SFXOptions = {}): void {
+    const pitch = options.pitch ?? options.playbackRate ?? 1.0;
+    const baseFreq = (options.detune ? 440 * Math.pow(2, options.detune / 1200) : 1200) * pitch;
+    this.playTone(baseFreq, 0.055, 'sine', (options.volume ?? 1.0) * 0.22);
+    this.playTone(baseFreq * 3.5, 0.035, 'sine', (options.volume ?? 1.0) * 0.12);
   }
 
   public playBunnySqueak(): void {
@@ -263,7 +265,7 @@ export class SoundSynthesizer {
       case 'whoosh': this.playWhoosh(); break;
       case 'veggiePop': this.playVeggiePop(); break;
       case 'mudThud': this.playMudThud(); break;
-      case 'bubblePop': this.playBubblePop(); break;
+      case 'bubblePop': this.playBubblePop(options); break;
       case 'bunnySqueak': this.playBunnySqueak(); break;
       case 'sheepBleat' as any: this.playBunnySqueak(); break;
       case 'toddlerGiggle': this.playToddlerGiggle(); break;
