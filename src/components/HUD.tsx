@@ -17,17 +17,25 @@ export const HUD: React.FC<HUDProps> = ({
   onToggleFullscreen,
   onGoHome
 }) => {
+  const handleAction = (cb: () => void) => (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    cb();
+  };
+
   return (
     <div className="hud-layer">
       {/* Top Navigation Bar */}
       <div className="hud-top-bar">
         {currentMode !== 'MENU' ? (
           <button
-            onClick={onGoHome}
+            type="button"
+            onClick={handleAction(onGoHome)}
+            onPointerDown={(e) => e.stopPropagation()}
             aria-label="Back to Menu"
             className="hud-btn-home"
           >
-            <span>🏠</span> Home
+            <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>🏠</span>
+            <span>Home</span>
           </button>
         ) : (
           <div />
@@ -35,14 +43,18 @@ export const HUD: React.FC<HUDProps> = ({
 
         <div className="hud-controls-right">
           <button
-            onClick={onToggleFullscreen}
+            type="button"
+            onClick={handleAction(onToggleFullscreen)}
+            onPointerDown={(e) => e.stopPropagation()}
             aria-label="Toggle Fullscreen"
             className="hud-btn-icon hud-btn-fs"
           >
             ⛶
           </button>
           <button
-            onClick={onToggleMute}
+            type="button"
+            onClick={handleAction(onToggleMute)}
+            onPointerDown={(e) => e.stopPropagation()}
             aria-label="Toggle Audio"
             className="hud-btn-icon hud-btn-audio"
           >

@@ -126,11 +126,17 @@ export class MuddyPuddlesScene extends BaseScene {
     // Toddler Tap / Jump
     if (input.isActionJustPressed()) {
       const p = input.primaryPointer;
-      if (p.inside && p.y > 80 && input.pointers.size > 0) {
+      if (p.inside && p.y > 80) {
         this.trishu.x = p.x;
-        this.jump();
-      } else {
-        this.jump();
+      }
+      this.jump();
+    } else {
+      for (const ptr of input.pointers.values()) {
+        if (ptr.justPressed && ptr.inside && ptr.y > 80) {
+          this.trishu.x = ptr.x;
+          this.jump();
+          break;
+        }
       }
     }
 

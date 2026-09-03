@@ -118,10 +118,10 @@ export class MenuScene extends BaseScene {
     const cards = this.getModeCards(this.game.display);
     for (const card of cards) {
       if (
-        x >= card.x - card.w / 2 - 6 &&
-        x <= card.x + card.w / 2 + 6 &&
-        y >= card.y - card.h / 2 - 6 &&
-        y <= card.y + card.h / 2 + 6
+        x >= card.x - card.w / 2 - 14 &&
+        x <= card.x + card.w / 2 + 14 &&
+        y >= card.y - card.h / 2 - 14 &&
+        y <= card.y + card.h / 2 + 14
       ) {
         soundEngine.playSFX('click');
         Haptics.medium();
@@ -134,8 +134,16 @@ export class MenuScene extends BaseScene {
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
+    let handled = false;
     if (input.isActionJustPressed()) {
-      this.handleTap(input.primaryPointer.x, input.primaryPointer.y);
+      handled = this.handleTap(input.primaryPointer.x, input.primaryPointer.y);
+    }
+    if (!handled) {
+      for (const ptr of input.pointers.values()) {
+        if (ptr.justPressed) {
+          if (this.handleTap(ptr.x, ptr.y)) break;
+        }
+      }
     }
   }
 

@@ -26,6 +26,8 @@ export class InputManager {
   private _boundOnKeyDown: (e: KeyboardEvent) => void;
   private _boundOnKeyUp: (e: KeyboardEvent) => void;
 
+  private _boundTouchPrevent: (e: TouchEvent) => void;
+
   constructor(displayManager: DisplayManager) {
     this.display = displayManager;
     this._boundOnPointerDown = this._onPointerDown.bind(this);
@@ -33,6 +35,9 @@ export class InputManager {
     this._boundOnPointerUp = this._onPointerUp.bind(this);
     this._boundOnKeyDown = this._onKeyDown.bind(this);
     this._boundOnKeyUp = this._onKeyUp.bind(this);
+    this._boundTouchPrevent = (e: TouchEvent) => {
+      if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
+    };
     this.attach();
   }
 
@@ -45,6 +50,12 @@ export class InputManager {
     window.addEventListener('keydown', this._boundOnKeyDown, { passive: false });
     window.addEventListener('keyup', this._boundOnKeyUp, { passive: false });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Block mobile browser pull-to-refresh, page scrolls, and swipe navigations
+    canvas.addEventListener('touchstart', this._boundTouchPrevent, { passive: false });
+    canvas.addEventListener('touchmove', this._boundTouchPrevent, { passive: false });
+    canvas.addEventListener('touchend', this._boundTouchPrevent, { passive: false });
+    canvas.addEventListener('touchcancel', this._boundTouchPrevent, { passive: false });
   }
 
   detach(): void {
@@ -55,6 +66,11 @@ export class InputManager {
     window.removeEventListener('pointercancel', this._boundOnPointerUp);
     window.removeEventListener('keydown', this._boundOnKeyDown);
     window.removeEventListener('keyup', this._boundOnKeyUp);
+
+    canvas.removeEventListener('touchstart', this._boundTouchPrevent);
+    canvas.removeEventListener('touchmove', this._boundTouchPrevent);
+    canvas.removeEventListener('touchend', this._boundTouchPrevent);
+    canvas.removeEventListener('touchcancel', this._boundTouchPrevent);
   }
 
   private _unlockAudio(): void {
@@ -67,6 +83,15 @@ export class InputManager {
     }
     if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
     this._unlockAudio();
+
+    const canvas = this.display.canvas;
+    try {
+      if (canvas && typeof canvas.setPointerCapture === 'function' && e.pointerId !== undefined) {
+        canvas.setPointerCapture(e.pointerId);
+      }
+    } catch {
+      // Safe fallback if pointerId cannot be captured
+    }
 
     const vPos = this.display.screenToVirtual(e.clientX, e.clientY);
     if (!isFinite(vPos.x) || !isFinite(vPos.y)) return;
@@ -111,15 +136,25 @@ export class InputManager {
     if (this.pointers.has(ptrId)) {
       const vPos = this.display.screenToVirtual(e.clientX, e.clientY);
       const p = this.pointers.get(ptrId)!;
+      p.screenX = e.clientX;
+      p.screenY = e.clientY;
+      p.x = vPos.x;
+      p.y = vPos.y;
+      p.inside = vPos.inside;
       p.isDown = false;
       p.justReleased = true;
       this.emit('pointerup', p);
-      this.pointers.delete(ptrId);
-    } else {
-      this.pointers.clear();
     }
 
-    if (this.pointers.size === 0) {
+    let anyDown = false;
+    for (const p of this.pointers.values()) {
+      if (p.isDown) {
+        anyDown = true;
+        break;
+      }
+    }
+
+    if (!anyDown) {
       this.actionIsDown = this.keysDown.has('Space') || this.keysDown.has('Enter');
       this.actionJustReleased = true;
       this.primaryPointer.isDown = false;
@@ -189,9 +224,13 @@ export class InputManager {
     this.keysJustReleased.clear();
     this.actionJustPressed = false;
     this.actionJustReleased = false;
-    for (const p of this.pointers.values()) {
-      p.justPressed = false;
-      p.justReleased = false;
+    for (const [id, p] of this.pointers.entries()) {
+      if (!p.isDown) {
+        this.pointers.delete(id);
+      } else {
+        p.justPressed = false;
+        p.justReleased = false;
+      }
     }
   }
 }

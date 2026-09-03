@@ -136,9 +136,11 @@ export class VegetableHarvestScene extends BaseScene {
     let pointerY = 0;
 
     for (const ptr of input.pointers.values()) {
-      if (ptr.isDown) {
-        isAnyPointerDown = true;
-        pointerY = ptr.y;
+      if (ptr.isDown || ptr.justPressed) {
+        if (ptr.isDown) {
+          isAnyPointerDown = true;
+          pointerY = ptr.y;
+        }
         if (ptr.justPressed) {
           for (let i = 0; i < this.mounds.length; i++) {
             const m = this.mounds[i];

@@ -46,7 +46,7 @@ export const App: React.FC = () => {
   }, [engine]);
 
   return (
-    <main id="game-container" className="relative h-screen w-screen overflow-hidden select-none bg-slate-900">
+    <main id="game-container" className="fixed inset-0 w-full h-full overflow-hidden select-none bg-slate-900">
       <GameCanvas onEngineReady={handleEngineReady} onSceneChange={handleSceneChange} />
       <HUD
         engine={engine}

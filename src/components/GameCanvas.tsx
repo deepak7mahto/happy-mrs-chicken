@@ -33,10 +33,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({ onEngineReady, onSceneCh
     <canvas
       id="gameCanvas"
       ref={canvasRef}
-      className="block h-screen w-screen cursor-pointer select-none"
+      className="block w-full h-full cursor-pointer select-none"
       style={{
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         backgroundColor: '#0f172a',
         touchAction: 'none'
       }}

@@ -23,14 +23,39 @@ export class DisplayManager {
     this.ctx = context;
 
     this.resizeHandler = () => this.syncResize();
-    window.addEventListener('resize', this.resizeHandler);
-    window.addEventListener('orientationchange', this.resizeHandler);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', this.resizeHandler);
+      window.addEventListener('orientationchange', this.resizeHandler);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', this.resizeHandler);
+        window.visualViewport.addEventListener('scroll', this.resizeHandler);
+      }
+    }
     this.syncResize();
   }
 
   destroy(): void {
-    window.removeEventListener('resize', this.resizeHandler);
-    window.removeEventListener('orientationchange', this.resizeHandler);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.resizeHandler);
+      window.removeEventListener('orientationchange', this.resizeHandler);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', this.resizeHandler);
+        window.visualViewport.removeEventListener('scroll', this.resizeHandler);
+      }
+    }
+  }
+
+  private getViewportDims(): { w: number; h: number } {
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      return {
+        w: Math.round(window.visualViewport.width),
+        h: Math.round(window.visualViewport.height)
+      };
+    }
+    return {
+      w: typeof window !== 'undefined' ? window.innerWidth : 960,
+      h: typeof window !== 'undefined' ? window.innerHeight : 540
+    };
   }
 
   get scale(): number {
@@ -70,15 +95,17 @@ export class DisplayManager {
   set windowHeight(v: number) { this._windowHeight = v; }
 
   checkDimensionChange(): void {
-    if (this._windowWidth !== window.innerWidth || this._windowHeight !== window.innerHeight) {
+    const dims = this.getViewportDims();
+    if (this._windowWidth !== dims.w || this._windowHeight !== dims.h) {
       this.syncResize();
     }
   }
 
   syncResize(): void {
-    this._windowWidth = window.innerWidth;
-    this._windowHeight = window.innerHeight;
-    this._dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const dims = this.getViewportDims();
+    this._windowWidth = dims.w;
+    this._windowHeight = dims.h;
+    this._dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2.5);
 
     this.isPortrait = this._windowHeight > this._windowWidth;
     if (this.isPortrait) {
@@ -124,6 +151,15 @@ export class DisplayManager {
 
   screenToVirtual(screenX: number, screenY: number): { x: number; y: number; inside: boolean } {
     this.checkDimensionChange();
+    if (this.canvas && typeof this.canvas.getBoundingClientRect === 'function') {
+      const rect = this.canvas.getBoundingClientRect();
+      const clientX = screenX - rect.left;
+      const clientY = screenY - rect.top;
+      const vx = rect.width > 0 ? (clientX / rect.width) * this.vWidth : screenX / this._scale;
+      const vy = rect.height > 0 ? (clientY / rect.height) * this.vHeight : screenY / this._scale;
+      const inside = vx >= 0 && vx <= this.vWidth && vy >= 0 && vy <= this.vHeight;
+      return { x: vx, y: vy, inside };
+    }
     const vx = screenX / this._scale;
     const vy = screenY / this._scale;
     const inside = vx >= 0 && vx <= this.vWidth && vy >= 0 && vy <= this.vHeight;
@@ -132,6 +168,13 @@ export class DisplayManager {
 
   virtualToScreen(vx: number, vy: number): { screenX: number; screenY: number } {
     this.checkDimensionChange();
+    if (this.canvas && typeof this.canvas.getBoundingClientRect === 'function') {
+      const rect = this.canvas.getBoundingClientRect();
+      return {
+        screenX: rect.left + (vx / this.vWidth) * rect.width,
+        screenY: rect.top + (vy / this.vHeight) * rect.height
+      };
+    }
     return {
       screenX: vx * this._scale,
       screenY: vy * this._scale
