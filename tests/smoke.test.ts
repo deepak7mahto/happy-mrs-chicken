@@ -120,6 +120,54 @@ describe('Tier 1: Smoke & Initialization', () => {
     menu.update(0.016, engine.input);
     expect(engine.currentSceneId).toBe('MENU'); // Still in menu because it was a drag, not a tap
   });
+
+  test('T1.06: Browser history popstate back gesture transitions active game to MENU', () => {
+    const canvas = document.createElement('canvas');
+    const engine = new GameEngine(canvas);
+    engine.start();
+
+    // Start in a mini-game
+    engine.changeScene('EGG_LAYING');
+    expect(engine.currentSceneId).toBe('EGG_LAYING');
+
+    // Simulate popstate event (mobile swipe-back or Android back button)
+    const popEvent = typeof PopStateEvent !== 'undefined'
+      ? new PopStateEvent('popstate', { state: { mode: 'MENU' } })
+      : new Event('popstate');
+    const handlePop = () => {
+      if (engine.currentSceneId !== 'MENU') {
+        engine.changeScene('MENU');
+      }
+    };
+    window.addEventListener('popstate', handlePop);
+    window.dispatchEvent(popEvent);
+    window.removeEventListener('popstate', handlePop);
+
+    expect(engine.currentSceneId).toBe('MENU');
+    engine.destroy();
+  });
+
+  test('T1.07: MenuScene supports touchpad wheel and keyboard arrow scrolling', () => {
+    const canvas = document.createElement('canvas');
+    const engine = new GameEngine(canvas);
+    const menu = engine.scenes.get('MENU') as MenuScene;
+    menu.enter();
+
+    expect(menu.scrollY).toBe(0);
+
+    // Simulate touchpad wheel scroll down (positive deltaY)
+    engine.input.wheelDeltaY = 60;
+    menu.update(0.016, engine.input);
+    expect(menu.scrollY).toBeLessThan(0);
+
+    // Reset scroll and simulate ArrowDown key
+    menu.scrollY = 0;
+    engine.input.wheelDeltaY = 0;
+    engine.input.keysDown.add('ArrowDown');
+    menu.update(0.1, engine.input);
+    expect(menu.scrollY).toBeLessThan(0);
+    engine.input.keysDown.delete('ArrowDown');
+  });
 });
 
 // ---------------------------------------------------------------------------

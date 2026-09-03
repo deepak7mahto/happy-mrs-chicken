@@ -200,7 +200,23 @@ export class MenuScene extends BaseScene {
         }
         this.isDragging = false;
       }
+    }
 
+    // Touchpad / mouse wheel scrolling
+    if (Math.abs(input.wheelDeltaY) > 0.01) {
+      this.scrollY -= input.wheelDeltaY;
+      this.scrollVy = -input.wheelDeltaY * 6;
+      this.isDragging = false;
+    }
+
+    // Keyboard arrow keys scrolling
+    if (input.isKeyDown('ArrowDown') || input.isKeyDown('PageDown')) {
+      this.scrollY -= 400 * dt;
+    } else if (input.isKeyDown('ArrowUp') || input.isKeyDown('PageUp')) {
+      this.scrollY += 400 * dt;
+    }
+
+    if (!isActionDown) {
       if (Math.abs(this.scrollVy) > 15) {
         this.scrollY += this.scrollVy * dt;
         this.scrollVy *= Math.pow(0.04, dt);

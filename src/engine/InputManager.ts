@@ -19,12 +19,16 @@ export class InputManager {
     inside: true
   };
 
+  public wheelDeltaY: number = 0;
+  public wheelDeltaX: number = 0;
+
   private _listeners: Map<string, Array<(data: unknown) => void>> = new Map();
   private _boundOnPointerDown: (e: PointerEvent) => void;
   private _boundOnPointerMove: (e: PointerEvent) => void;
   private _boundOnPointerUp: (e: PointerEvent) => void;
   private _boundOnKeyDown: (e: KeyboardEvent) => void;
   private _boundOnKeyUp: (e: KeyboardEvent) => void;
+  private _boundOnWheel: (e: WheelEvent) => void;
 
   private _boundTouchPrevent: (e: TouchEvent) => void;
 
@@ -35,6 +39,7 @@ export class InputManager {
     this._boundOnPointerUp = this._onPointerUp.bind(this);
     this._boundOnKeyDown = this._onKeyDown.bind(this);
     this._boundOnKeyUp = this._onKeyUp.bind(this);
+    this._boundOnWheel = this._onWheel.bind(this);
     this._boundTouchPrevent = (e: TouchEvent) => {
       if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
     };
@@ -49,6 +54,7 @@ export class InputManager {
     window.addEventListener('pointercancel', this._boundOnPointerUp, { passive: false });
     window.addEventListener('keydown', this._boundOnKeyDown, { passive: false });
     window.addEventListener('keyup', this._boundOnKeyUp, { passive: false });
+    window.addEventListener('wheel', this._boundOnWheel, { passive: false });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
     // Block mobile browser pull-to-refresh, page scrolls, and swipe navigations
@@ -66,11 +72,21 @@ export class InputManager {
     window.removeEventListener('pointercancel', this._boundOnPointerUp);
     window.removeEventListener('keydown', this._boundOnKeyDown);
     window.removeEventListener('keyup', this._boundOnKeyUp);
+    window.removeEventListener('wheel', this._boundOnWheel);
 
     canvas.removeEventListener('touchstart', this._boundTouchPrevent);
     canvas.removeEventListener('touchmove', this._boundTouchPrevent);
     canvas.removeEventListener('touchend', this._boundTouchPrevent);
     canvas.removeEventListener('touchcancel', this._boundTouchPrevent);
+  }
+
+  private _onWheel(e: WheelEvent): void {
+    if (e.cancelable && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    this.wheelDeltaY += e.deltaY;
+    this.wheelDeltaX += e.deltaX;
+    this.emit('wheel', { deltaX: e.deltaX, deltaY: e.deltaY });
   }
 
   private _unlockAudio(): void {
@@ -224,6 +240,8 @@ export class InputManager {
     this.keysJustReleased.clear();
     this.actionJustPressed = false;
     this.actionJustReleased = false;
+    this.wheelDeltaY = 0;
+    this.wheelDeltaX = 0;
     for (const [id, p] of this.pointers.entries()) {
       if (!p.isDown) {
         this.pointers.delete(id);
