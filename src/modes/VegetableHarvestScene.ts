@@ -139,13 +139,25 @@ export class VegetableHarvestScene extends BaseScene {
       if (ptr.isDown) {
         isAnyPointerDown = true;
         pointerY = ptr.y;
-        if (ptr.justPressed && this.activePullMoundIdx === -1) {
+        if (ptr.justPressed) {
           for (let i = 0; i < this.mounds.length; i++) {
             const m = this.mounds[i];
             if (m.vegetable && !m.vegetable.isHarvested && !m.vegetable.isFlying) {
-              if (Math.hypot(ptr.x - m.x, ptr.y - m.y) <= 55) {
-                this.activePullMoundIdx = i;
-                this.pullStartY = ptr.y;
+              if (Math.hypot(ptr.x - m.x, ptr.y - m.y) <= 75) {
+                // Toddler tap: generous tap pops out veggies in 2 taps!
+                m.vegetable.pullOffsetY += m.vegetable.breakoutThreshold * 0.6;
+                m.vegetable.pullProgress = Math.min(1.0, m.vegetable.pullOffsetY / m.vegetable.breakoutThreshold);
+                soundEngine.playSFX('veggiePop');
+                this.particles.spawnMudSplash(m.x, m.y, 6, false);
+                Haptics.tap();
+
+                if (m.vegetable.pullOffsetY >= m.vegetable.breakoutThreshold) {
+                  this.triggerVegetableHarvest(m.vegetable, wbX, wbY);
+                  this.activePullMoundIdx = -1;
+                } else {
+                  this.activePullMoundIdx = i;
+                  this.pullStartY = ptr.y;
+                }
                 break;
               }
             }

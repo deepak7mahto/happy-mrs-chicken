@@ -16,7 +16,8 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   pancakeFlipper: 0,
   vegetableHarvest: 0,
   hopscotchBubble: 0,
-  mixMatch: 0
+  mixMatch: 0,
+  peekABoo: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -30,6 +31,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   VEGETABLE_HARVEST: 'vegetableHarvest',
   HOPSCOTCH_BUBBLE: 'hopscotchBubble',
   MIX_MATCH: 'mixMatch',
+  PEEK_A_BOO: 'peekABoo',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -41,6 +43,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'seed-sort': 'chickMaze',
   'dino-maze': 'daddyPig',
   'mix-match': 'mixMatch',
+  'peek-a-boo': 'peekABoo',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -50,7 +53,9 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   dinosaurBalloon: 'dinosaurBalloon',
   pancakeFlipper: 'pancakeFlipper',
   vegetableHarvest: 'vegetableHarvest',
-  hopscotchBubble: 'hopscotchBubble'
+  hopscotchBubble: 'hopscotchBubble',
+  mixMatch: 'mixMatch',
+  peekABoo: 'peekABoo'
 };
 
 export class StorageManager implements IStorageManager {
@@ -83,7 +88,8 @@ export class StorageManager implements IStorageManager {
               pancakeFlipper: Number(rawScores.pancakeFlipper) || 0,
               vegetableHarvest: Number(rawScores.vegetableHarvest) || 0,
               hopscotchBubble: Number(rawScores.hopscotchBubble) || 0,
-              mixMatch: Number(rawScores.mixMatch) || 0
+              mixMatch: Number(rawScores.mixMatch) || 0,
+              peekABoo: Number(rawScores.peekABoo) || 0
             };
 
             const rawSettings = parsed.settings || {};

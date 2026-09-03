@@ -43,7 +43,8 @@ const MENU_CARDS: MenuCardInfo[] = [
   { id: 'PANCAKE_FLIPPER', title: 'Pancake Flip', sub: 'Flip & stack high!', badge: 'Chef', color: '#FFE0B2', borderColor: '#FFB74D', scoreKey: 'pancakeFlipper' },
   { id: 'VEGETABLE_HARVEST', title: 'Veggie Harvest', sub: 'Pull giant veggies!', badge: 'Garden', color: '#DCEDC8', borderColor: '#AED581', scoreKey: 'vegetableHarvest' },
   { id: 'HOPSCOTCH_BUBBLE', title: 'Bubble Hop', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' },
-  { id: 'MIX_MATCH', title: 'Body Shuffler', sub: 'Mix funny bodies!', badge: 'Funny', color: '#E1BEE7', borderColor: '#BA68C8', scoreKey: 'mixMatch' }
+  { id: 'MIX_MATCH', title: 'Body Shuffler', sub: 'Mix funny bodies!', badge: 'Funny', color: '#E1BEE7', borderColor: '#BA68C8', scoreKey: 'mixMatch' },
+  { id: 'PEEK_A_BOO', title: 'Peek-a-Boo', sub: 'Find cute friends!', badge: 'Toddler', color: '#E8F5E9', borderColor: '#66BB6A', scoreKey: 'peekABoo' }
 ];
 
 export class MenuScene extends BaseScene {
@@ -69,7 +70,7 @@ export class MenuScene extends BaseScene {
     const cards: ModeCardDef[] = [];
 
     if (isPortrait) {
-      // 2 columns x 4 rows + 1 full-width 9th card
+      // 2 columns x 5 rows
       const padX = 14;
       const gapX = 10;
       const cardW = (vWidth - padX * 2 - gapX) / 2;
@@ -81,35 +82,29 @@ export class MenuScene extends BaseScene {
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
-        if (i < 8) {
-          const col = i % 2;
-          const row = Math.floor(i / 2);
-          const x = padX + cardW / 2 + col * (cardW + gapX);
-          const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
-          cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
-        } else {
-          // 9th Card centered across bottom
-          const fullW = vWidth - padX * 2;
-          const x = vWidth / 2;
-          const y = titleAreaH + cardH / 2 + 4 * (cardH + gapY);
-          cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: fullW, h: cardH });
-        }
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        const x = padX + cardW / 2 + col * (cardW + gapX);
+        const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
+        cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
       }
     } else {
-      // 3 columns x 3 rows (Landscape 16:9)
-      const padX = 24;
-      const gapX = 16;
-      const cardW = (vWidth - padX * 2 - 2 * gapX) / 3;
-      const titleAreaH = 60;
+      // 5 columns x 2 rows (Landscape 16:9)
+      const padX = 20;
+      const gapX = 12;
+      const cols = 5;
+      const rows = 2;
+      const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
+      const titleAreaH = 55;
       const bottomPad = 14;
       const gridH = vHeight - titleAreaH - bottomPad;
-      const gapY = 10;
-      const cardH = (gridH - 2 * gapY) / 3;
+      const gapY = 12;
+      const cardH = (gridH - (rows - 1) * gapY) / rows;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
-        const col = i % 3;
-        const row = Math.floor(i / 3);
+        const col = i % cols;
+        const row = Math.floor(i / cols);
         const x = padX + cardW / 2 + col * (cardW + gapX);
         const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
         cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
@@ -259,6 +254,22 @@ export class MenuScene extends BaseScene {
           headBob: Math.sin(time * 12) * 2
         }
       );
+    } else if (modeId === 'PEEK_A_BOO') {
+      const peek = Math.abs(Math.sin(time * 3));
+      drawMimi(ctx, cx, cy - peek * 10, charScale * 0.9, {
+        hopY: 0,
+        earFlap: Math.sin(time * 6) * 0.22,
+        holdingWand: false,
+        blowingBubble: false,
+        eyeBlink: Math.sin(time * 1.8) > 0.85
+      });
+      // Mini bush covering
+      ctx.fillStyle = '#43A047';
+      ctx.beginPath();
+      ctx.arc(cx - 12, cy + 14, 12, 0, Math.PI * 2);
+      ctx.arc(cx + 12, cy + 14, 12, 0, Math.PI * 2);
+      ctx.arc(cx, cy + 10, 15, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 

@@ -326,7 +326,7 @@ export class HopscotchBubbleScene extends BaseScene {
       for (let i = this.bubbles.length - 1; i >= 0; i--) {
         const b = this.bubbles[i];
         if (b.popped) continue;
-        if (Math.hypot(pt.x - b.x, pt.y - b.y) <= b.radius + 15) {
+        if (Math.hypot(pt.x - b.x, pt.y - b.y) <= b.radius + 28) {
           this.popBubble(i);
           hitBubble = true;
           break;

@@ -41,10 +41,22 @@ export class SoundEngine implements ISoundEngine {
   public playOverheatCrash(): void { this.playSFX('crash'); }
   public playClick(): void { this.playSFX('click'); }
 
+  private wantsBGM: boolean = false;
+
   public startBGM(): void {
-    this.unlock().then(() => { this.sequencer.start(); this.spy.record('bgm_start'); });
+    this.wantsBGM = true;
+    this.unlock().then(() => {
+      if (this.wantsBGM) {
+        this.sequencer.start();
+        this.spy.record('bgm_start');
+      }
+    });
   }
-  public stopBGM(): void { this.sequencer.stop(); this.spy.record('bgm_stop'); }
+  public stopBGM(): void {
+    this.wantsBGM = false;
+    this.sequencer.stop();
+    this.spy.record('bgm_stop');
+  }
   public setBGMTempo(bpm: number): void { this.sequencer.setTempo(bpm); this.spy.record('bgm_tempo', { bpm }); }
 }
 

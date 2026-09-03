@@ -107,14 +107,15 @@ export class ChickMazeScene extends BaseScene {
         }
 
         // Eat seed
-        if (dist < 14) {
           const sIdx = this.seeds.indexOf(targetSeed);
           if (sIdx !== -1) {
             this.seeds.splice(sIdx, 1);
-            this.particles.spawnSparkles(targetSeed.x, targetSeed.y, 6);
+            this.score += 20;
+            this.particles.spawnSparkles(targetSeed.x, targetSeed.y, 8);
+            this.particles.spawnScorePopup(targetSeed.x, targetSeed.y - 15, '✨ Nom! +20');
             soundEngine.playSFX('eggPop');
+            soundEngine.playSFX('toddlerGiggle');
           }
-        }
       } else {
         // Natural wandering noise
         chick.vx += (Math.random() - 0.5) * 50 * dt;

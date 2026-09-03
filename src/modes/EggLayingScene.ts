@@ -93,16 +93,25 @@ export class EggLayingScene extends BaseScene {
     this.animState.squash = 0.72;
     this.animState.squawk = 1.0;
 
-    soundEngine.playSFX('cluck');
-    soundEngine.playSFX('eggPop');
+    // Surprise Golden Egg every 6 eggs!
+    const isGolden = this.score % 6 === 0;
+    if (isGolden) {
+      soundEngine.playSFX('fanfare');
+      this.particles.spawnSparkles(x, y, 14);
+      this.particles.spawnConfetti(x, y - 20, 15);
+    } else {
+      soundEngine.playSFX('cluck');
+      soundEngine.playSFX('eggPop');
+    }
     Haptics.tap();
-    this.particles.spawnFeathers(x, y, 3);
+    this.particles.spawnFeathers(x, y, 4);
     this.game.storage.saveHighScore('EGG_LAYING', this.score);
 
     // Milestone fanfare every 10 eggs
     if (this.score > 0 && this.score % 10 === 0) {
-      soundEngine.playSFX('fanfare');
-      this.particles.spawnSparkles(x, y, 10);
+      soundEngine.playSFX('toddlerGiggle');
+      this.particles.spawnSparkles(x, y, 16);
+      this.particles.spawnConfetti(x, y - 30, 25);
     }
   }
 

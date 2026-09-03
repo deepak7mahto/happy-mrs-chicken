@@ -28,6 +28,7 @@ import { PancakeFlipperScene } from '../src/modes/PancakeFlipperScene';
 import { VegetableHarvestScene } from '../src/modes/VegetableHarvestScene';
 import { HopscotchBubbleScene } from '../src/modes/HopscotchBubbleScene';
 import { MixMatchScene } from '../src/modes/MixMatchScene';
+import { PeekABooScene } from '../src/modes/PeekABooScene';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -35,11 +36,11 @@ import { resolve } from 'node:path';
 // Suite 1: Smoke & Initialization
 // ---------------------------------------------------------------------------
 describe('Tier 1: Smoke & Initialization', () => {
-  test('T1.01: GameEngine instantiates all 10 scenes including MENU and 9 game modes', () => {
+  test('T1.01: GameEngine instantiates all 11 scenes including MENU and 10 game modes', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(10);
+    expect(engine.scenes.size).toBe(11);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
     expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
@@ -50,6 +51,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('VEGETABLE_HARVEST')).toBe(true);
     expect(engine.scenes.has('HOPSCOTCH_BUBBLE')).toBe(true);
     expect(engine.scenes.has('MIX_MATCH')).toBe(true);
+    expect(engine.scenes.has('PEEK_A_BOO')).toBe(true);
     expect(engine.currentSceneId).toBe('MENU');
   });
 
@@ -71,10 +73,10 @@ describe('Tier 1: Smoke & Initialization', () => {
   test('T1.03: StorageManager initializes high scores and persists updates', () => {
     const storage = new StorageManager();
     expect(storage.getHighScore('eggLaying')).toBe(0);
-    expect(storage.getHighScore('mixMatch')).toBe(0);
+    expect(storage.getHighScore('peekABoo')).toBe(0);
 
-    storage.saveHighScore('mixMatch', 250);
-    expect(storage.getHighScore('mixMatch')).toBe(250);
+    storage.saveHighScore('peekABoo', 250);
+    expect(storage.getHighScore('peekABoo')).toBe(250);
   });
 
   test('T1.04: ParticleEngine pre-allocates pool and spawns particles', () => {
@@ -226,6 +228,24 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
     scene.snapPhoto();
     expect(scene.photosSnapped).toBe(1);
     expect(scene.score).toBeGreaterThan(0);
+  });
+
+  test('T2.10 Mode 10: Peek-a-Boo Barnyard tactile hiding spots and character reveals', () => {
+    const scene = engine.scenes.get('PEEK_A_BOO') as PeekABooScene;
+    scene.enter();
+    expect(scene.spots.length).toBe(4);
+    expect(scene.peekFoundCount).toBe(0);
+
+    const firstSpot = scene.spots[0];
+    expect(firstSpot.isOpen).toBe(false);
+
+    scene.tapSpot(firstSpot);
+    expect(firstSpot.isOpen).toBe(true);
+    expect(scene.peekFoundCount).toBe(1);
+    expect(scene.score).toBe(50);
+
+    scene.update(0.016, engine.input);
+    expect(firstSpot.openProgress).toBeGreaterThan(0);
   });
 });
 

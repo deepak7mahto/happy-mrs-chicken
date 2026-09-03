@@ -45,6 +45,10 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
    * Shuffle and randomize character heads, torsos, and legs across all 7 characters.
    * Big bouncy **"🎲 SHUFFLE"** button, interactive character wiggle & dance reactions, and **"📸 SNAP PHOTO"** photo booth album!
 
+10. **Peek-a-Boo Barnyard (Sensory Toddler Mode)**
+   * 4 large, tactile hiding spots: Barn Door, Garden Bush, Hay Bale, and Apple Barrel.
+   * Wiggling hints (feathers, bunny ears, dino tail, red bows). Tap any spot to trigger joyful popups with Mrs. Clucky, Mimi, Leo, and Trishu with animal sounds, giggles, and celebration confetti!
+
 ---
 
 ## 🎨 Vector Graphics & Character Roster

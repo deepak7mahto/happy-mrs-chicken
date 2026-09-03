@@ -14,6 +14,7 @@ import { PancakeFlipperScene } from '../modes/PancakeFlipperScene';
 import { VegetableHarvestScene } from '../modes/VegetableHarvestScene';
 import { HopscotchBubbleScene } from '../modes/HopscotchBubbleScene';
 import { MixMatchScene } from '../modes/MixMatchScene';
+import { PeekABooScene } from '../modes/PeekABooScene';
 import { GameModeId } from '../types/game';
 
 export class GameEngine {
@@ -40,6 +41,7 @@ export class GameEngine {
     this.scenes.set('VEGETABLE_HARVEST', new VegetableHarvestScene(this));
     this.scenes.set('HOPSCOTCH_BUBBLE', new HopscotchBubbleScene(this));
     this.scenes.set('MIX_MATCH', new MixMatchScene(this));
+    this.scenes.set('PEEK_A_BOO', new PeekABooScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),

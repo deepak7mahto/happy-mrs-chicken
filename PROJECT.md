@@ -32,7 +32,9 @@ A modular, high-performance HTML5 Canvas 2D game engine built with React 19, Typ
 | 18 | Mode 6: Golden Pancake Flipper | Pancake frying pan flip timing, parabolic flight, golden detection, plate stacking | DONE |
 | 19 | Mode 7: Grandpa's Veggie Harvest | Garden vegetable pulling with elastic tension resistance, mud pops, wheelbarrow counter | DONE |
 | 20 | Mode 8: Rainbow Bubble Hopscotch | Shimmering soap bubbles, glockenspiel pop chimes, hopscotch path to picnic blanket | DONE |
-| 21 | 8-Game Arcade Menu Scene | Responsive grid menu with live preview animations and high score badges | DONE |
+| 21 | Mode 9: Mix & Match Funny Studio | Body shuffler, customizable character chimera combinations, and photo album | DONE |
+| 22 | Mode 10: Peek-a-Boo Barnyard | 4 tactile farm hiding spots with animal sounds, surprise reveals, and giggles | DONE |
+| 23 | 10-Game Arcade Menu Scene | Responsive symmetric grid menu with live preview animations and high score badges | DONE |
 | 22 | Dual-Orientation Viewport & HUD | Responsive fill for Portrait 9:16 and Landscape 16:9 with zero letterbox distortion | DONE |
 | 23 | PWA Offline Integrity & Service Worker | Service Worker caching in `public/sw.js`, zero external CDN dependencies | DONE |
 | 24 | Lean Test Suite | Ultra-fast consolidated test suite (<1s execution) | DONE |

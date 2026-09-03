@@ -19,7 +19,8 @@ import { createCharacterAnimState, updateCharacterAnimState } from '../graphics/
 
 export class MuddyPuddlesScene extends BaseScene {
   public time: number = 0;
-  public timer: number = 60.0;
+  public timer: number = 60.0; // Preserved for state compatibility
+  public splashesCount: number = 0;
   public puddles: PuddleEntity[] = [];
   public particles: ParticleEngine;
   public animState: CharacterAnimState;
@@ -37,6 +38,7 @@ export class MuddyPuddlesScene extends BaseScene {
   enter(): void {
     this.score = 0;
     this.timer = 60.0;
+    this.splashesCount = 0;
     this.multiplier = 1;
     this.muddyBootsTimer = 0;
     this.puddles = [];
@@ -56,6 +58,7 @@ export class MuddyPuddlesScene extends BaseScene {
     };
     this.spawnPuddle();
     this.spawnPuddle();
+    this.spawnPuddle();
   }
 
   exit(): void {
@@ -66,9 +69,9 @@ export class MuddyPuddlesScene extends BaseScene {
   }
 
   spawnPuddle(): void {
-    if (this.puddles.length >= 5) return;
+    if (this.puddles.length >= 6) return;
     const isPortrait = this.game.display.isPortrait;
-    const isGolden = Math.random() < 0.15;
+    const isGolden = Math.random() < 0.25;
     const minX = 70;
     const maxX = this.game.display.vWidth - 70;
     const groundY = isPortrait ? this.game.display.vHeight - 150 : this.game.display.vHeight - 90;
@@ -76,10 +79,10 @@ export class MuddyPuddlesScene extends BaseScene {
     this.puddles.push({
       x: minX + Math.random() * (maxX - minX),
       y: groundY - 20 + Math.random() * 40,
-      rx: isGolden ? 52 : 44 + Math.random() * 16,
-      ry: isGolden ? 26 : 22 + Math.random() * 8,
+      rx: isGolden ? 55 : 46 + Math.random() * 16,
+      ry: isGolden ? 28 : 23 + Math.random() * 8,
       type: isGolden ? 'GOLDEN' : 'STANDARD',
-      lifetime: 8.0,
+      lifetime: 14.0,
       ripplePhase: 0
     });
   }
@@ -94,9 +97,6 @@ export class MuddyPuddlesScene extends BaseScene {
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
-    if (this.timer > 0) {
-      this.timer = Math.max(0, this.timer - dt);
-    }
     if (this.muddyBootsTimer > 0) {
       this.muddyBootsTimer = Math.max(0, this.muddyBootsTimer - dt);
     }
@@ -156,32 +156,30 @@ export class MuddyPuddlesScene extends BaseScene {
           const dy = (groundY - pud.y) / pud.ry;
           const dNorm = Math.sqrt(dx * dx + dy * dy);
 
-          if (dNorm <= 1.0) {
+          if (dNorm <= 1.25) { // Generous toddler hit radius
             hit = true;
-            this.muddyBootsTimer = 3.5;
+            this.splashesCount++;
+            this.muddyBootsTimer = 4.0;
             pud.ripplePhase = 0.01;
-            const pts = pud.type === 'GOLDEN' ? 100 : 25;
-            const centerBonus = dNorm <= 0.4 ? 2 : 1;
-            const totalEarned = pts * centerBonus * this.multiplier;
+            const pts = pud.type === 'GOLDEN' ? 100 : 30;
+            const totalEarned = pts * this.multiplier;
             this.score += totalEarned;
             this.multiplier = Math.min(5, this.multiplier + 1);
 
-            if (pud.type === 'GOLDEN') {
-              this.timer = Math.min(60, this.timer + 3.0);
-              this.particles.spawnSparkles(pud.x, pud.y, 12);
+            if (pud.type === 'GOLDEN' || this.splashesCount % 10 === 0) {
+              this.particles.spawnSparkles(pud.x, pud.y, 14);
+              this.particles.spawnConfetti(pud.x, pud.y - 40, 16);
               soundEngine.playSFX('fanfare');
             }
 
-            this.particles.spawnMudSplash(pud.x, pud.y, 20, pud.type === 'GOLDEN');
+            this.particles.spawnMudSplash(pud.x, pud.y, 22, pud.type === 'GOLDEN');
             this.particles.spawnScorePopup(
               pud.x,
               pud.y - 30,
               `+${totalEarned}${this.multiplier > 1 ? ` (x${this.multiplier})` : ''}`
             );
             soundEngine.playSFX('splash');
-            if (this.multiplier >= 3) {
-              soundEngine.playSFX('toddlerGiggle');
-            }
+            soundEngine.playSFX('toddlerGiggle');
             Haptics.heavy();
             this.game.storage.saveHighScore('MUDDY_PUDDLES', this.score);
             this.puddles.splice(i, 1);
@@ -190,7 +188,10 @@ export class MuddyPuddlesScene extends BaseScene {
         }
 
         if (!hit) {
-          this.multiplier = 1;
+          // Even a ground stomp gives a mini-splash!
+          this.particles.spawnMudSplash(this.trishu.x, groundY, 8, false);
+          soundEngine.playSFX('splash');
+          this.score += 10;
         }
       }
     }
@@ -228,15 +229,15 @@ export class MuddyPuddlesScene extends BaseScene {
       armWave: this.time * 8,
       eyeBlink: this.animState.isBlinking,
       muddyBoots: this.muddyBootsTimer > 0,
-      expression: this.multiplier >= 3 ? 'excited' : 'happy'
+      expression: 'excited'
     });
 
     this.particles.render(ctx);
 
-    // Score & Timer Badge (Positioned below HUD in portrait)
+    // Score & Toddler Splashes Badge (Positioned below HUD in portrait)
     const scoreX = display.vWidth / 2;
     const scoreY = isPortrait ? 76 : Math.max(18, display.vHeight * 0.035);
-    const badgeW = isPortrait ? 300 : 280;
+    const badgeW = isPortrait ? 310 : 290;
     const badgeH = 46;
 
     ctx.save();
@@ -253,7 +254,7 @@ export class MuddyPuddlesScene extends BaseScene {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(
-      `Score: ${this.score}  |  ⏱ ${this.timer.toFixed(1)}s${this.multiplier > 1 ? `  (x${this.multiplier})` : ''}`,
+      `💦 Splashes: ${this.splashesCount}  |  ★ ${this.score}`,
       scoreX,
       scoreY + badgeH / 2
     );

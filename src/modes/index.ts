@@ -14,3 +14,4 @@ export * from './PancakeFlipperScene';
 export * from './VegetableHarvestScene';
 export * from './HopscotchBubbleScene';
 export * from './MixMatchScene';
+export * from './PeekABooScene';

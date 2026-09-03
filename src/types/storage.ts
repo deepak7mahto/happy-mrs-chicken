@@ -13,6 +13,7 @@ export interface HighScores {
   vegetableHarvest: number; // Mode 7: Grandpa's Veggie Harvest
   hopscotchBubble: number;  // Mode 8: Rainbow Bubble Hopscotch
   mixMatch: number;         // Mode 9: Trishu's Mix & Match Funny Studio
+  peekABoo: number;         // Mode 10: Peek-a-Boo Barnyard
   [key: string]: number;
 }
 

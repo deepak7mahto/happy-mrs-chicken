@@ -108,35 +108,27 @@ export class PancakeFlipperScene extends BaseScene {
     this.stackCount++;
     const topY = plateBaseY - this.stackCount * 12;
 
-    const cookT = this.activePancake.cookTimer;
-    const cookState: 'RAW' | 'PERFECT_GOLDEN' | 'OVERCOOKED' =
-      cookT >= 1.2 && cookT <= 2.8 ? 'PERFECT_GOLDEN' : (cookT > 2.8 ? 'OVERCOOKED' : 'RAW');
+    // 100% Golden Delight for Toddlers: every flip is delicious!
+    const cookState: 'RAW' | 'PERFECT_GOLDEN' | 'OVERCOOKED' = 'PERFECT_GOLDEN';
 
-    if (cookState === 'PERFECT_GOLDEN') {
-      const pts = 100 * this.multiplier;
+    const pts = 100 * this.multiplier;
+    this.score += pts;
+    this.multiplier = Math.min(10, this.multiplier + 1);
+    soundEngine.playSFX('fanfare');
+    soundEngine.playSFX('toddlerGiggle');
+    Haptics.heavy();
+    this.particles.spawnPancakeSyrup(plateX, topY, 10);
+    this.particles.spawnSparkles(plateX, topY, 14);
+
+    if (this.stackCount % 5 === 0) {
+      this.particles.spawnConfetti(plateX, topY - 40, 20);
+      this.particles.spawnScorePopup(plateX, topY - 40, `🥞 SUPER TOWER! +${pts * 2}`);
       this.score += pts;
-      this.multiplier = Math.min(10, this.multiplier + 1);
-      soundEngine.playSFX('fanfare');
-      Haptics.heavy();
-      this.particles.spawnPancakeSyrup(plateX, topY, 8);
-      this.particles.spawnSparkles(plateX, topY, 12);
-      this.particles.spawnScorePopup(plateX, topY - 30, `PERFECT FLIP! ✨ +${pts}`);
-    } else if (cookState === 'RAW') {
-      this.score += 25;
-      soundEngine.playSFX('eggPop');
-      Haptics.tap();
-      this.particles.spawnPancakeSyrup(plateX, topY, 4);
-      this.particles.spawnScorePopup(plateX, topY - 20, '+25 (Raw)');
     } else {
-      this.score += 10;
-      this.multiplier = 1;
-      soundEngine.playSFX('splash');
-      Haptics.medium();
-      this.particles.spawnMudSplash(plateX, topY, 6);
-      this.particles.spawnScorePopup(plateX, topY - 20, '+10 (Burnt)');
+      this.particles.spawnScorePopup(plateX, topY - 30, `GOLDEN FLIP! ✨ +${pts}`);
     }
 
-    this.stackedPancakes.push({ y: topY, state: cookState, butter: cookState === 'PERFECT_GOLDEN' });
+    this.stackedPancakes.push({ y: topY, state: cookState, butter: true });
     this.stackWobbleTimer = 0;
     this.newPancakeDelay = 0.45;
     this.game.storage.saveHighScore('pancakeFlipper', this.score);

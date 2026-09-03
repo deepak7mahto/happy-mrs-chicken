@@ -611,7 +611,7 @@ export function expect(actual) {
   return new Expectation(actual);
 }
 
-export const suites = [];
+export const suites = globalThis.__E2E_SUITES__ || (globalThis.__E2E_SUITES__ = []);
 let currentSuite = null;
 
 export function describe(name, fn) {
@@ -734,10 +734,14 @@ export async function runAllSuites() {
 }
 
 // Auto-run if executed directly as root runner script
-const isDirectRun = process.argv[1] && (
-  process.argv[1].endsWith('e2e_runner.mjs') ||
-  process.argv[1].endsWith('e2e_runner.js') ||
-  process.argv[1].endsWith('e2e_runner.ts')
+const isDirectRun = Boolean(
+  process.env.__TSX_ACTIVE__ &&
+  process.argv[1] &&
+  (
+    process.argv[1].endsWith('e2e_runner.mjs') ||
+    process.argv[1].endsWith('e2e_runner.js') ||
+    process.argv[1].endsWith('e2e_runner.ts')
+  )
 );
 
 async function main() {
@@ -749,10 +753,12 @@ async function main() {
   for (const f of files) {
     await import(`file://${resolve(testDir, f)}`);
   }
-  await runAllSuites();
+  const { failedTests } = await runAllSuites();
+  process.exit(failedTests > 0 ? 1 : 0);
 }
 
-if (isDirectRun) {
+if (isDirectRun && !globalThis.__E2E_MAIN_RAN__) {
+  globalThis.__E2E_MAIN_RAN__ = true;
   main().catch(err => {
     console.error('Runner error:', err);
     process.exit(1);

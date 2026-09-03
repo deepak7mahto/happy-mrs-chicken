@@ -83,7 +83,7 @@ export class DinosaurBalloonScene extends BaseScene {
     const x = margin + Math.random() * (vWidth - margin * 2);
     const y = customY !== undefined ? customY : vHeight + 45;
     const radius = isGolden ? 38 : (shape === 'DINO' ? 36 : 32) + Math.random() * 4;
-    const vy = -(75 + Math.random() * 35); // -75 to -110 px/s
+    const vy = -(42 + Math.random() * 25); // Gentle float speed for toddler eyes and hands
 
     this.balloons.push({
       x,
@@ -190,7 +190,7 @@ export class DinosaurBalloonScene extends BaseScene {
         const b = this.balloons[i];
         if (b.popped) continue;
         const dist = Math.hypot(pt.x - b.x, pt.y - b.y);
-        if (dist <= b.radius + 12) {
+        if (dist <= b.radius + 26) {
           this.popBalloon(i, pt.x, pt.y);
           break;
         }
