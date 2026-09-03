@@ -15,3 +15,8 @@ export * from './VegetableHarvestScene';
 export * from './HopscotchBubbleScene';
 export * from './MixMatchScene';
 export * from './PeekABooScene';
+export * from './IceCreamVanScene';
+export * from './LittleTrainScene';
+export * from './CarWashScene';
+export * from './WindyKiteScene';
+export * from './RainbowGardenScene';

@@ -1,5 +1,5 @@
 /**
- * Mode 0: Main Menu / 9-Game Arcade Selection Suite
+ * Mode 0: Main Menu / 15-Game Arcade Selection Suite
  * Adventures of Trishu Mini-Game Suite
  * Strictly under 500 Lines of Code
  */
@@ -8,44 +8,11 @@ import { BaseScene } from './BaseScene';
 import { GameEngine } from '../engine/GameEngine';
 import { InputManager } from '../engine/InputManager';
 import { DisplayManager } from '../engine/DisplayManager';
-import { ModeCardDef, GameModeId } from '../types/game';
+import { ModeCardDef } from '../types/game';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import {
-  drawMrsClucky,
-  drawTrishu,
-  drawBabyChick,
-  drawDad,
-  drawLeo,
-  drawMom,
-  drawGrandpa,
-  drawMimi,
-  drawCompositeCharacter
-} from '../graphics/characters';
-
-interface MenuCardInfo {
-  id: GameModeId;
-  title: string;
-  sub: string;
-  badge: string;
-  color: string;
-  borderColor: string;
-  scoreKey: string;
-}
-
-const MENU_CARDS: MenuCardInfo[] = [
-  { id: 'EGG_LAYING', title: 'Mrs Clucky', sub: 'Lay & hatch eggs!', badge: 'Classic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'eggLaying' },
-  { id: 'MUDDY_PUDDLES', title: 'Puddle Splash', sub: 'Jump & splash!', badge: 'Splash', color: '#FFCDD2', borderColor: '#E57373', scoreKey: 'muddyPuddles' },
-  { id: 'CHICK_MAZE', title: 'Chick Trail', sub: 'Guide lost chicks!', badge: 'Puzzle', color: '#C8E6C9', borderColor: '#81C784', scoreKey: 'chickMaze' },
-  { id: 'DADDY_PIG', title: "Dad's Kitchen", sub: 'Breakfast frenzy!', badge: 'Frenzy', color: '#B2EBF2', borderColor: '#4DD0E1', scoreKey: 'daddyPig' },
-  { id: 'DINOSAUR_BALLOON', title: 'Balloon Pop', sub: 'Pop all balloons!', badge: 'Pop', color: '#D1C4E9', borderColor: '#9575CD', scoreKey: 'dinosaurBalloon' },
-  { id: 'PANCAKE_FLIPPER', title: 'Pancake Flip', sub: 'Flip & stack high!', badge: 'Chef', color: '#FFE0B2', borderColor: '#FFB74D', scoreKey: 'pancakeFlipper' },
-  { id: 'VEGETABLE_HARVEST', title: 'Veggie Harvest', sub: 'Pull giant veggies!', badge: 'Garden', color: '#DCEDC8', borderColor: '#AED581', scoreKey: 'vegetableHarvest' },
-  { id: 'HOPSCOTCH_BUBBLE', title: 'Bubble Hop', sub: 'Hop & pop bubbles!', badge: 'Bubbles', color: '#F8BBD0', borderColor: '#F06292', scoreKey: 'hopscotchBubble' },
-  { id: 'MIX_MATCH', title: 'Body Shuffler', sub: 'Mix funny bodies!', badge: 'Funny', color: '#E1BEE7', borderColor: '#BA68C8', scoreKey: 'mixMatch' },
-  { id: 'PEEK_A_BOO', title: 'Peek-a-Boo', sub: 'Find cute friends!', badge: 'Toddler', color: '#E8F5E9', borderColor: '#66BB6A', scoreKey: 'peekABoo' }
-];
+import { MENU_CARDS, renderMenuCharacterPreview } from './menuData';
 
 export class MenuScene extends BaseScene {
   public time: number = 0;
@@ -78,9 +45,9 @@ export class MenuScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const cardH = isPortrait ? 200 : 190;
     const gapY = 14;
-    const rows = isPortrait ? 5 : 4; 
+    const rows = isPortrait ? 8 : 5; // 2 cols in portrait (8 rows), 3 cols in landscape (5 rows)
     const topPad = isPortrait ? 85 : 70;
-    const bottomPad = 35;
+    const bottomPad = 40;
     return topPad + rows * (cardH + gapY) + bottomPad;
   }
 
@@ -235,136 +202,6 @@ export class MenuScene extends BaseScene {
     }
   }
 
-  private renderCharacterPreview(
-    ctx: CanvasRenderingContext2D,
-    modeId: GameModeId,
-    cx: number,
-    cy: number,
-    cardW: number
-  ): void {
-    const time = this.time;
-    const charScale = Math.min(0.48, Math.max(0.36, cardW / 520));
-
-    if (modeId === 'EGG_LAYING') {
-      ctx.fillStyle = '#D7CCC8';
-      ctx.beginPath();
-      ctx.ellipse(cx, cy + 22, 22, 7, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#FFE082';
-      ctx.strokeStyle = '#FFA000';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(cx + 10, cy + 18, 5.5, 7.5, 0.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      drawMrsClucky(ctx, cx - 4, cy, charScale * 0.95, {
-        squash: 1.0 + Math.sin(time * 4) * 0.1,
-        flap: Math.sin(time * 6) * 0.22,
-        headBob: Math.sin(time * 3) * 2,
-        eyeBlink: Math.sin(time * 1.8) > 0.88
-      });
-    } else if (modeId === 'MUDDY_PUDDLES') {
-      ctx.fillStyle = '#6D4C41';
-      ctx.beginPath();
-      ctx.ellipse(cx, cy + 28, 28, 9, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      drawTrishu(ctx, cx, cy, charScale, {
-        jumpY: Math.sin(time * 5) * 6,
-        squish: 1.0,
-        squash: 1.0,
-        armWave: Math.sin(time * 6) * 0.2,
-        eyeBlink: Math.sin(time * 2) > 0.85,
-        expression: 'excited'
-      });
-    } else if (modeId === 'CHICK_MAZE') {
-      const chickOff = Math.sin(time * 6) * 4;
-      drawBabyChick(ctx, cx - 14, cy + 14 + chickOff, charScale * 0.85, {
-        isPeeping: Math.sin(time * 8) > 0.5,
-        facingLeft: false,
-        walkCycle: time * 8
-      });
-      drawBabyChick(ctx, cx + 14, cy + 14 - chickOff, charScale * 0.85, {
-        isPeeping: Math.sin(time * 8) <= 0.5,
-        facingLeft: true,
-        walkCycle: time * 8 + 2
-      });
-    } else if (modeId === 'DADDY_PIG') {
-      drawDad(ctx, cx, cy + 2, charScale * 0.88, {
-        panicStage: Math.floor((time * 0.7) % 4),
-        eyeBlink: Math.sin(time * 2) > 0.85,
-        time
-      });
-    } else if (modeId === 'DINOSAUR_BALLOON') {
-      drawLeo(ctx, cx, cy + 4, charScale * 0.95, {
-        holdingDino: true,
-        dinoChomp: Math.abs(Math.sin(time * 8)),
-        jumpY: Math.sin(time * 6) * 3,
-        expression: 'excited',
-        eyeBlink: Math.sin(time * 2.2) > 0.85
-      });
-    } else if (modeId === 'PANCAKE_FLIPPER') {
-      drawMom(ctx, cx, cy + 2, charScale * 0.92, {
-        armWave: Math.sin(time * 6) * 0.15,
-        holdingPan: true,
-        panAngle: Math.sin(time * 8) * 0.18,
-        expression: 'happy',
-        eyeBlink: Math.sin(time * 2) > 0.85
-      });
-    } else if (modeId === 'VEGETABLE_HARVEST') {
-      drawGrandpa(ctx, cx, cy + 2, charScale * 0.92, {
-        pulling: true,
-        pullTension: 0.35,
-        welliesMuddy: true,
-        eyeBlink: Math.sin(time * 2.1) > 0.85
-      });
-    } else if (modeId === 'HOPSCOTCH_BUBBLE') {
-      drawMimi(ctx, cx, cy, charScale * 0.95, {
-        hopY: Math.abs(Math.sin(time * 6)) * 8,
-        earFlap: Math.sin(time * 8) * 0.25,
-        holdingWand: true,
-        blowingBubble: Math.sin(time * 3) > 0.3,
-        eyeBlink: Math.sin(time * 1.9) > 0.85
-      });
-    } else if (modeId === 'MIX_MATCH') {
-      const cycle = Math.floor(time * 1.2);
-      drawCompositeCharacter(
-        ctx,
-        (cycle + 4) % 7,
-        (cycle + 2) % 7,
-        cycle % 7,
-        cx,
-        cy,
-        charScale * 0.85,
-        {
-          blinkTimer: 0,
-          isBlinking: Math.sin(time * 2) > 0.88,
-          breathTimer: 0,
-          breathScale: 1.0,
-          wobbleTimer: 0,
-          wobbleAngle: Math.sin(time * 6) * 0.1,
-          headBob: Math.sin(time * 12) * 2
-        }
-      );
-    } else if (modeId === 'PEEK_A_BOO') {
-      const peek = Math.abs(Math.sin(time * 3));
-      drawMimi(ctx, cx, cy - peek * 10, charScale * 0.9, {
-        hopY: 0,
-        earFlap: Math.sin(time * 6) * 0.22,
-        holdingWand: false,
-        blowingBubble: false,
-        eyeBlink: Math.sin(time * 1.8) > 0.85
-      });
-      ctx.fillStyle = '#43A047';
-      ctx.beginPath();
-      ctx.arc(cx - 12, cy + 14, 12, 0, Math.PI * 2);
-      ctx.arc(cx + 12, cy + 14, 12, 0, Math.PI * 2);
-      ctx.arc(cx, cy + 10, 15, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
@@ -373,6 +210,7 @@ export class MenuScene extends BaseScene {
 
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
+    // Clipped Scroll Area
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, topPad, vWidth, vHeight - topPad);
@@ -393,11 +231,13 @@ export class MenuScene extends BaseScene {
       ctx.save();
       ctx.translate(card.x, card.y);
 
+      // Card Drop Shadow
       ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
       ctx.beginPath();
       ctx.roundRect(-card.w / 2, -card.h / 2 + 5, card.w, card.h, 20);
       ctx.fill();
 
+      // Card Background
       ctx.fillStyle = card.color;
       ctx.strokeStyle = info.borderColor;
       ctx.lineWidth = 3.6;
@@ -406,6 +246,7 @@ export class MenuScene extends BaseScene {
       ctx.fill();
       ctx.stroke();
 
+      // Category Badge (Top-Left)
       ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
       ctx.beginPath();
       ctx.roundRect(-card.w / 2 + 8, -card.h / 2 + 7, 62, 22, 11);
@@ -416,6 +257,7 @@ export class MenuScene extends BaseScene {
       ctx.textBaseline = 'middle';
       ctx.fillText(card.badge, -card.w / 2 + 39, -card.h / 2 + 18);
 
+      // Best Score Badge (Top-Right)
       ctx.fillStyle = '#E53935';
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 1.5;
@@ -430,9 +272,11 @@ export class MenuScene extends BaseScene {
       ctx.textBaseline = 'middle';
       ctx.fillText(`★ ${bestScore}`, card.w / 2 - 43, -card.h / 2 + 18);
 
+      // Character Preview (Center)
       const previewY = -card.h * 0.06;
-      this.renderCharacterPreview(ctx, card.id, 0, previewY, card.w);
+      renderMenuCharacterPreview(ctx, card.id, 0, previewY, card.w, this.time);
 
+      // Title & Subtitle Labels (Bottom)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = `bold ${isPortrait ? '19px' : '18px'} "Comic Sans MS", cursive, sans-serif`;
@@ -448,12 +292,13 @@ export class MenuScene extends BaseScene {
     ctx.restore();
     ctx.restore();
 
+    // Scroll Indicator Pill (Right Edge)
     const contentH = this.getContentHeight(display);
     const maxScroll = Math.max(0, contentH - vHeight);
     if (maxScroll > 20) {
       const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScroll));
       const trackH = vHeight - topPad - 30;
-      const barH = Math.max(35, trackH * (vHeight / contentH));
+      const barH = Math.max(30, trackH * (vHeight / contentH));
       const barY = topPad + 15 + scrollRatio * (trackH - barH);
       const barX = vWidth - 8;
 
@@ -465,6 +310,7 @@ export class MenuScene extends BaseScene {
       ctx.restore();
     }
 
+    // Fixed Title Banner (Top)
     ctx.save();
     const titleBob = Math.sin(this.time * 2.5) * 2.5;
     const titleX = vWidth / 2;

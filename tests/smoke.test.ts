@@ -29,6 +29,11 @@ import { VegetableHarvestScene } from '../src/modes/VegetableHarvestScene';
 import { HopscotchBubbleScene } from '../src/modes/HopscotchBubbleScene';
 import { MixMatchScene } from '../src/modes/MixMatchScene';
 import { PeekABooScene } from '../src/modes/PeekABooScene';
+import { IceCreamVanScene } from '../src/modes/IceCreamVanScene';
+import { LittleTrainScene } from '../src/modes/LittleTrainScene';
+import { CarWashScene } from '../src/modes/CarWashScene';
+import { WindyKiteScene } from '../src/modes/WindyKiteScene';
+import { RainbowGardenScene } from '../src/modes/RainbowGardenScene';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -40,7 +45,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(11);
+    expect(engine.scenes.size).toBe(16);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
     expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
@@ -52,6 +57,11 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('HOPSCOTCH_BUBBLE')).toBe(true);
     expect(engine.scenes.has('MIX_MATCH')).toBe(true);
     expect(engine.scenes.has('PEEK_A_BOO')).toBe(true);
+    expect(engine.scenes.has('ICE_CREAM_VAN')).toBe(true);
+    expect(engine.scenes.has('LITTLE_TRAIN')).toBe(true);
+    expect(engine.scenes.has('CAR_WASH')).toBe(true);
+    expect(engine.scenes.has('WINDY_KITE')).toBe(true);
+    expect(engine.scenes.has('RAINBOW_GARDEN')).toBe(true);
     expect(engine.currentSceneId).toBe('MENU');
   });
 
@@ -74,6 +84,11 @@ describe('Tier 1: Smoke & Initialization', () => {
     const storage = new StorageManager();
     expect(storage.getHighScore('eggLaying')).toBe(0);
     expect(storage.getHighScore('peekABoo')).toBe(0);
+    expect(storage.getHighScore('iceCreamVan')).toBe(0);
+    expect(storage.getHighScore('littleTrain')).toBe(0);
+    expect(storage.getHighScore('carWash')).toBe(0);
+    expect(storage.getHighScore('windyKite')).toBe(0);
+    expect(storage.getHighScore('rainbowGarden')).toBe(0);
 
     storage.saveHighScore('peekABoo', 250);
     expect(storage.getHighScore('peekABoo')).toBe(250);
@@ -97,7 +112,7 @@ describe('Tier 1: Smoke & Initialization', () => {
 
     expect(menu.scrollY).toBe(0);
     const cards = menu.getModeCards(engine.display);
-    expect(cards.length).toBe(10);
+    expect(cards.length).toBe(15);
     expect(cards[0].h).toBeGreaterThanOrEqual(190); // Large chunky tiles
 
     // Simulate drag: pointer down then move vertically
@@ -326,6 +341,57 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
 
     scene.update(0.016, engine.input);
     expect(firstSpot.openProgress).toBeGreaterThan(0);
+  });
+
+  test('T2.11 Mode 11: Miss Bunny\'s Ice Cream Van scoop stacking and feast', () => {
+    const scene = engine.scenes.get('ICE_CREAM_VAN') as IceCreamVanScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    // Add a scoop
+    scene.addScoop({ name: 'Berry', color: '#FF80AB', borderColor: '#F50057', x: 100, y: 300, radius: 36 });
+    expect(scene.score).toBe(10);
+
+    scene.update(0.016, engine.input);
+    scene.munchFeast();
+    expect(scene.score).toBeGreaterThan(10);
+  });
+
+  test('T2.12 Mode 12: Grandpa\'s Little Train chug whistle and passenger pickup', () => {
+    const scene = engine.scenes.get('LITTLE_TRAIN') as LittleTrainScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    scene.blowWhistle();
+    expect(scene.score).toBe(15);
+    scene.update(0.016, engine.input);
+  });
+
+  test('T2.13 Mode 13: Muddy Car Wash scrub bubbles and shiny car finish', () => {
+    const scene = engine.scenes.get('CAR_WASH') as CarWashScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    // Clean a spot
+    scene.update(0.016, engine.input);
+    expect(scene.score).toBe(0);
+  });
+
+  test('T2.14 Mode 14: Windy Castle Kite wind swoops and star ribbons', () => {
+    const scene = engine.scenes.get('WINDY_KITE') as WindyKiteScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    scene.swoopKite(300, 150);
+    scene.update(0.016, engine.input);
+  });
+
+  test('T2.15 Mode 15: Rainbow Flower Garden sprout watering and bloom celebration', () => {
+    const scene = engine.scenes.get('RAINBOW_GARDEN') as RainbowGardenScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+
+    scene.update(0.016, engine.input);
   });
 });
 

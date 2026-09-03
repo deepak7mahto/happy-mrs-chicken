@@ -17,7 +17,12 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   vegetableHarvest: 0,
   hopscotchBubble: 0,
   mixMatch: 0,
-  peekABoo: 0
+  peekABoo: 0,
+  iceCreamVan: 0,
+  littleTrain: 0,
+  carWash: 0,
+  windyKite: 0,
+  rainbowGarden: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -32,6 +37,11 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   HOPSCOTCH_BUBBLE: 'hopscotchBubble',
   MIX_MATCH: 'mixMatch',
   PEEK_A_BOO: 'peekABoo',
+  ICE_CREAM_VAN: 'iceCreamVan',
+  LITTLE_TRAIN: 'littleTrain',
+  CAR_WASH: 'carWash',
+  WINDY_KITE: 'windyKite',
+  RAINBOW_GARDEN: 'rainbowGarden',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -44,6 +54,11 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'dino-maze': 'daddyPig',
   'mix-match': 'mixMatch',
   'peek-a-boo': 'peekABoo',
+  'ice-cream-van': 'iceCreamVan',
+  'little-train': 'littleTrain',
+  'car-wash': 'carWash',
+  'windy-kite': 'windyKite',
+  'rainbow-garden': 'rainbowGarden',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -55,7 +70,12 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   vegetableHarvest: 'vegetableHarvest',
   hopscotchBubble: 'hopscotchBubble',
   mixMatch: 'mixMatch',
-  peekABoo: 'peekABoo'
+  peekABoo: 'peekABoo',
+  iceCreamVan: 'iceCreamVan',
+  littleTrain: 'littleTrain',
+  carWash: 'carWash',
+  windyKite: 'windyKite',
+  rainbowGarden: 'rainbowGarden'
 };
 
 export class StorageManager implements IStorageManager {
@@ -89,7 +109,12 @@ export class StorageManager implements IStorageManager {
               vegetableHarvest: Number(rawScores.vegetableHarvest) || 0,
               hopscotchBubble: Number(rawScores.hopscotchBubble) || 0,
               mixMatch: Number(rawScores.mixMatch) || 0,
-              peekABoo: Number(rawScores.peekABoo) || 0
+              peekABoo: Number(rawScores.peekABoo) || 0,
+              iceCreamVan: Number(rawScores.iceCreamVan) || 0,
+              littleTrain: Number(rawScores.littleTrain) || 0,
+              carWash: Number(rawScores.carWash) || 0,
+              windyKite: Number(rawScores.windyKite) || 0,
+              rainbowGarden: Number(rawScores.rainbowGarden) || 0
             };
 
             const rawSettings = parsed.settings || {};

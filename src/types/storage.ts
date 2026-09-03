@@ -14,6 +14,11 @@ export interface HighScores {
   hopscotchBubble: number;  // Mode 8: Rainbow Bubble Hopscotch
   mixMatch: number;         // Mode 9: Trishu's Mix & Match Funny Studio
   peekABoo: number;         // Mode 10: Peek-a-Boo Barnyard
+  iceCreamVan: number;      // Mode 11: Miss Bunny's Ice Cream Van
+  littleTrain: number;      // Mode 12: Grandpa's Little Train
+  carWash: number;          // Mode 13: Muddy Car Wash
+  windyKite: number;        // Mode 14: Windy Castle Kite
+  rainbowGarden: number;    // Mode 15: Rainbow Flower Garden
   [key: string]: number;
 }
 

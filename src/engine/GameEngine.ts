@@ -15,6 +15,12 @@ import { VegetableHarvestScene } from '../modes/VegetableHarvestScene';
 import { HopscotchBubbleScene } from '../modes/HopscotchBubbleScene';
 import { MixMatchScene } from '../modes/MixMatchScene';
 import { PeekABooScene } from '../modes/PeekABooScene';
+import { IceCreamVanScene } from '../modes/IceCreamVanScene';
+import { LittleTrainScene } from '../modes/LittleTrainScene';
+import { CarWashScene } from '../modes/CarWashScene';
+import { WindyKiteScene } from '../modes/WindyKiteScene';
+import { RainbowGardenScene } from '../modes/RainbowGardenScene';
+import { ParticleEngine } from './ParticleEngine';
 import { GameModeId } from '../types/game';
 
 export class GameEngine {
@@ -22,6 +28,7 @@ export class GameEngine {
   public input: InputManager;
   public storage: StorageManager;
   public gameLoop: GameLoop;
+  public particles: ParticleEngine;
   public scenes: Map<GameModeId, BaseScene> = new Map();
   public currentSceneId: GameModeId = 'MENU';
   public onSceneChangeCallback?: (mode: GameModeId) => void;
@@ -30,6 +37,7 @@ export class GameEngine {
     this.storage = new StorageManager();
     this.display = new DisplayManager(canvas);
     this.input = new InputManager(this.display);
+    this.particles = new ParticleEngine(120);
 
     this.scenes.set('MENU', new MenuScene(this));
     this.scenes.set('EGG_LAYING', new EggLayingScene(this));
@@ -42,6 +50,11 @@ export class GameEngine {
     this.scenes.set('HOPSCOTCH_BUBBLE', new HopscotchBubbleScene(this));
     this.scenes.set('MIX_MATCH', new MixMatchScene(this));
     this.scenes.set('PEEK_A_BOO', new PeekABooScene(this));
+    this.scenes.set('ICE_CREAM_VAN', new IceCreamVanScene(this));
+    this.scenes.set('LITTLE_TRAIN', new LittleTrainScene(this));
+    this.scenes.set('CAR_WASH', new CarWashScene(this));
+    this.scenes.set('WINDY_KITE', new WindyKiteScene(this));
+    this.scenes.set('RAINBOW_GARDEN', new RainbowGardenScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),
@@ -116,6 +129,7 @@ export class GameEngine {
     if (!isPaused && this.activeScene) {
       this.activeScene.update(dt, this.input);
     }
+    this.particles.update(dt);
     this.input.postUpdate();
   }
 
@@ -124,6 +138,7 @@ export class GameEngine {
     if (this.activeScene) {
       this.activeScene.render(this.display.ctx, alpha, this.display);
     }
+    this.particles.render(this.display.ctx);
     this.display.endFrame();
   }
 

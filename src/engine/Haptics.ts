@@ -29,5 +29,9 @@ export const Haptics = {
         navigator.vibrate([20, 40, 20, 40, 30]);
       } catch (_) {}
     }
+  },
+  success(): void {
+    this.fanfare();
   }
 };
+

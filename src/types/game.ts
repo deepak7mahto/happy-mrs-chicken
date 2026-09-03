@@ -11,7 +11,7 @@ export * from './storage';
 export * from './characters';
 export * from './particles';
 
-// Canonical 10 Active Mini-Game Modes
+// Canonical 15 Active Mini-Game Modes
 export type ActiveGameModeId =
   | 'EGG_LAYING'
   | 'MUDDY_PUDDLES'
@@ -22,7 +22,12 @@ export type ActiveGameModeId =
   | 'VEGETABLE_HARVEST'
   | 'HOPSCOTCH_BUBBLE'
   | 'MIX_MATCH'
-  | 'PEEK_A_BOO';
+  | 'PEEK_A_BOO'
+  | 'ICE_CREAM_VAN'
+  | 'LITTLE_TRAIN'
+  | 'CAR_WASH'
+  | 'WINDY_KITE'
+  | 'RAINBOW_GARDEN';
 
 // Full Scene ID Union (including MENU and slug aliases)
 export type GameModeId =
@@ -37,7 +42,12 @@ export type GameModeId =
   | 'seed-sort'
   | 'dino-maze'
   | 'mix-match'
-  | 'peek-a-boo';
+  | 'peek-a-boo'
+  | 'ice-cream-van'
+  | 'little-train'
+  | 'car-wash'
+  | 'windy-kite'
+  | 'rainbow-garden';
 
 export type GameModeSlug =
   | 'classic'
@@ -49,7 +59,12 @@ export type GameModeSlug =
   | 'egg-tap'
   | 'chick-catch'
   | 'mix-match'
-  | 'peek-a-boo';
+  | 'peek-a-boo'
+  | 'ice-cream-van'
+  | 'little-train'
+  | 'car-wash'
+  | 'windy-kite'
+  | 'rainbow-garden';
 
 export interface GameModeMetadata {
   id: ActiveGameModeId;
@@ -75,7 +90,12 @@ export const GAME_MODES_LIST: readonly ActiveGameModeId[] = [
   'VEGETABLE_HARVEST',
   'HOPSCOTCH_BUBBLE',
   'MIX_MATCH',
-  'PEEK_A_BOO'
+  'PEEK_A_BOO',
+  'ICE_CREAM_VAN',
+  'LITTLE_TRAIN',
+  'CAR_WASH',
+  'WINDY_KITE',
+  'RAINBOW_GARDEN'
 ] as const;
 
 export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
@@ -88,7 +108,12 @@ export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
   VEGETABLE_HARVEST: 'egg-tap',
   HOPSCOTCH_BUBBLE: 'chick-catch',
   MIX_MATCH: 'mix-match',
-  PEEK_A_BOO: 'peek-a-boo'
+  PEEK_A_BOO: 'peek-a-boo',
+  ICE_CREAM_VAN: 'ice-cream-van',
+  LITTLE_TRAIN: 'little-train',
+  CAR_WASH: 'car-wash',
+  WINDY_KITE: 'windy-kite',
+  RAINBOW_GARDEN: 'rainbow-garden'
 };
 
 export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
@@ -101,7 +126,12 @@ export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
   'egg-tap': 'VEGETABLE_HARVEST',
   'chick-catch': 'HOPSCOTCH_BUBBLE',
   'mix-match': 'MIX_MATCH',
-  'peek-a-boo': 'PEEK_A_BOO'
+  'peek-a-boo': 'PEEK_A_BOO',
+  'ice-cream-van': 'ICE_CREAM_VAN',
+  'little-train': 'LITTLE_TRAIN',
+  'car-wash': 'CAR_WASH',
+  'windy-kite': 'WINDY_KITE',
+  'rainbow-garden': 'RAINBOW_GARDEN'
 };
 
 export interface MiniGame {
