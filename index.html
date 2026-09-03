@@ -25,46 +25,59 @@
     html, body, #root {
       width: 100%;
       height: 100%;
+      height: 100dvh;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       background-color: #81D4FA;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: fixed;
+      inset: 0;
       touch-action: none;
       overscroll-behavior: none;
+      -webkit-overflow-scrolling: auto;
       font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     #game-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
       overflow: hidden;
       background-color: #81D4FA;
     }
 
     #gameCanvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background-color: #81D4FA;
       cursor: pointer;
       touch-action: none;
     }
 
-    /* Trishu-style Tactile HUD Controls */
+    /* Trishu-style Tactile HUD Controls - Address bar safe & touch friendly */
     .hud-layer {
-      position: absolute;
-      inset: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       pointer-events: none;
-      z-index: 20;
+      z-index: 40;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) max(10px, env(safe-area-inset-bottom, 10px)) max(12px, env(safe-area-inset-left, 12px));
+      /* Generous top clearance ensuring Home button is never hidden under mobile Chrome address bar */
+      padding-top: max(22px, calc(env(safe-area-inset-top, 0px) + 14px));
+      padding-bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 10px));
+      padding-left: max(16px, calc(env(safe-area-inset-left, 0px) + 12px));
+      padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 12px));
     }
 
     .hud-top-bar {
@@ -78,70 +91,79 @@
     .hud-controls-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .hud-btn-home {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      font-size: 1.1rem;
+      gap: 8px;
+      padding: 10px 22px;
+      min-height: 48px;
+      font-size: 1.15rem;
       font-weight: 900;
       color: #FFFFFF;
       background: linear-gradient(180deg, #FF5252 0%, #E53935 100%);
-      border: 3px solid #B71C1C;
+      border: 3.5px solid #B71C1C;
       border-radius: 9999px;
-      box-shadow: 0 3px 0 #B71C1C, 0 5px 10px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 4px 0 #B71C1C, 0 6px 14px rgba(0, 0, 0, 0.28);
       cursor: pointer;
       outline: none;
       transition: transform 0.1s ease, box-shadow 0.1s ease;
       font-family: inherit;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .hud-btn-home:active {
       transform: translateY(2px);
-      box-shadow: 0 1px 0 #B71C1C, 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 0 #B71C1C, 0 2px 5px rgba(0, 0, 0, 0.25);
     }
 
     .hud-btn-icon {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      min-height: 48px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       cursor: pointer;
       outline: none;
       transition: transform 0.1s ease, box-shadow 0.1s ease;
       font-family: inherit;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .hud-btn-audio {
       background: linear-gradient(180deg, #FFF176 0%, #FFD54F 100%);
-      border: 3px solid #FFA000;
-      box-shadow: 0 3px 0 #FFA000, 0 5px 10px rgba(0, 0, 0, 0.18);
+      border: 3.5px solid #FFA000;
+      box-shadow: 0 3px 0 #FFA000, 0 5px 12px rgba(0, 0, 0, 0.22);
     }
 
     .hud-btn-audio:active {
       transform: translateY(2px);
-      box-shadow: 0 1px 0 #FFA000, 0 2px 4px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 1px 0 #FFA000, 0 2px 5px rgba(0, 0, 0, 0.18);
     }
 
     .hud-btn-fs {
       background: linear-gradient(180deg, #4FC3F7 0%, #0288D1 100%);
-      border: 3px solid #01579B;
+      border: 3.5px solid #01579B;
       color: #FFFFFF;
-      box-shadow: 0 3px 0 #01579B, 0 5px 10px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 3px 0 #01579B, 0 5px 12px rgba(0, 0, 0, 0.22);
     }
 
     .hud-btn-fs:active {
       transform: translateY(2px);
-      box-shadow: 0 1px 0 #01579B, 0 2px 4px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 1px 0 #01579B, 0 2px 5px rgba(0, 0, 0, 0.18);
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-CWptlvrN.js"></script>
+  <script type="module" crossorigin src="./assets/index-Xg7nKpMf.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/vendor-react-CmQgMwmH.js">
   <link rel="modulepreload" crossorigin href="./assets/audio-engine-BRpodNuc.js">
   <link rel="modulepreload" crossorigin href="./assets/graphics-engine-CGRUFKoQ.js">
