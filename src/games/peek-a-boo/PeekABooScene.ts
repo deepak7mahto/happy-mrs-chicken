@@ -4,18 +4,18 @@
  * Strictly under 500 Lines of Code
  */
 
-import { BaseScene } from './BaseScene';
-import { GameEngine } from '../engine/GameEngine';
-import { InputManager } from '../engine/InputManager';
-import { DisplayManager } from '../engine/DisplayManager';
-import { ParticleEngine } from '../engine/ParticleEngine';
-import { soundEngine } from '../engine/SoundEngine';
-import { Haptics } from '../engine/Haptics';
-import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawMrsClucky } from '../graphics/characters/chickenRenderer';
-import { drawMimi } from '../graphics/characters/mimiRenderer';
-import { drawLeo } from '../graphics/characters/leoRenderer';
-import { drawTrishu } from '../graphics/characters/trishuRenderer';
+import { BaseScene } from '../base/BaseScene';
+import { GameEngine } from '../../engine/GameEngine';
+import { InputManager } from '../../engine/InputManager';
+import { DisplayManager } from '../../engine/DisplayManager';
+import { ParticleEngine } from '../../engine/ParticleEngine';
+import { soundEngine } from '../../engine/SoundEngine';
+import { Haptics } from '../../engine/Haptics';
+import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
+import { drawMrsClucky } from '../../graphics/characters/chickenRenderer';
+import { drawMimi } from '../../graphics/characters/mimiRenderer';
+import { drawLeo } from '../../graphics/characters/leoRenderer';
+import { drawTrishu } from '../../graphics/characters/trishuRenderer';
 
 interface HidingSpot {
   id: string;

@@ -4,13 +4,13 @@
  * Strictly under 500 Lines of Code
  */
 
-import { BaseScene } from './BaseScene';
-import { GameEngine } from '../engine/GameEngine';
-import { InputManager } from '../engine/InputManager';
-import { DisplayManager } from '../engine/DisplayManager';
-import { soundEngine } from '../engine/SoundEngine';
-import { Haptics } from '../engine/Haptics';
-import { drawDad } from '../graphics/characters';
+import { BaseScene } from '../base/BaseScene';
+import { GameEngine } from '../../engine/GameEngine';
+import { InputManager } from '../../engine/InputManager';
+import { DisplayManager } from '../../engine/DisplayManager';
+import { soundEngine } from '../../engine/SoundEngine';
+import { Haptics } from '../../engine/Haptics';
+import { drawDad } from '../../graphics/characters';
 
 interface MudSpot {
   x: number;

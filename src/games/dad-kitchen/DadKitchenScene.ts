@@ -4,15 +4,15 @@
  * Strictly under 500 Lines of Code
  */
 
-import { BaseScene } from './BaseScene';
-import { GameEngine } from '../engine/GameEngine';
-import { InputManager } from '../engine/InputManager';
-import { DisplayManager } from '../engine/DisplayManager';
-import { ParticleEngine } from '../engine/ParticleEngine';
-import { soundEngine } from '../engine/SoundEngine';
-import { Haptics } from '../engine/Haptics';
-import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawDad } from '../graphics/characters/dadRenderer';
+import { BaseScene } from '../base/BaseScene';
+import { GameEngine } from '../../engine/GameEngine';
+import { InputManager } from '../../engine/InputManager';
+import { DisplayManager } from '../../engine/DisplayManager';
+import { ParticleEngine } from '../../engine/ParticleEngine';
+import { soundEngine } from '../../engine/SoundEngine';
+import { Haptics } from '../../engine/Haptics';
+import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
+import { drawDad } from '../../graphics/characters/dadRenderer';
 
 export class DadKitchenScene extends BaseScene {
   public time: number = 0;

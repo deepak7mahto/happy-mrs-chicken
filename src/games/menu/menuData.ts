@@ -4,7 +4,7 @@
  * Strictly under 500 Lines of Code
  */
 
-import { GameModeId } from '../types/game';
+import { GameModeId } from '../../types/game';
 import {
   drawMrsClucky,
   drawTrishu,
@@ -15,7 +15,7 @@ import {
   drawGrandpa,
   drawMimi,
   drawCompositeCharacter
-} from '../graphics/characters';
+} from '../../graphics/characters';
 
 export interface MenuCardInfo {
   id: GameModeId;

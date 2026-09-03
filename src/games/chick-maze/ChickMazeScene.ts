@@ -4,16 +4,16 @@
  * Strictly under 500 Lines of Code
  */
 
-import { BaseScene } from './BaseScene';
-import { GameEngine } from '../engine/GameEngine';
-import { InputManager } from '../engine/InputManager';
-import { DisplayManager } from '../engine/DisplayManager';
-import { ChickEntity, SeedEntity } from '../types/game';
-import { ParticleEngine } from '../engine/ParticleEngine';
-import { soundEngine } from '../engine/SoundEngine';
-import { Haptics } from '../engine/Haptics';
-import { drawBabyChick } from '../graphics/characters/chickRenderer';
-import { PALETTE } from '../graphics/palette';
+import { BaseScene } from '../base/BaseScene';
+import { GameEngine } from '../../engine/GameEngine';
+import { InputManager } from '../../engine/InputManager';
+import { DisplayManager } from '../../engine/DisplayManager';
+import { ChickEntity, SeedEntity } from '../../types/game';
+import { ParticleEngine } from '../../engine/ParticleEngine';
+import { soundEngine } from '../../engine/SoundEngine';
+import { Haptics } from '../../engine/Haptics';
+import { drawBabyChick } from '../../graphics/characters/chickRenderer';
+import { PALETTE } from '../../graphics/palette';
 
 export class ChickMazeScene extends BaseScene {
   public time: number = 0;

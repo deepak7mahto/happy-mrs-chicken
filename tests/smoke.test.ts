@@ -18,22 +18,24 @@ import {
   CHARACTER_PARTS
 } from '../src/graphics/characters/modularBodyParts';
 import { PALETTE } from '../src/graphics/palette';
-import { MenuScene } from '../src/modes/MenuScene';
-import { EggLayingScene } from '../src/modes/EggLayingScene';
-import { MuddyPuddlesScene } from '../src/modes/MuddyPuddlesScene';
-import { ChickMazeScene } from '../src/modes/ChickMazeScene';
-import { DadKitchenScene } from '../src/modes/DadKitchenScene';
-import { DinosaurBalloonScene } from '../src/modes/DinosaurBalloonScene';
-import { PancakeFlipperScene } from '../src/modes/PancakeFlipperScene';
-import { VegetableHarvestScene } from '../src/modes/VegetableHarvestScene';
-import { HopscotchBubbleScene } from '../src/modes/HopscotchBubbleScene';
-import { MixMatchScene } from '../src/modes/MixMatchScene';
-import { PeekABooScene } from '../src/modes/PeekABooScene';
-import { IceCreamVanScene } from '../src/modes/IceCreamVanScene';
-import { LittleTrainScene } from '../src/modes/LittleTrainScene';
-import { CarWashScene } from '../src/modes/CarWashScene';
-import { WindyKiteScene } from '../src/modes/WindyKiteScene';
-import { RainbowGardenScene } from '../src/modes/RainbowGardenScene';
+import {
+  MenuScene,
+  EggLayingScene,
+  MuddyPuddlesScene,
+  ChickMazeScene,
+  DadKitchenScene,
+  DinosaurBalloonScene,
+  PancakeFlipperScene,
+  VegetableHarvestScene,
+  HopscotchBubbleScene,
+  MixMatchScene,
+  PeekABooScene,
+  IceCreamVanScene,
+  LittleTrainScene,
+  CarWashScene,
+  WindyKiteScene,
+  RainbowGardenScene
+} from '../src/games';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -478,7 +480,7 @@ describe('Tier 4: Quality Gates & Branding Verification', () => {
   const root = resolve(process.cwd());
 
   test('T4.01: MenuScene displays "Adventures of Trishu" title', () => {
-    const menuPath = resolve(root, 'src/modes/MenuScene.ts');
+    const menuPath = resolve(root, 'src/games/menu/MenuScene.ts');
     const content = readFileSync(menuPath, 'utf8');
     expect(content.includes('Adventures of Trishu')).toBe(true);
     expect(content.includes('Peppa Pig')).toBe(false);

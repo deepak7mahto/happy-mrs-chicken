@@ -4,22 +4,22 @@
  * Strictly under 500 Lines of Code
  */
 
-import { BaseScene } from './BaseScene';
-import { GameEngine } from '../engine/GameEngine';
-import { InputManager } from '../engine/InputManager';
-import { DisplayManager } from '../engine/DisplayManager';
-import { VegetableEntity } from '../types/game';
-import { CharacterAnimState } from '../types/characters';
-import { ParticleEngine } from '../engine/ParticleEngine';
-import { soundEngine } from '../engine/SoundEngine';
-import { Haptics } from '../engine/Haptics';
-import { drawLandscapeSkyHills } from '../graphics/environmentRenderer';
-import { drawGrandpa } from '../graphics/characters/grandpaRenderer';
+import { BaseScene } from '../base/BaseScene';
+import { GameEngine } from '../../engine/GameEngine';
+import { InputManager } from '../../engine/InputManager';
+import { DisplayManager } from '../../engine/DisplayManager';
+import { VegetableEntity } from '../../types/game';
+import { CharacterAnimState } from '../../types/characters';
+import { ParticleEngine } from '../../engine/ParticleEngine';
+import { soundEngine } from '../../engine/SoundEngine';
+import { Haptics } from '../../engine/Haptics';
+import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
+import { drawGrandpa } from '../../graphics/characters/grandpaRenderer';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
   getVeggiePullTension
-} from '../graphics/animations';
+} from '../../graphics/animations';
 
 interface GardenMoundItem {
   id: string;

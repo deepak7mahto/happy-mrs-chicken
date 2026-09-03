@@ -3,25 +3,27 @@ import { InputManager } from './InputManager';
 import { StorageManager } from './StorageManager';
 import { GameLoop } from './GameLoop';
 import { soundEngine } from './SoundEngine';
-import { BaseScene } from '../modes/BaseScene';
-import { MenuScene } from '../modes/MenuScene';
-import { EggLayingScene } from '../modes/EggLayingScene';
-import { MuddyPuddlesScene } from '../modes/MuddyPuddlesScene';
-import { ChickMazeScene } from '../modes/ChickMazeScene';
-import { DadKitchenScene } from '../modes/DadKitchenScene';
-import { DinosaurBalloonScene } from '../modes/DinosaurBalloonScene';
-import { PancakeFlipperScene } from '../modes/PancakeFlipperScene';
-import { VegetableHarvestScene } from '../modes/VegetableHarvestScene';
-import { HopscotchBubbleScene } from '../modes/HopscotchBubbleScene';
-import { MixMatchScene } from '../modes/MixMatchScene';
-import { PeekABooScene } from '../modes/PeekABooScene';
-import { IceCreamVanScene } from '../modes/IceCreamVanScene';
-import { LittleTrainScene } from '../modes/LittleTrainScene';
-import { CarWashScene } from '../modes/CarWashScene';
-import { WindyKiteScene } from '../modes/WindyKiteScene';
-import { RainbowGardenScene } from '../modes/RainbowGardenScene';
 import { ParticleEngine } from './ParticleEngine';
 import { GameModeId } from '../types/game';
+import {
+  BaseScene,
+  MenuScene,
+  EggLayingScene,
+  MuddyPuddlesScene,
+  ChickMazeScene,
+  DadKitchenScene,
+  DinosaurBalloonScene,
+  PancakeFlipperScene,
+  VegetableHarvestScene,
+  HopscotchBubbleScene,
+  MixMatchScene,
+  PeekABooScene,
+  IceCreamVanScene,
+  LittleTrainScene,
+  CarWashScene,
+  WindyKiteScene,
+  RainbowGardenScene
+} from '../games';
 
 export class GameEngine {
   public display: DisplayManager;
