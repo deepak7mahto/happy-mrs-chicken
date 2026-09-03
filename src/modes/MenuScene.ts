@@ -49,6 +49,14 @@ const MENU_CARDS: MenuCardInfo[] = [
 
 export class MenuScene extends BaseScene {
   public time: number = 0;
+  public scrollY: number = 0;
+  public scrollVy: number = 0;
+  private isDragging: boolean = false;
+  private dragStartY: number = 0;
+  private dragStartX: number = 0;
+  private dragStartScrollY: number = 0;
+  private lastPointerY: number = 0;
+  private lastPointerTime: number = 0;
 
   constructor(game: GameEngine) {
     super(game);
@@ -56,6 +64,9 @@ export class MenuScene extends BaseScene {
 
   enter(): void {
     this.score = 0;
+    this.scrollY = 0;
+    this.scrollVy = 0;
+    this.isDragging = false;
     soundEngine.unlock().then(() => {
       if (soundEngine.sequencer) {
         soundEngine.sequencer.start();
@@ -63,50 +74,51 @@ export class MenuScene extends BaseScene {
     });
   }
 
+  private getContentHeight(display: DisplayManager): number {
+    const isPortrait = display.isPortrait;
+    const cardH = isPortrait ? 200 : 190;
+    const gapY = 14;
+    const rows = isPortrait ? 5 : 4; 
+    const topPad = isPortrait ? 85 : 70;
+    const bottomPad = 35;
+    return topPad + rows * (cardH + gapY) + bottomPad;
+  }
+
   getModeCards(display: DisplayManager): ModeCardDef[] {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
-    const vHeight = display.vHeight;
     const cards: ModeCardDef[] = [];
+    const topPad = isPortrait ? 85 : 70;
 
     if (isPortrait) {
-      // 2 columns x 5 rows
       const padX = 14;
-      const gapX = 10;
+      const gapX = 12;
+      const gapY = 14;
       const cardW = (vWidth - padX * 2 - gapX) / 2;
-      const titleAreaH = Math.max(65, Math.min(85, vHeight * 0.08));
-      const bottomPad = 12;
-      const gridH = vHeight - titleAreaH - bottomPad;
-      const gapY = 8;
-      const cardH = (gridH - 4 * gapY) / 5;
+      const cardH = 200;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
         const col = i % 2;
         const row = Math.floor(i / 2);
         const x = padX + cardW / 2 + col * (cardW + gapX);
-        const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
+        const y = topPad + cardH / 2 + row * (cardH + gapY);
         cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
       }
     } else {
-      // 5 columns x 2 rows (Landscape 16:9)
-      const padX = 20;
-      const gapX = 12;
-      const cols = 5;
-      const rows = 2;
+      const padX = 24;
+      const gapX = 16;
+      const gapY = 14;
+      const cols = 3;
       const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
-      const titleAreaH = 55;
-      const bottomPad = 14;
-      const gridH = vHeight - titleAreaH - bottomPad;
-      const gapY = 12;
-      const cardH = (gridH - (rows - 1) * gapY) / rows;
+      const cardH = 190;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
         const col = i % cols;
         const row = Math.floor(i / cols);
         const x = padX + cardW / 2 + col * (cardW + gapX);
-        const y = titleAreaH + cardH / 2 + row * (cardH + gapY);
+        const y = topPad + cardH / 2 + row * (cardH + gapY);
         cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
       }
     }
@@ -115,13 +127,17 @@ export class MenuScene extends BaseScene {
   }
 
   handleTap(x: number, y: number): boolean {
+    const titleAreaH = this.game.display.isPortrait ? 78 : 62;
+    if (y < titleAreaH) return false;
+
     const cards = this.getModeCards(this.game.display);
     for (const card of cards) {
+      const curY = card.y + this.scrollY;
       if (
-        x >= card.x - card.w / 2 - 14 &&
-        x <= card.x + card.w / 2 + 14 &&
-        y >= card.y - card.h / 2 - 14 &&
-        y <= card.y + card.h / 2 + 14
+        x >= card.x - card.w / 2 - 8 &&
+        x <= card.x + card.w / 2 + 8 &&
+        y >= curY - card.h / 2 - 8 &&
+        y <= curY + card.h / 2 + 8
       ) {
         soundEngine.playSFX('click');
         Haptics.medium();
@@ -134,15 +150,71 @@ export class MenuScene extends BaseScene {
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
-    let handled = false;
+
+    const display = this.game.display;
+    const vHeight = display.vHeight;
+    const contentH = this.getContentHeight(display);
+    const maxScroll = Math.max(0, contentH - vHeight);
+
+    const ptr = input.primaryPointer;
+    const isActionDown = input.isActionDown();
+
     if (input.isActionJustPressed()) {
-      handled = this.handleTap(input.primaryPointer.x, input.primaryPointer.y);
-    }
-    if (!handled) {
-      for (const ptr of input.pointers.values()) {
-        if (ptr.justPressed) {
-          if (this.handleTap(ptr.x, ptr.y)) break;
+      this.dragStartY = ptr.y;
+      this.dragStartX = ptr.x;
+      this.dragStartScrollY = this.scrollY;
+      this.lastPointerY = ptr.y;
+      this.lastPointerTime = performance.now();
+      this.isDragging = false;
+      this.scrollVy = 0;
+    } else if (isActionDown) {
+      const dy = ptr.y - this.dragStartY;
+      const dx = ptr.x - this.dragStartX;
+      const dist = Math.hypot(dx, dy);
+
+      if (!this.isDragging && dist > 10) {
+        this.isDragging = true;
+      }
+
+      if (this.isDragging) {
+        const now = performance.now();
+        const dtMs = Math.max(1, now - this.lastPointerTime);
+        const instVy = ((ptr.y - this.lastPointerY) / dtMs) * 1000;
+        this.scrollVy = this.scrollVy * 0.4 + instVy * 0.6;
+        this.lastPointerY = ptr.y;
+        this.lastPointerTime = now;
+
+        let newScroll = this.dragStartScrollY + dy;
+        if (newScroll > 0) {
+          newScroll = newScroll * 0.35;
+        } else if (newScroll < -maxScroll) {
+          const over = newScroll + maxScroll;
+          newScroll = -maxScroll + over * 0.35;
         }
+        this.scrollY = newScroll;
+      }
+    } else {
+      if (input.actionJustReleased) {
+        if (!this.isDragging) {
+          this.handleTap(ptr.x, ptr.y);
+        }
+        this.isDragging = false;
+      }
+
+      if (Math.abs(this.scrollVy) > 15) {
+        this.scrollY += this.scrollVy * dt;
+        this.scrollVy *= Math.pow(0.04, dt);
+      } else {
+        this.scrollVy = 0;
+      }
+
+      if (this.scrollY > 0) {
+        this.scrollY = Math.max(0, this.scrollY - this.scrollY * 14 * dt);
+        this.scrollVy = 0;
+      } else if (this.scrollY < -maxScroll) {
+        const diff = -maxScroll - this.scrollY;
+        this.scrollY = Math.min(-maxScroll, this.scrollY + diff * 14 * dt);
+        this.scrollVy = 0;
       }
     }
   }
@@ -155,7 +227,7 @@ export class MenuScene extends BaseScene {
     cardW: number
   ): void {
     const time = this.time;
-    const charScale = Math.min(0.42, Math.max(0.32, cardW / 560));
+    const charScale = Math.min(0.48, Math.max(0.36, cardW / 520));
 
     if (modeId === 'EGG_LAYING') {
       ctx.fillStyle = '#D7CCC8';
@@ -177,69 +249,66 @@ export class MenuScene extends BaseScene {
         eyeBlink: Math.sin(time * 1.8) > 0.88
       });
     } else if (modeId === 'MUDDY_PUDDLES') {
-      const jumpPhase = Math.abs(Math.sin(time * 4.5));
-      const jumpY = -jumpPhase * 16;
-      const squish = jumpPhase < 0.12 ? 0.82 : 1.0 + (1 - jumpPhase) * 0.12;
-
       ctx.fillStyle = '#6D4C41';
       ctx.beginPath();
-      ctx.ellipse(cx, cy + 22, 22, 7, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy + 28, 28, 9, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      drawTrishu(ctx, cx, cy, charScale * 0.95, {
-        jumpY,
-        squish,
-        squash: squish,
-        muddyBoots: true,
-        armWave: Math.sin(time * 5) * 0.3,
-        eyeBlink: Math.sin(time * 2) > 0.85
+      drawTrishu(ctx, cx, cy, charScale, {
+        jumpY: Math.sin(time * 5) * 6,
+        squish: 1.0,
+        squash: 1.0,
+        armWave: Math.sin(time * 6) * 0.2,
+        eyeBlink: Math.sin(time * 2) > 0.85,
+        expression: 'excited'
       });
     } else if (modeId === 'CHICK_MAZE') {
-      drawBabyChick(ctx, cx, cy, charScale * 1.3, {
-        walkCycle: time * 8,
-        isPeeping: Math.sin(time * 3.5) > 0.3,
-        hopY: Math.sin(time * 8) * 2.5,
-        eyeBlink: Math.sin(time * 1.7) > 0.9
+      const chickOff = Math.sin(time * 6) * 4;
+      drawBabyChick(ctx, cx - 14, cy + 14 + chickOff, charScale * 0.85, {
+        isPeeping: Math.sin(time * 8) > 0.5,
+        facingLeft: false,
+        walkCycle: time * 8
+      });
+      drawBabyChick(ctx, cx + 14, cy + 14 - chickOff, charScale * 0.85, {
+        isPeeping: Math.sin(time * 8) <= 0.5,
+        facingLeft: true,
+        walkCycle: time * 8 + 2
       });
     } else if (modeId === 'DADDY_PIG') {
-      const panic = Math.floor((time * 0.7) % 4);
-      drawDad(ctx, cx, cy - 4, charScale * 0.9, {
-        panicStage: panic,
-        time,
-        sweatCount: panic > 0 ? panic * 2 : 0,
-        eyeBlink: Math.sin(time * 2.2) > 0.85
+      drawDad(ctx, cx, cy + 2, charScale * 0.88, {
+        panicStage: Math.floor((time * 0.7) % 4),
+        eyeBlink: Math.sin(time * 2) > 0.85,
+        time
       });
     } else if (modeId === 'DINOSAUR_BALLOON') {
-      drawLeo(ctx, cx - 6, cy, charScale * 0.95, {
+      drawLeo(ctx, cx, cy + 4, charScale * 0.95, {
         holdingDino: true,
-        dinoChomp: Math.abs(Math.sin(time * 5.5)),
-        jumpY: Math.sin(time * 3.5) * 3,
-        expression: 'happy',
-        eyeBlink: Math.sin(time * 2) > 0.88
+        dinoChomp: Math.abs(Math.sin(time * 8)),
+        jumpY: Math.sin(time * 6) * 3,
+        expression: 'excited',
+        eyeBlink: Math.sin(time * 2.2) > 0.85
       });
     } else if (modeId === 'PANCAKE_FLIPPER') {
-      const flipCycle = (time * 2.2) % (Math.PI * 2);
-      const pancakeFlight = Math.sin(flipCycle);
-      drawMom(ctx, cx - 10, cy, charScale * 0.9, {
+      drawMom(ctx, cx, cy + 2, charScale * 0.92, {
+        armWave: Math.sin(time * 6) * 0.15,
         holdingPan: true,
-        panAngle: pancakeFlight > 0 ? pancakeFlight * 0.25 : 0,
-        smiling: true,
-        eyeBlink: Math.sin(time * 1.6) > 0.85
+        panAngle: Math.sin(time * 8) * 0.18,
+        expression: 'happy',
+        eyeBlink: Math.sin(time * 2) > 0.85
       });
     } else if (modeId === 'VEGETABLE_HARVEST') {
-      drawGrandpa(ctx, cx - 8, cy, charScale * 0.88, {
+      drawGrandpa(ctx, cx, cy + 2, charScale * 0.92, {
         pulling: true,
-        pullTension: (Math.sin(time * 3.2) + 1) * 0.5,
+        pullTension: 0.35,
         welliesMuddy: true,
         eyeBlink: Math.sin(time * 2.1) > 0.85
       });
     } else if (modeId === 'HOPSCOTCH_BUBBLE') {
-      const hopCycle = (time * 4) % (Math.PI * 2);
-      drawMimi(ctx, cx - 6, cy, charScale * 0.92, {
-        hopY: -Math.abs(Math.sin(hopCycle)) * 12,
-        earFlap: Math.sin(hopCycle) * 0.28,
+      drawMimi(ctx, cx, cy, charScale * 0.95, {
+        hopY: Math.abs(Math.sin(time * 6)) * 8,
+        earFlap: Math.sin(time * 8) * 0.25,
         holdingWand: true,
-        blowingBubble: true,
+        blowingBubble: Math.sin(time * 3) > 0.3,
         eyeBlink: Math.sin(time * 1.9) > 0.85
       });
     } else if (modeId === 'MIX_MATCH') {
@@ -271,7 +340,6 @@ export class MenuScene extends BaseScene {
         blowingBubble: false,
         eyeBlink: Math.sin(time * 1.8) > 0.85
       });
-      // Mini bush covering
       ctx.fillStyle = '#43A047';
       ctx.beginPath();
       ctx.arc(cx - 12, cy + 14, 12, 0, Math.PI * 2);
@@ -285,16 +353,108 @@ export class MenuScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
+    const topPad = isPortrait ? 78 : 64;
 
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
-    // Title Banner
     ctx.save();
-    const titleBob = Math.sin(this.time * 2.5) * 3;
+    ctx.beginPath();
+    ctx.rect(0, topPad, vWidth, vHeight - topPad);
+    ctx.clip();
+
+    ctx.save();
+    ctx.translate(0, this.scrollY);
+
+    const cards = this.getModeCards(display);
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      const curY = card.y + this.scrollY;
+      if (curY < -card.h || curY > vHeight + card.h) continue;
+
+      const info = MENU_CARDS[i];
+      const bestScore = this.game.storage.getHighScore(info.scoreKey);
+
+      ctx.save();
+      ctx.translate(card.x, card.y);
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+      ctx.beginPath();
+      ctx.roundRect(-card.w / 2, -card.h / 2 + 5, card.w, card.h, 20);
+      ctx.fill();
+
+      ctx.fillStyle = card.color;
+      ctx.strokeStyle = info.borderColor;
+      ctx.lineWidth = 3.6;
+      ctx.beginPath();
+      ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
+      ctx.beginPath();
+      ctx.roundRect(-card.w / 2 + 8, -card.h / 2 + 7, 62, 22, 11);
+      ctx.fill();
+      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+      ctx.fillStyle = '#37474F';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(card.badge, -card.w / 2 + 39, -card.h / 2 + 18);
+
+      ctx.fillStyle = '#E53935';
+      ctx.strokeStyle = '#B71C1C';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(card.w / 2 - 80, -card.h / 2 + 7, 74, 22, 11);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = 'bold 13px "Comic Sans MS", sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 43, -card.h / 2 + 18);
+
+      const previewY = -card.h * 0.06;
+      this.renderCharacterPreview(ctx, card.id, 0, previewY, card.w);
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${isPortrait ? '19px' : '18px'} "Comic Sans MS", cursive, sans-serif`;
+      ctx.fillStyle = '#212121';
+      ctx.fillText(card.title, 0, card.h / 2 - 32);
+
+      ctx.font = `bold ${isPortrait ? '13px' : '12px'} "Comic Sans MS", sans-serif`;
+      ctx.fillStyle = '#455A64';
+      ctx.fillText(card.sub, 0, card.h / 2 - 13);
+
+      ctx.restore();
+    }
+    ctx.restore();
+    ctx.restore();
+
+    const contentH = this.getContentHeight(display);
+    const maxScroll = Math.max(0, contentH - vHeight);
+    if (maxScroll > 20) {
+      const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScroll));
+      const trackH = vHeight - topPad - 30;
+      const barH = Math.max(35, trackH * (vHeight / contentH));
+      const barY = topPad + 15 + scrollRatio * (trackH - barH);
+      const barX = vWidth - 8;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      ctx.beginPath();
+      ctx.roundRect(barX - 4, barY, 6, barH, 3);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    const titleBob = Math.sin(this.time * 2.5) * 2.5;
     const titleX = vWidth / 2;
-    const titleY = (isPortrait ? Math.max(34, vHeight * 0.042) : 30) + titleBob;
+    const titleY = (isPortrait ? Math.max(34, vHeight * 0.042) : 28) + titleBob;
     ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '28px' : '34px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '28px' : '32px'} "Comic Sans MS", cursive, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -304,74 +464,5 @@ export class MenuScene extends BaseScene {
     ctx.fillStyle = '#FFE600';
     ctx.fillText('Adventures of Trishu', 0, 0);
     ctx.restore();
-
-    // Mode Cards Grid
-    const cards = this.getModeCards(display);
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      const info = MENU_CARDS[i];
-      const bestScore = this.game.storage.getHighScore(info.scoreKey);
-
-      ctx.save();
-      ctx.translate(card.x, card.y);
-
-      // Drop Shadow
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2 + 4, card.w, card.h, 16);
-      ctx.fill();
-
-      // Card Background
-      ctx.fillStyle = card.color;
-      ctx.strokeStyle = info.borderColor;
-      ctx.lineWidth = 3.2;
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 16);
-      ctx.fill();
-      ctx.stroke();
-
-      // Category Badge (Top-Left)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2 + 6, -card.h / 2 + 5, 58, 20, 10);
-      ctx.fill();
-      ctx.font = 'bold 11px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#37474F';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, -card.w / 2 + 35, -card.h / 2 + 15);
-
-      // Best Score Badge (Top-Right)
-      ctx.fillStyle = '#E53935';
-      ctx.strokeStyle = '#B71C1C';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 76, -card.h / 2 + 5, 70, 20, 10);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 41, -card.h / 2 + 15);
-
-      // Character Preview (Center)
-      const previewY = -card.h * 0.06;
-      this.renderCharacterPreview(ctx, card.id, 0, previewY, card.w);
-
-      // Title & Subtitle Labels (Bottom)
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = `bold ${isPortrait ? '17px' : '16px'} "Comic Sans MS", cursive, sans-serif`;
-      ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, 0, card.h / 2 - 26);
-
-      ctx.font = `bold ${isPortrait ? '12px' : '11px'} "Comic Sans MS", sans-serif`;
-      ctx.fillStyle = '#455A64';
-      ctx.fillText(card.sub, 0, card.h / 2 - 11);
-
-      ctx.restore();
-    }
   }
 }

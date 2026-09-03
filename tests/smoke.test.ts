@@ -88,6 +88,38 @@ describe('Tier 1: Smoke & Initialization', () => {
     particles.update(0.016);
     expect(particles.active.length).toBe(10);
   });
+
+  test('T1.05: MenuScene supports momentum scrolling and distinguishes hold-drag from quick tap', () => {
+    const canvas = document.createElement('canvas');
+    const engine = new GameEngine(canvas);
+    const menu = engine.scenes.get('MENU') as MenuScene;
+    menu.enter();
+
+    expect(menu.scrollY).toBe(0);
+    const cards = menu.getModeCards(engine.display);
+    expect(cards.length).toBe(10);
+    expect(cards[0].h).toBeGreaterThanOrEqual(190); // Large chunky tiles
+
+    // Simulate drag: pointer down then move vertically
+    engine.input.actionJustPressed = true;
+    engine.input.primaryPointer = { x: 100, y: 300, isDown: true, inside: true };
+    menu.update(0.016, engine.input);
+
+    engine.input.actionJustPressed = false;
+    engine.input.actionIsDown = true;
+    engine.input.primaryPointer = { x: 100, y: 150, isDown: true, inside: true }; // Drag up by 150px
+    menu.update(0.016, engine.input);
+
+    // Should be scrolling without immediately triggering a scene change
+    expect(menu.scrollY).toBeLessThan(0);
+    expect(engine.currentSceneId).toBe('MENU');
+
+    // Release drag
+    engine.input.actionIsDown = false;
+    engine.input.actionJustReleased = true;
+    menu.update(0.016, engine.input);
+    expect(engine.currentSceneId).toBe('MENU'); // Still in menu because it was a drag, not a tap
+  });
 });
 
 // ---------------------------------------------------------------------------
