@@ -1,15 +1,29 @@
-const CACHE_NAME = 'adventures-of-trishu-v1';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json'
+/**
+ * Adventures of Trishu - High Performance Offline Service Worker
+ * Generated at build time. Version: adventures-of-trishu-v3.1.0-mtmd15lv
+ */
+
+const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mtmd15lv';
+const PRECACHE_ASSETS = [
+  "./",
+  "./assets/audio-engine-BRpodNuc.js",
+  "./assets/graphics-engine-CGRUFKoQ.js",
+  "./assets/index-DL5u1TWy.js",
+  "./assets/vendor-react-CmQgMwmH.js",
+  "./icons/apple-touch-icon.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/icon.svg",
+  "./index.html",
+  "./manifest.json"
 ];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(PRECACHE_ASSETS);
     })
   );
 });
@@ -25,33 +39,84 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => self.clients.claim())
+      .then(() => {
+        return self.clients.matchAll().then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({ type: 'SW_ACTIVATED', cacheName: CACHE_NAME });
+          });
+        });
+      })
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (!event.data) return;
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data.type === 'GET_VERSION') {
+    event.source?.postMessage({ type: 'SW_VERSION', version: CACHE_NAME });
+  }
+});
+
 self.addEventListener('fetch', (event) => {
-  // Network first strategy for index.html to ensure users always get the latest game version
-  if (event.request.mode === 'navigate' || event.request.url.endsWith('index.html')) {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Ignore non-GET requests and browser extensions
+  if (request.method !== 'GET' || !url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // 1. Navigation requests (index.html): Network-First with cached fallback for 100% offline
+  if (request.mode === 'navigate' || url.pathname.endsWith('index.html') || url.pathname === '/') {
     event.respondWith(
-      fetch(event.request)
-        .then((res) => {
-          const resClone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-          return res;
+      fetch(request)
+        .then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const copy = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkRes;
         })
-        .catch(() => caches.match(event.request) || caches.match('./index.html'))
+        .catch(() => {
+          return caches.match('./index.html') || caches.match(request);
+        })
     );
     return;
   }
 
+  // 2. Hashed build assets (/assets/): Cache-First (immutable)
+  if (url.pathname.includes('/assets/')) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const copy = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkRes;
+        });
+      })
+    );
+    return;
+  }
+
+  // 3. Static metadata & images (manifest.json, icons): Stale-While-Revalidate
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((fetchRes) => {
-        if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
-          const clone = fetchRes.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return fetchRes;
-      });
+    caches.match(request).then((cached) => {
+      const fetchPromise = fetch(request)
+        .then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const copy = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkRes;
+        })
+        .catch(() => cached);
+
+      return cached || fetchPromise;
     })
   );
 });
