@@ -5,6 +5,8 @@ interface HUDProps {
   engine: GameEngine | null;
   currentMode: string;
   isMuted: boolean;
+  canInstall?: boolean;
+  onOpenInstall?: () => void;
   onToggleMute: () => void;
   onToggleFullscreen: () => void;
   onGoHome: () => void;
@@ -13,17 +15,19 @@ interface HUDProps {
 export const HUD: React.FC<HUDProps> = ({
   currentMode,
   isMuted,
+  canInstall = false,
+  onOpenInstall,
   onToggleMute,
   onToggleFullscreen,
   onGoHome
 }) => {
-  const handleAction = (cb: () => void) => (e: React.SyntheticEvent) => {
+  const handleAction = (cb?: () => void) => (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    cb();
+    cb?.();
   };
 
   return (
-    <div className="hud-layer">
+    <header className="hud-layer">
       {/* Top Navigation Bar */}
       <div className="hud-top-bar">
         {currentMode !== 'MENU' ? (
@@ -42,6 +46,23 @@ export const HUD: React.FC<HUDProps> = ({
         )}
 
         <div className="hud-controls-right">
+          {canInstall && onOpenInstall && (
+            <button
+              type="button"
+              onClick={handleAction(onOpenInstall)}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label="Install App"
+              className="hud-btn-icon"
+              style={{
+                background: 'linear-gradient(180deg, #FFB74D 0%, #FF9800 100%)',
+                border: '3.5px solid #E65100',
+                boxShadow: '0 3px 0 #E65100, 0 5px 12px rgba(0, 0, 0, 0.22)',
+                color: '#FFFFFF'
+              }}
+            >
+              📲
+            </button>
+          )}
           <button
             type="button"
             onClick={handleAction(onToggleFullscreen)}
@@ -62,7 +83,6 @@ export const HUD: React.FC<HUDProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
-

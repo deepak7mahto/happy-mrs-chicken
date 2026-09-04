@@ -2,15 +2,21 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { GameCanvas } from './components/GameCanvas';
 import { HUD } from './components/HUD';
 import { ToddlerTapFeedback } from './components/ToddlerTapFeedback';
+import { PwaInstallModal } from './components/PwaInstallModal';
+import { PwaUpdateToast } from './components/PwaUpdateToast';
+import { PwaOfflinePill } from './components/PwaOfflinePill';
 import { GameEngine } from './engine/GameEngine';
 import { GameModeId } from './types/game';
 import { soundEngine } from './engine/SoundEngine';
 import { Haptics } from './engine/Haptics';
+import { pwaManager } from './pwa/PwaManager';
 
 export const App: React.FC = () => {
   const [engine, setEngine] = useState<GameEngine | null>(null);
   const [currentMode, setCurrentMode] = useState<GameModeId>('MENU');
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
+  const [canInstall, setCanInstall] = useState<boolean>(pwaManager.canShowInstallUI());
 
   // Initialize root history state
   useEffect(() => {
@@ -19,6 +25,34 @@ export const App: React.FC = () => {
       window.history.replaceState({ mode: 'MENU' }, '', window.location.pathname + window.location.search);
     } catch (_) {}
   }, []);
+
+  // Listen for PWA installability updates
+  useEffect(() => {
+    setCanInstall(pwaManager.canShowInstallUI());
+    const unsub1 = pwaManager.on('installableChange', () => {
+      setCanInstall(pwaManager.canShowInstallUI());
+    });
+    const unsub2 = pwaManager.on('installed', () => {
+      setCanInstall(false);
+      setIsInstallModalOpen(false);
+    });
+    return () => {
+      unsub1();
+      unsub2();
+    };
+  }, []);
+
+  // Screen Wake Lock: Keep screen awake while kids play mini-games
+  useEffect(() => {
+    if (currentMode !== 'MENU') {
+      pwaManager.requestWakeLock().catch(() => {});
+    } else {
+      pwaManager.releaseWakeLock().catch(() => {});
+    }
+    return () => {
+      pwaManager.releaseWakeLock().catch(() => {});
+    };
+  }, [currentMode]);
 
   const handleEngineReady = useCallback((inst: GameEngine) => {
     setEngine(inst);
@@ -88,6 +122,16 @@ export const App: React.FC = () => {
     }
   }, [engine]);
 
+  const handleOpenInstall = useCallback(() => {
+    soundEngine.playSFX('click');
+    Haptics.tap();
+    setIsInstallModalOpen(true);
+  }, []);
+
+  const handleCloseInstall = useCallback(() => {
+    setIsInstallModalOpen(false);
+  }, []);
+
   return (
     <main id="game-container" className="fixed inset-0 w-full h-full overflow-hidden select-none bg-slate-900">
       <GameCanvas onEngineReady={handleEngineReady} onSceneChange={handleSceneChange} />
@@ -95,11 +139,16 @@ export const App: React.FC = () => {
         engine={engine}
         currentMode={currentMode}
         isMuted={isMuted}
+        canInstall={canInstall}
+        onOpenInstall={handleOpenInstall}
         onToggleMute={handleToggleMute}
         onToggleFullscreen={handleToggleFullscreen}
         onGoHome={handleGoHome}
       />
       <ToddlerTapFeedback />
+      <PwaInstallModal isOpen={isInstallModalOpen} onClose={handleCloseInstall} />
+      <PwaUpdateToast />
+      <PwaOfflinePill />
     </main>
   );
 };
