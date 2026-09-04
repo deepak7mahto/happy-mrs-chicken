@@ -69,10 +69,15 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 
 ## 🚀 Features & Architecture
 
-* **100% Zero-Dependency Standalone**: Pure TypeScript + React 19 + Vite. No external CDN dependencies, fully offline-capable with PWA Service Worker caching.
+* **100% Zero-Dependency Standalone**: Pure TypeScript + React 19 + Vite. Zero external CDN dependencies; all code, vector art, and audio synthesis run 100% offline.
+* **Heavy PWA & Automated Precache Pipeline**: Build-time injection (`scripts/generate-sw.mjs`) captures 100% of Vite hashed chunks, HTML, and assets into `dist/sw.js` Cache Storage for reliable, instant offline launch.
+* **Screen Wake Lock API**: Automatically locks the screen awake during active mini-gameplay so toddler play sessions are never interrupted by display dimming or sleep.
+* **Tactile In-App Install Experience**: Kid-friendly HUD install button with native `beforeinstallprompt` flow for Android/Chrome/Desktop and a step-by-step visual install guide for iOS Safari.
+* **Rich Manifest & App Shortcuts**: High-res icons (192x192, 512x512, maskable, apple-touch-icon), home screen shortcuts to jump straight into favorite mini-games, and `display_override: ["fullscreen", "standalone"]`.
+* **Update Notification & Offline Badge**: Friendly update toast banner ("New Adventure Ready!") with instant activation, plus real-time offline status indicator.
 * **Procedural Web Audio Engine**: All 18 sound effects and 128 BPM multi-track background music are dynamically synthesized via the Web Audio API.
 * **Responsive Dual-Orientation Viewport**: Full support for desktop and mobile/tablets with responsive Portrait (9:16) and Landscape (16:9) scaling.
-* **Persistent High Scores**: High scores for all 8 modes are stored locally via `localStorage`.
+* **Persistent High Scores**: High scores for all modes are stored locally via `localStorage`.
 
 ---
 

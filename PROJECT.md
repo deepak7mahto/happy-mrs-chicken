@@ -6,7 +6,7 @@ A modular, high-performance HTML5 Canvas 2D game engine built with React 19, Typ
 - **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, and an algorithmic 128 BPM multi-track nursery BGM sequencer.
 - **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for all 8 characters (Trishu, Leo with Plush Dino, Dad, Mom, Grandpa, Mimi the Bunny, Mrs Clucky, and Baby Chicks) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.
 - **Mini-Game Modes (`src/modes/`)**: 8 standalone mini-game scenes implementing the `BaseScene` / `MiniGame` contract (`init`, `enter`, `update`, `render`, `handleInput`, `resize`, `exit`, `destroy`, `getEntities`, `getModeState`).
-- **UI & PWA (`src/components/`, `src/pwa/`)**: Responsive HUD, toddler multi-touch tap ripple feedback, and Service Worker offline caching.
+- **UI & Heavy PWA (`src/components/`, `src/pwa/`)**: Responsive HUD, toddler multi-touch tap ripple feedback, PwaManager singleton, Screen Wake Lock API, in-app install modal with iOS guide, update toast, and build-time Service Worker precaching.
 
 ## Feature Inventory
 
@@ -35,9 +35,12 @@ A modular, high-performance HTML5 Canvas 2D game engine built with React 19, Typ
 | 21 | Mode 9: Mix & Match Funny Studio | Body shuffler, customizable character chimera combinations, and photo album | DONE |
 | 22 | Mode 10: Peek-a-Boo Barnyard | 4 tactile farm hiding spots with animal sounds, surprise reveals, and giggles | DONE |
 | 23 | 10-Game Arcade Menu Scene | Responsive symmetric grid menu with live preview animations and high score badges | DONE |
-| 22 | Dual-Orientation Viewport & HUD | Responsive fill for Portrait 9:16 and Landscape 16:9 with zero letterbox distortion | DONE |
-| 23 | PWA Offline Integrity & Service Worker | Service Worker caching in `public/sw.js`, zero external CDN dependencies | DONE |
-| 24 | Lean Test Suite | Ultra-fast consolidated test suite (<1s execution) | DONE |
+| 24 | Dual-Orientation Viewport & HUD | Responsive fill for Portrait 9:16 and Landscape 16:9 with zero letterbox distortion | DONE |
+| 25 | Heavy PWA Precache Pipeline | Build-time chunk scanning and multi-tier Service Worker caching in `dist/sw.js` | DONE |
+| 26 | Native Device & Screen Wake Lock | `PwaManager` keeping display awake during toddler play sessions | DONE |
+| 27 | Tactile In-App Install & iOS Guide | Kid-friendly install prompt, native prompt trigger, and Safari 3-step guide | DONE |
+| 28 | Rich Manifest & High-Res Icons | 192/512/maskable PNGs, app shortcuts to games, and display overrides | DONE |
+| 29 | Lean Test Suite & PWA Coverage | Ultra-fast consolidated test suite (<1s execution) with 38 unit & E2E tests | DONE |
 
 ## Character Mapping
 

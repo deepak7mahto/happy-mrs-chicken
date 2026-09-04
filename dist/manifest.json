@@ -1,18 +1,100 @@
 {
   "name": "Adventures of Trishu",
   "short_name": "Trishu",
-  "description": "Fun, colorful Adventures of Trishu mini-game suite for kids!",
+  "description": "Joyful 9-game kids mini-game suite featuring Trishu, Leo, Mrs. Clucky, and farm friends!",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "fullscreen",
+    "standalone",
+    "window-controls-overlay"
+  ],
   "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "lang": "en",
+  "categories": [
+    "games",
+    "kids",
+    "entertainment",
+    "education"
+  ],
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2364C8FA' stroke='%2337474F' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='26' fill='%23FFCC80' stroke='%23E65100' stroke-width='3'/%3E%3Ccircle cx='40' cy='48' r='3.5' fill='%23212121'/%3E%3Ccircle cx='60' cy='48' r='3.5' fill='%23212121'/%3E%3Ccircle cx='34' cy='54' r='4' fill='%23FF8A65'/%3E%3Ccircle cx='66' cy='54' r='4' fill='%23FF8A65'/%3E%3Cpath d='M44,58 Q50,64 56,58' stroke='%233E2723' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M26,38 Q50,22 74,38' fill='%235D4037' stroke='%233E2723' stroke-width='3'/%3E%3C/svg%3E",
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Happy Mrs. Clucky",
+      "short_name": "Mrs. Clucky",
+      "description": "Lay eggs and watch chirping baby chicks hatch!",
+      "url": "./index.html#egglaying",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Balloon Pop",
+      "short_name": "Balloons",
+      "description": "Tap and pop flying colorful balloons with confetti!",
+      "url": "./index.html#dinosaurballoon",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Puddle Splash",
+      "short_name": "Puddles",
+      "description": "Jump in muddy garden puddles with splash combos!",
+      "url": "./index.html#muddypuddles",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Muddy Car Wash",
+      "short_name": "Car Wash",
+      "description": "Scrub soapy bubbles and shine the family car!",
+      "url": "./index.html#muddycarwash",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
