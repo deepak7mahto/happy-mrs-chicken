@@ -5,7 +5,7 @@
   "homepage": "https://deepak7mahto.github.io/happy-mrs-chicken/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node scripts/generate-sw.mjs",
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist",
     "test": "node tests/e2e_runner.mjs"
