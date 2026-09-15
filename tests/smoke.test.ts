@@ -117,8 +117,8 @@ describe('Tier 1: Smoke & Initialization', () => {
 
     expect(menu.scrollY).toBe(0);
     const cards = menu.getModeCards(engine.display);
-    expect(cards.length).toBe(16);
-    expect(cards[0].h).toBeGreaterThanOrEqual(190); // Large chunky tiles
+    expect(cards[0].h).toBeGreaterThanOrEqual(100); // Responsive single-screen grid tiles
+    expect(cards[cards.length - 1].y + cards[cards.length - 1].h / 2).toBeLessThanOrEqual(engine.display.vHeight); // Fits within single screen
 
     // Simulate drag: pointer down then move vertically
     engine.input.actionJustPressed = true;

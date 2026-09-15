@@ -42,43 +42,42 @@ export class MenuScene extends BaseScene {
   }
 
   private getContentHeight(display: DisplayManager): number {
-    const isPortrait = display.isPortrait;
-    const cardH = isPortrait ? 200 : 190;
-    const gapY = 14;
-    const rows = isPortrait ? 8 : 5; // 2 cols in portrait (8 rows), 3 cols in landscape (5 rows)
-    const topPad = isPortrait ? 85 : 70;
-    const bottomPad = 40;
-    return topPad + rows * (cardH + gapY) + bottomPad;
+    return display.vHeight + 40;
   }
 
   getModeCards(display: DisplayManager): ModeCardDef[] {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
+    const vHeight = display.vHeight;
     const cards: ModeCardDef[] = [];
-    const topPad = isPortrait ? 85 : 70;
+    const cols = 4;
+    const rows = 4;
 
     if (isPortrait) {
-      const padX = 14;
-      const gapX = 12;
-      const gapY = 14;
-      const cardW = (vWidth - padX * 2 - gapX) / 2;
-      const cardH = 200;
+      const topPad = Math.max(56, Math.round(vHeight * 0.072));
+      const bottomPad = 10;
+      const padX = 10;
+      const gapX = 8;
+      const gapY = 8;
+      const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
+      const cardH = (vHeight - topPad - bottomPad - (rows - 1) * gapY) / rows;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
-        const col = i % 2;
-        const row = Math.floor(i / 2);
+        const col = i % cols;
+        const row = Math.floor(i / cols);
         const x = padX + cardW / 2 + col * (cardW + gapX);
         const y = topPad + cardH / 2 + row * (cardH + gapY);
         cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
       }
     } else {
-      const padX = 24;
-      const gapX = 16;
-      const gapY = 14;
-      const cols = 3;
+      const topPad = 48;
+      const bottomPad = 10;
+      const padX = 20;
+      const gapX = 12;
+      const gapY = 8;
       const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
-      const cardH = 190;
+      const cardH = (vHeight - topPad - bottomPad - (rows - 1) * gapY) / rows;
 
       for (let i = 0; i < MENU_CARDS.length; i++) {
         const info = MENU_CARDS[i];
@@ -94,17 +93,17 @@ export class MenuScene extends BaseScene {
   }
 
   handleTap(x: number, y: number): boolean {
-    const titleAreaH = this.game.display.isPortrait ? 78 : 62;
+    const titleAreaH = this.game.display.isPortrait ? 54 : 44;
     if (y < titleAreaH) return false;
 
     const cards = this.getModeCards(this.game.display);
     for (const card of cards) {
       const curY = card.y + this.scrollY;
       if (
-        x >= card.x - card.w / 2 - 8 &&
-        x <= card.x + card.w / 2 + 8 &&
-        y >= curY - card.h / 2 - 8 &&
-        y <= curY + card.h / 2 + 8
+        x >= card.x - card.w / 2 - 4 &&
+        x <= card.x + card.w / 2 + 4 &&
+        y >= curY - card.h / 2 - 4 &&
+        y <= curY + card.h / 2 + 4
       ) {
         soundEngine.playSFX('click');
         Haptics.medium();
@@ -206,7 +205,7 @@ export class MenuScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
-    const topPad = isPortrait ? 78 : 64;
+    const topPad = isPortrait ? 52 : 44;
 
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
@@ -232,98 +231,141 @@ export class MenuScene extends BaseScene {
       ctx.translate(card.x, card.y);
 
       // Card Drop Shadow
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2 + 5, card.w, card.h, 20);
+      ctx.roundRect(-card.w / 2, -card.h / 2 + 4, card.w, card.h, 14);
       ctx.fill();
 
       // Card Background
       ctx.fillStyle = card.color;
       ctx.strokeStyle = info.borderColor;
-      ctx.lineWidth = 3.6;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 20);
+      ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 14);
       ctx.fill();
       ctx.stroke();
 
-      // Category Badge (Top-Left)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2 + 8, -card.h / 2 + 7, 62, 22, 11);
-      ctx.fill();
-      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#37474F';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, -card.w / 2 + 39, -card.h / 2 + 18);
+      if (isPortrait) {
+        // --- PORTRAIT TILE LAYOUT ---
+        // Category Badge (Top-Left)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
+        ctx.beginPath();
+        ctx.roundRect(-card.w / 2 + 5, -card.h / 2 + 5, 48, 17, 8);
+        ctx.fill();
+        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#37474F';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(card.badge, -card.w / 2 + 29, -card.h / 2 + 13.5);
 
-      // Best Score Badge (Top-Right)
-      ctx.fillStyle = '#E53935';
-      ctx.strokeStyle = '#B71C1C';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 80, -card.h / 2 + 7, 74, 22, 11);
-      ctx.fill();
-      ctx.stroke();
+        // Best Score Badge (Top-Right)
+        ctx.fillStyle = '#E53935';
+        ctx.strokeStyle = '#B71C1C';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.roundRect(card.w / 2 - 53, -card.h / 2 + 5, 48, 17, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`★ ${bestScore}`, card.w / 2 - 29, -card.h / 2 + 13.5);
 
-      ctx.font = 'bold 13px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 43, -card.h / 2 + 18);
+        // Character Preview (Center)
+        renderMenuCharacterPreview(ctx, card.id, 0, -card.h * 0.05, card.w * 0.85, this.time);
 
-      // Character Preview (Center)
-      const previewY = -card.h * 0.06;
-      renderMenuCharacterPreview(ctx, card.id, 0, previewY, card.w, this.time);
+        // Title & Subtitle Labels (Bottom)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = 'bold 13px "Comic Sans MS", cursive, sans-serif';
+        ctx.fillStyle = '#212121';
+        ctx.fillText(card.title, 0, card.h / 2 - 24);
 
-      // Title & Subtitle Labels (Bottom)
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = `bold ${isPortrait ? '19px' : '18px'} "Comic Sans MS", cursive, sans-serif`;
-      ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, 0, card.h / 2 - 32);
+        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#455A64';
+        ctx.fillText(card.sub, 0, card.h / 2 - 10);
+      } else {
+        // --- LANDSCAPE HORIZONTAL TILE LAYOUT ---
+        // Character Preview (Left Half)
+        renderMenuCharacterPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, this.time);
 
-      ctx.font = `bold ${isPortrait ? '13px' : '12px'} "Comic Sans MS", sans-serif`;
-      ctx.fillStyle = '#455A64';
-      ctx.fillText(card.sub, 0, card.h / 2 - 13);
+        // Category Badge (Top-Right section)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.beginPath();
+        ctx.roundRect(card.w / 2 - 115, -card.h / 2 + 5, 52, 17, 8);
+        ctx.fill();
+        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#37474F';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(card.badge, card.w / 2 - 89, -card.h / 2 + 13.5);
+
+        // Best Score Badge (Far Top-Right)
+        ctx.fillStyle = '#E53935';
+        ctx.strokeStyle = '#B71C1C';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.roundRect(card.w / 2 - 58, -card.h / 2 + 5, 52, 17, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`★ ${bestScore}`, card.w / 2 - 32, -card.h / 2 + 13.5);
+
+        // Title & Subtitle Labels (Right Half Center)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = 'bold 13.5px "Comic Sans MS", cursive, sans-serif';
+        ctx.fillStyle = '#212121';
+        ctx.fillText(card.title, card.w * 0.16, 0);
+
+        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+        ctx.fillStyle = '#455A64';
+        ctx.fillText(card.sub, card.w * 0.16, 20);
+      }
 
       ctx.restore();
     }
     ctx.restore();
     ctx.restore();
 
-    // Scroll Indicator Pill (Right Edge)
+    // Scroll Indicator Pill (Right Edge - only if content exceeds viewport)
     const contentH = this.getContentHeight(display);
     const maxScroll = Math.max(0, contentH - vHeight);
-    if (maxScroll > 20) {
+    if (maxScroll > 15) {
       const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScroll));
-      const trackH = vHeight - topPad - 30;
-      const barH = Math.max(30, trackH * (vHeight / contentH));
-      const barY = topPad + 15 + scrollRatio * (trackH - barH);
-      const barX = vWidth - 8;
+      const trackH = vHeight - topPad - 20;
+      const barH = Math.max(25, trackH * (vHeight / contentH));
+      const barY = topPad + 10 + scrollRatio * (trackH - barH);
+      const barX = vWidth - 6;
 
       ctx.save();
       ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
       ctx.beginPath();
-      ctx.roundRect(barX - 4, barY, 6, barH, 3);
+      ctx.roundRect(barX - 3, barY, 5, barH, 2.5);
       ctx.fill();
       ctx.restore();
     }
 
     // Fixed Title Banner (Top)
     ctx.save();
-    const titleBob = Math.sin(this.time * 2.5) * 2.5;
+    const titleBob = Math.sin(this.time * 2.5) * 2;
     const titleX = vWidth / 2;
-    const titleY = (isPortrait ? Math.max(34, vHeight * 0.042) : 28) + titleBob;
+    const titleY = (isPortrait ? 26 : 22) + titleBob;
     ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '28px' : '32px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '24px' : '26px'} "Comic Sans MS", cursive, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = isPortrait ? 5 : 6;
+    ctx.lineWidth = isPortrait ? 4.5 : 5.5;
     ctx.strokeText('Adventures of Trishu', 0, 0);
     ctx.fillStyle = '#FFE600';
+    ctx.fillText('Adventures of Trishu', 0, 0);
+    ctx.restore();
     ctx.fillText('Adventures of Trishu', 0, 0);
     ctx.restore();
   }
