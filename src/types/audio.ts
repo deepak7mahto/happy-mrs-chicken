@@ -21,7 +21,9 @@ export type SFXName =
   | 'mudThud'
   | 'bubblePop'
   | 'bunnySqueak'
-  | 'toddlerGiggle';
+  | 'toddlerGiggle'
+  | 'duckQuack'
+  | 'duckFanfare';
 
 export interface SFXOptions {
   playbackRate?: number;

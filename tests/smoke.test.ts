@@ -34,8 +34,10 @@ import {
   LittleTrainScene,
   CarWashScene,
   WindyKiteScene,
-  RainbowGardenScene
+  RainbowGardenScene,
+  DuckPicnicScene
 } from '../src/games';
+import { drawYellowDuck } from '../src/graphics/characters/duckRenderer';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -47,7 +49,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(16);
+    expect(engine.scenes.size).toBe(17);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
     expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
@@ -64,6 +66,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('CAR_WASH')).toBe(true);
     expect(engine.scenes.has('WINDY_KITE')).toBe(true);
     expect(engine.scenes.has('RAINBOW_GARDEN')).toBe(true);
+    expect(engine.scenes.has('DUCK_PICNIC')).toBe(true);
     expect(engine.currentSceneId).toBe('MENU');
   });
 
@@ -114,7 +117,7 @@ describe('Tier 1: Smoke & Initialization', () => {
 
     expect(menu.scrollY).toBe(0);
     const cards = menu.getModeCards(engine.display);
-    expect(cards.length).toBe(15);
+    expect(cards.length).toBe(16);
     expect(cards[0].h).toBeGreaterThanOrEqual(190); // Large chunky tiles
 
     // Simulate drag: pointer down then move vertically
@@ -395,13 +398,51 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
 
     scene.update(0.016, engine.input);
   });
+
+  test('T2.16 Mode 16: Picnic Ducks feeding, basket fling, and celebration dance', () => {
+    const scene = engine.scenes.get('DUCK_PICNIC') as DuckPicnicScene;
+    scene.enter();
+    expect(scene.score).toBe(0);
+    expect(scene.ducks.length).toBe(3);
+    expect(scene.isDancing).toBe(false);
+
+    // 1. Toss food on ground
+    scene.tossFood(200, 350, 'BREAD_CRUMB');
+    expect(scene.foods.length).toBe(1);
+
+    // 2. Fling from basket
+    scene.flingFromBasket();
+    expect(scene.foods.length).toBe(2);
+
+    // 3. Simulate duck eating food
+    const duck = scene.ducks[0];
+    const food = scene.foods[0];
+    duck.x = food.x;
+    duck.y = food.y;
+    scene.update(0.016, engine.input);
+    expect(duck.hunger).toBeGreaterThan(0);
+    expect(scene.score).toBeGreaterThan(0);
+
+    // 4. Fill all ducks to trigger grand celebration dance
+    for (const d of scene.ducks) {
+      d.hunger = d.maxHunger;
+    }
+    scene.update(0.016, engine.input);
+    expect(scene.isDancing).toBe(true);
+    expect(scene.danceTimer).toBeGreaterThan(0);
+
+    // 5. Render without throwing
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    expect(() => scene.render(ctx, 1.0, engine.display)).not.toThrow();
+  });
 });
 
 // ---------------------------------------------------------------------------
 // Suite 3: Audio Synthesis & Character Roster
 // ---------------------------------------------------------------------------
 describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
-  test('T3.01: SoundEngine implements all 18 procedural SFX recipes including bunnySqueak', () => {
+  test('T3.01: SoundEngine implements all 18 procedural SFX recipes including bunnySqueak and duckQuack', () => {
     const sound = new SoundEngine();
     const synth = sound.synth;
 
@@ -409,7 +450,7 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
       'cluck', 'eggPop', 'crack', 'hatch', 'splash', 'seedDrop',
       'fanfare', 'crash', 'click', 'dinosaurRoar', 'balloonPop',
       'pancakeSizzle', 'whoosh', 'veggiePop', 'mudThud', 'bubblePop',
-      'bunnySqueak', 'toddlerGiggle'
+      'bunnySqueak', 'toddlerGiggle', 'duckQuack', 'duckFanfare'
     ] as const;
 
     for (const name of sfxList) {
@@ -442,6 +483,7 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
     for (const charId of characters) {
       expect(() => renderCharacter(charId, ctx, 100, 100, 1.0, {})).not.toThrow();
     }
+    expect(() => drawYellowDuck(ctx, 100, 100, 1.0, {})).not.toThrow();
   });
 
   test('T3.05: PALETTE contains Adventures of Trishu custom colors', () => {

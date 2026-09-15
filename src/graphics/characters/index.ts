@@ -12,9 +12,12 @@ import { drawMom, renderMom, drawMomMother } from './momRenderer';
 import { drawGrandpa, renderGrandpa, drawGrandpaGardener } from './grandpaRenderer';
 import { drawMimi, renderMimi, drawMimiBunny } from './mimiRenderer';
 import { drawBabyChick, renderChick, renderBabyChick, drawChick } from './chickRenderer';
+import { drawYellowDuck, renderYellowDuck } from './duckRenderer';
 
 // Individual Renderer Function Exports
 export {
+  drawYellowDuck,
+  renderYellowDuck,
   drawMrsClucky,
   drawMrsChicken,
   renderChicken,

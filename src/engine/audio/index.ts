@@ -40,6 +40,8 @@ export class SoundEngine implements ISoundEngine {
   public playVictoryFanfare(): void { this.playSFX('fanfare'); }
   public playOverheatCrash(): void { this.playSFX('crash'); }
   public playClick(): void { this.playSFX('click'); }
+  public playDuckQuack(pitch?: number): void { this.playSFX('duckQuack', { pitch }); }
+  public playDuckFanfare(): void { this.playSFX('duckFanfare'); }
 
   private wantsBGM: boolean = false;
 

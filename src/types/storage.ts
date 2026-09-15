@@ -19,6 +19,7 @@ export interface HighScores {
   carWash: number;          // Mode 13: Muddy Car Wash
   windyKite: number;        // Mode 14: Windy Castle Kite
   rainbowGarden: number;    // Mode 15: Rainbow Flower Garden
+  duckPicnic: number;       // Mode 16: Picnic Ducks
   [key: string]: number;
 }
 

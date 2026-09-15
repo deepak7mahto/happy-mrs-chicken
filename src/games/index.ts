@@ -20,3 +20,4 @@ export * from './little-train';
 export * from './car-wash';
 export * from './windy-kite';
 export * from './rainbow-garden';
+export * from './duck-picnic';

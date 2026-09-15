@@ -14,6 +14,7 @@ import {
   drawMom,
   drawGrandpa,
   drawMimi,
+  drawYellowDuck,
   drawCompositeCharacter
 } from '../../graphics/characters';
 
@@ -42,7 +43,8 @@ export const MENU_CARDS: MenuCardInfo[] = [
   { id: 'LITTLE_TRAIN', title: 'Little Train', sub: 'Choo-choo rides!', badge: 'Train', color: '#E3F2FD', borderColor: '#42A5F5', scoreKey: 'littleTrain' },
   { id: 'CAR_WASH', title: 'Car Wash', sub: 'Scrub bubbles clean!', badge: 'Bubbles', color: '#E0F7FA', borderColor: '#26C6DA', scoreKey: 'carWash' },
   { id: 'WINDY_KITE', title: 'Windy Kite', sub: 'Swoop through clouds!', badge: 'Breeze', color: '#FFF8E1', borderColor: '#FFA726', scoreKey: 'windyKite' },
-  { id: 'RAINBOW_GARDEN', title: 'Rainbow Garden', sub: 'Water giant flowers!', badge: 'Nature', color: '#F1F8E9', borderColor: '#7CB342', scoreKey: 'rainbowGarden' }
+  { id: 'RAINBOW_GARDEN', title: 'Rainbow Garden', sub: 'Water giant flowers!', badge: 'Nature', color: '#F1F8E9', borderColor: '#7CB342', scoreKey: 'rainbowGarden' },
+  { id: 'DUCK_PICNIC', title: 'Picnic Ducks', sub: 'Feed & dance with ducks!', badge: 'Picnic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'duckPicnic' }
 ];
 
 export function renderMenuCharacterPreview(
@@ -270,6 +272,25 @@ export function renderMenuCharacterPreview(
     ctx.fillStyle = '#FFD600';
     ctx.beginPath();
     ctx.arc(0, 0, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  } else if (modeId === 'DUCK_PICNIC') {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 20, 20, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    drawYellowDuck(ctx, cx - 6, cy + 2, charScale * 0.95, {
+      walkCycle: time * 7,
+      isHappy: true,
+      featherTuft: true,
+      isQuacking: Math.sin(time * 5) > 0.4
+    });
+
+    ctx.fillStyle = '#FFA000';
+    ctx.beginPath();
+    ctx.roundRect(cx + 18, cy + Math.sin(time * 4) * 4, 8, 7, 2);
     ctx.fill();
     ctx.restore();
   }

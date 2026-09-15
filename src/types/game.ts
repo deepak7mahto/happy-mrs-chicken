@@ -27,7 +27,8 @@ export type ActiveGameModeId =
   | 'LITTLE_TRAIN'
   | 'CAR_WASH'
   | 'WINDY_KITE'
-  | 'RAINBOW_GARDEN';
+  | 'RAINBOW_GARDEN'
+  | 'DUCK_PICNIC';
 
 // Full Scene ID Union (including MENU and slug aliases)
 export type GameModeId =
@@ -47,7 +48,8 @@ export type GameModeId =
   | 'little-train'
   | 'car-wash'
   | 'windy-kite'
-  | 'rainbow-garden';
+  | 'rainbow-garden'
+  | 'duck-picnic';
 
 export type GameModeSlug =
   | 'classic'
@@ -64,7 +66,8 @@ export type GameModeSlug =
   | 'little-train'
   | 'car-wash'
   | 'windy-kite'
-  | 'rainbow-garden';
+  | 'rainbow-garden'
+  | 'duck-picnic';
 
 export interface GameModeMetadata {
   id: ActiveGameModeId;
@@ -95,7 +98,8 @@ export const GAME_MODES_LIST: readonly ActiveGameModeId[] = [
   'LITTLE_TRAIN',
   'CAR_WASH',
   'WINDY_KITE',
-  'RAINBOW_GARDEN'
+  'RAINBOW_GARDEN',
+  'DUCK_PICNIC'
 ] as const;
 
 export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
@@ -113,7 +117,8 @@ export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
   LITTLE_TRAIN: 'little-train',
   CAR_WASH: 'car-wash',
   WINDY_KITE: 'windy-kite',
-  RAINBOW_GARDEN: 'rainbow-garden'
+  RAINBOW_GARDEN: 'rainbow-garden',
+  DUCK_PICNIC: 'duck-picnic'
 };
 
 export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
@@ -131,7 +136,8 @@ export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
   'little-train': 'LITTLE_TRAIN',
   'car-wash': 'CAR_WASH',
   'windy-kite': 'WINDY_KITE',
-  'rainbow-garden': 'RAINBOW_GARDEN'
+  'rainbow-garden': 'RAINBOW_GARDEN',
+  'duck-picnic': 'DUCK_PICNIC'
 };
 
 export interface MiniGame {
@@ -266,4 +272,50 @@ export interface BubbleEntity {
   splitCount?: number;
   hue?: number;
 }
+
+export interface DuckEntity {
+  id: number;
+  name: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  scale: number;
+  hunger: number;
+  maxHunger: number;
+  walkCycle: number;
+  facingLeft: boolean;
+  state: 'WANDERING' | 'SEEKING' | 'EATING' | 'DANCING';
+  stateTimer: number;
+  peckTimer: number;
+  wiggleTimer: number;
+  quackTimer: number;
+  dancePhase: number;
+  danceSpin: number;
+  isHappy: boolean;
+  featherTuft: boolean;
+  targetX?: number;
+  targetY?: number;
+}
+
+export type PicnicFoodType = 'BREAD_CRUMB' | 'GOLDEN_CRUST' | 'STRAWBERRY' | 'CAKE_SLICE';
+
+export interface PicnicFoodEntity {
+  id: number;
+  x: number;
+  y: number;
+  groundY: number;
+  z: number;
+  vz: number;
+  vx: number;
+  vy: number;
+  type: PicnicFoodType;
+  points: number;
+  bounceCount: number;
+  rotation: number;
+  vRot: number;
+  eaten: boolean;
+  age: number;
+}
+
 

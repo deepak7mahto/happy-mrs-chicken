@@ -22,7 +22,8 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   littleTrain: 0,
   carWash: 0,
   windyKite: 0,
-  rainbowGarden: 0
+  rainbowGarden: 0,
+  duckPicnic: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -42,6 +43,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   CAR_WASH: 'carWash',
   WINDY_KITE: 'windyKite',
   RAINBOW_GARDEN: 'rainbowGarden',
+  DUCK_PICNIC: 'duckPicnic',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -59,6 +61,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'car-wash': 'carWash',
   'windy-kite': 'windyKite',
   'rainbow-garden': 'rainbowGarden',
+  'duck-picnic': 'duckPicnic',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -75,7 +78,8 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   littleTrain: 'littleTrain',
   carWash: 'carWash',
   windyKite: 'windyKite',
-  rainbowGarden: 'rainbowGarden'
+  rainbowGarden: 'rainbowGarden',
+  duckPicnic: 'duckPicnic'
 };
 
 export class StorageManager implements IStorageManager {
@@ -114,7 +118,8 @@ export class StorageManager implements IStorageManager {
               littleTrain: Number(rawScores.littleTrain) || 0,
               carWash: Number(rawScores.carWash) || 0,
               windyKite: Number(rawScores.windyKite) || 0,
-              rainbowGarden: Number(rawScores.rainbowGarden) || 0
+              rainbowGarden: Number(rawScores.rainbowGarden) || 0,
+              duckPicnic: Number(rawScores.duckPicnic) || 0
             };
 
             const rawSettings = parsed.settings || {};

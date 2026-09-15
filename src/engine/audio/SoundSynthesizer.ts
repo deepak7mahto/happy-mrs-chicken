@@ -248,6 +248,67 @@ export class SoundSynthesizer {
     });
   }
 
+  public playDuckQuack(pitch: number = 1.0): void {
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+    const baseFreq = 420 * pitch;
+    const dur = 0.16;
+
+    const osc = this.ctx.createOscillator();
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.linearRampToValueAtTime(baseFreq * 1.25, now + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, now + dur);
+
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(45, now);
+    lfoGain.gain.setValueAtTime(60 * pitch, now);
+    lfo.connect(osc.frequency);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(baseFreq * 2.2, now);
+    filter.Q.setValueAtTime(4.0, now);
+
+    gain.gain.setValueAtTime(0.01, now);
+    gain.gain.linearRampToValueAtTime(0.25, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain);
+
+    osc.start(now);
+    lfo.start(now);
+    osc.stop(now + dur);
+    lfo.stop(now + dur);
+
+    osc.onended = () => {
+      osc.disconnect();
+      lfo.disconnect();
+      lfoGain.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
+  }
+
+  public playDuckFanfare(): void {
+    const notes = [
+      { p: 0.85, d: 0 },
+      { p: 1.0, d: 100 },
+      { p: 1.2, d: 200 },
+      { p: 1.45, d: 310 }
+    ];
+    notes.forEach(({ p, d }) => {
+      setTimeout(() => this.playDuckQuack(p), d);
+    });
+    setTimeout(() => this.playFanfare(), 450);
+  }
+
   public playSFX(name: SFXName, options: SFXOptions = {}): void {
     switch (name) {
       case 'cluck': this.playCluck(options.type); break;
@@ -269,6 +330,8 @@ export class SoundSynthesizer {
       case 'bunnySqueak': this.playBunnySqueak(); break;
       case 'sheepBleat' as any: this.playBunnySqueak(); break;
       case 'toddlerGiggle': this.playToddlerGiggle(); break;
+      case 'duckQuack': this.playDuckQuack(options.pitch ?? 1.0); break;
+      case 'duckFanfare': this.playDuckFanfare(); break;
     }
   }
 }

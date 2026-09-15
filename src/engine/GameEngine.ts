@@ -22,7 +22,8 @@ import {
   LittleTrainScene,
   CarWashScene,
   WindyKiteScene,
-  RainbowGardenScene
+  RainbowGardenScene,
+  DuckPicnicScene
 } from '../games';
 
 export class GameEngine {
@@ -57,6 +58,7 @@ export class GameEngine {
     this.scenes.set('CAR_WASH', new CarWashScene(this));
     this.scenes.set('WINDY_KITE', new WindyKiteScene(this));
     this.scenes.set('RAINBOW_GARDEN', new RainbowGardenScene(this));
+    this.scenes.set('DUCK_PICNIC', new DuckPicnicScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),
