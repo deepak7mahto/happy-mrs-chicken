@@ -331,6 +331,7 @@ export class RainbowGardenScene extends BaseScene {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
     ctx.fillText('🌸 Tap mounds to water & grow flowers!', vWidth / 2, vHeight - 30);
+    ctx.restore();
 
     // Top HUD Pill Badge
     const isPortrait = display.isPortrait;

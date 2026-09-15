@@ -36,9 +36,15 @@ export class WindyKiteScene extends BaseScene {
   }
 
   enter(): void {
+    const vWidth = this.game.display.vWidth;
     this.score = 0;
     this.collectedCount = 0;
     this.loopTimer = 0;
+    this.kiteX = vWidth * 0.5;
+    this.kiteY = 180;
+    this.targetKiteX = vWidth * 0.5;
+    this.targetKiteY = 180;
+    this.ribbonBows = ['#FF4081', '#FFD700', '#00E676', '#448AFF'];
     this.ribbons = [];
     this.spawnRibbons();
     soundEngine.unlock();
@@ -46,24 +52,31 @@ export class WindyKiteScene extends BaseScene {
 
   private spawnRibbons(): void {
     const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
     const colors = ['#FF5252', '#FFD740', '#69F0AE', '#40C4FF', '#E040FB'];
     this.ribbons = [];
+    const skyMinY = this.game.display.isPortrait ? 130 : 80;
+    const skyMaxY = Math.min(vHeight - 160, this.game.display.isPortrait ? 400 : 290);
     for (let i = 0; i < 5; i++) {
       this.ribbons.push({
-        x: 80 + Math.random() * (vWidth - 160),
-        y: 90 + Math.random() * 180,
+        x: 60 + Math.random() * (vWidth - 120),
+        y: skyMinY + Math.random() * (skyMaxY - skyMinY),
         color: colors[i % colors.length],
         collected: false
       });
     }
   }
 
-  swoopKite(tx: number, ty: number): void {
-    this.targetKiteX = tx;
-    this.targetKiteY = Math.max(70, Math.min(320, ty));
-    this.loopTimer = 0.6;
-    soundEngine.playSFX('whoosh');
-    Haptics.medium();
+  swoopKite(tx: number, ty: number, playSound: boolean = true): void {
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    this.targetKiteX = Math.max(50, Math.min(vWidth - 50, tx));
+    this.targetKiteY = Math.max(70, Math.min(vHeight - 140, ty));
+    this.loopTimer = 0.5;
+    if (playSound) {
+      soundEngine.playSFX('whoosh');
+      Haptics.medium();
+    }
   }
 
   update(dt: number, input: InputManager): void {
@@ -73,11 +86,12 @@ export class WindyKiteScene extends BaseScene {
       this.loopTimer -= dt;
     }
 
-    // Smooth kite movement towards target with gentle wind sway
-    const windSwayX = Math.sin(this.time * 2.5) * 22;
-    const windSwayY = Math.cos(this.time * 2.0) * 14;
-    this.kiteX += (this.targetKiteX + windSwayX - this.kiteX) * dt * 4;
-    this.kiteY += (this.targetKiteY + windSwayY - this.kiteY) * dt * 4;
+    // Responsive kite movement towards finger with gentle wind sway
+    const speed = Math.min(1.0, dt * 7.5);
+    const windSwayX = Math.sin(this.time * 2.5) * 18;
+    const windSwayY = Math.cos(this.time * 2.0) * 12;
+    this.kiteX += (this.targetKiteX + windSwayX - this.kiteX) * speed;
+    this.kiteY += (this.targetKiteY + windSwayY - this.kiteY) * speed;
 
     // Check ribbon collection
     for (const r of this.ribbons) {
@@ -104,12 +118,21 @@ export class WindyKiteScene extends BaseScene {
       }
     }
 
-    if (input.actionJustReleased) {
-      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y);
+    // Responsive touch: taps swoop, dragging glides kite smoothly
+    if (input.isActionJustPressed()) {
+      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, true);
+    } else if (input.isActionDown()) {
+      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, false);
+    } else if (input.actionJustReleased) {
+      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, false);
     }
+
     for (const ptr of input.pointers.values()) {
       if (ptr.justPressed) {
-        this.swoopKite(ptr.x, ptr.y);
+        this.swoopKite(ptr.x, ptr.y, true);
+        break;
+      } else if (ptr.isDown) {
+        this.swoopKite(ptr.x, ptr.y, false);
         break;
       }
     }
@@ -248,6 +271,7 @@ export class WindyKiteScene extends BaseScene {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
     ctx.fillText('🪁 Tap anywhere to swoop the kite!', vWidth / 2, vHeight - 30);
+    ctx.restore();
 
     // Top HUD Pill Badge
     const isPortrait = display.isPortrait;
@@ -271,5 +295,22 @@ export class WindyKiteScene extends BaseScene {
     ctx.textBaseline = 'middle';
     ctx.fillText(`✨ Stars: ${this.collectedCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
     ctx.restore();
+  }
+
+  override getEntities(): Record<string, unknown> {
+    return {
+      kiteX: this.kiteX,
+      kiteY: this.kiteY,
+      ribbons: this.ribbons,
+      collectedCount: this.collectedCount
+    };
+  }
+
+  override getModeState(): Record<string, unknown> {
+    return {
+      score: this.score,
+      collectedCount: this.collectedCount,
+      ribbonsLeft: this.ribbons.filter(r => !r.collected).length
+    };
   }
 }

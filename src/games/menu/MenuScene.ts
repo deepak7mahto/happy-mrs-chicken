@@ -366,7 +366,5 @@ export class MenuScene extends BaseScene {
     ctx.fillStyle = '#FFE600';
     ctx.fillText('Adventures of Trishu', 0, 0);
     ctx.restore();
-    ctx.fillText('Adventures of Trishu', 0, 0);
-    ctx.restore();
   }
 }

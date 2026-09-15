@@ -247,6 +247,7 @@ export class CarWashScene extends BaseScene {
 
     drawWheel(cx - 85, cy + 68);
     drawWheel(cx + 85, cy + 68);
+    ctx.restore();
 
     // Mud Spots Overlay
     for (const m of this.mudSpots) {
@@ -308,6 +309,7 @@ export class CarWashScene extends BaseScene {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
     ctx.fillText('🧽 Tap & scrub the mud away!', cx, vHeight - 30);
+    ctx.restore();
 
     // Top HUD Pill Badge
     const isPortrait = display.isPortrait;

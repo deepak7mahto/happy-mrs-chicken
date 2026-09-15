@@ -382,13 +382,33 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
     expect(scene.score).toBe(0);
   });
 
-  test('T2.14 Mode 14: Windy Castle Kite wind swoops and star ribbons', () => {
+  test('T2.14 Mode 14: Windy Castle Kite wind swoops, drag tracking, and star ribbons', () => {
     const scene = engine.scenes.get('WINDY_KITE') as WindyKiteScene;
     scene.enter();
     expect(scene.score).toBe(0);
 
+    // 1. Initial swoop
     scene.swoopKite(300, 150);
     scene.update(0.016, engine.input);
+
+    // 2. Drag / pointer down tracking
+    engine.input.actionIsDown = true;
+    engine.input.primaryPointer = { x: 320, y: 140, isDown: true, inside: true };
+    scene.update(0.016, engine.input);
+    const entities = scene.getEntities() as { ribbons: Array<{ x: number; y: number; collected: boolean }> };
+    expect(entities.ribbons.length).toBe(5);
+
+    // 3. Render without throwing or leaking save stack
+    const canvas = document.createElement('canvas');
+    let saveCount = 0;
+    let restoreCount = 0;
+    const ctx = canvas.getContext('2d')!;
+    const origSave = ctx.save.bind(ctx);
+    const origRestore = ctx.restore.bind(ctx);
+    ctx.save = () => { saveCount++; origSave(); };
+    ctx.restore = () => { restoreCount++; origRestore(); };
+    scene.render(ctx, 1.0, engine.display);
+    expect(saveCount).toBe(restoreCount);
   });
 
   test('T2.15 Mode 15: Rainbow Flower Garden sprout watering and bloom celebration', () => {
@@ -595,5 +615,22 @@ describe('Tier 4: Quality Gates & Branding Verification', () => {
       }
     }
     scanDir(resolve(root, 'src'));
+  });
+
+  test('T4.05: Zero canvas context save/restore state leaks across all 17 game scenes', () => {
+    const canvas = document.createElement('canvas');
+    const engine = new GameEngine(canvas);
+    const ctx = canvas.getContext('2d')!;
+    for (const [id, scene] of engine.scenes.entries()) {
+      let saveCount = 0;
+      let restoreCount = 0;
+      const origSave = ctx.save.bind(ctx);
+      const origRestore = ctx.restore.bind(ctx);
+      ctx.save = () => { saveCount++; origSave(); };
+      ctx.restore = () => { restoreCount++; origRestore(); };
+      scene.enter();
+      scene.render(ctx, 1.0, engine.display);
+      expect(saveCount).toBe(restoreCount);
+    }
   });
 });
