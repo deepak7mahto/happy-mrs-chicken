@@ -255,6 +255,31 @@ export class DuckPicnicScene extends BaseScene {
     // Update Ducks
     let allFull = true;
 
+    // Allocate food to hungry ducks (one food per duck to avoid dogpiling)
+    const availableFoods = this.foods.filter(f => !f.eaten);
+    const claimedFoodIds = new Set<number>();
+    const duckFoodTargets: Map<number, PicnicFoodEntity> = new Map();
+
+    for (const d of this.ducks) {
+      if (d.hunger >= d.maxHunger || this.isDancing) continue;
+      let closestFood: PicnicFoodEntity | null = null;
+      let minDist = 380;
+      for (const f of availableFoods) {
+        if (claimedFoodIds.has(f.id)) continue;
+        const dx = f.x - d.x;
+        const dy = f.y - d.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+          minDist = dist;
+          closestFood = f;
+        }
+      }
+      if (closestFood) {
+        claimedFoodIds.add(closestFood.id);
+        duckFoodTargets.set(d.id, closestFood);
+      }
+    }
+
     for (let i = 0; i < this.ducks.length; i++) {
       const d = this.ducks[i];
       if (d.hunger < d.maxHunger) allFull = false;
@@ -285,22 +310,10 @@ export class DuckPicnicScene extends BaseScene {
         continue;
       }
 
-      // Normal Feeding & Wander AI
-      let targetFood: PicnicFoodEntity | null = null;
-      let minDist = 380;
+      // Feeding & Wander AI
+      const targetFood = duckFoodTargets.get(d.id) || null;
 
-      for (const f of this.foods) {
-        if (f.eaten) continue;
-        const dx = f.x - d.x;
-        const dy = f.y - d.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < minDist) {
-          minDist = dist;
-          targetFood = f;
-        }
-      }
-
-      if (targetFood) {
+      if (targetFood && d.hunger < d.maxHunger) {
         d.state = 'SEEKING';
         const dx = targetFood.x - d.x;
         const dy = targetFood.y - d.y;
@@ -334,9 +347,16 @@ export class DuckPicnicScene extends BaseScene {
         d.state = 'WANDERING';
         d.stateTimer -= dt;
         if (d.stateTimer <= 0) {
-          d.stateTimer = 1.2 + Math.random() * 2.5;
-          d.targetX = 60 + Math.random() * (vWidth - 120);
-          d.targetY = (isPortrait ? vHeight * 0.55 : vHeight * 0.52) + Math.random() * (isPortrait ? 180 : 130);
+          d.stateTimer = 1.4 + Math.random() * 2.6;
+          // Sector-based wandering so ducks naturally stay spaced across the glade
+          if (d.id === 0) {
+            d.targetX = 40 + Math.random() * (vWidth * 0.32);
+          } else if (d.id === 1) {
+            d.targetX = vWidth * 0.35 + Math.random() * (vWidth * 0.30);
+          } else {
+            d.targetX = vWidth * 0.65 + Math.random() * (vWidth * 0.30 - 45);
+          }
+          d.targetY = (isPortrait ? vHeight * 0.54 : vHeight * 0.52) + Math.random() * (isPortrait ? 160 : 120);
         }
 
         if (d.targetX !== undefined && d.targetY !== undefined) {
@@ -350,6 +370,37 @@ export class DuckPicnicScene extends BaseScene {
             d.facingLeft = dx < 0;
             d.walkCycle += dt * 5;
           }
+        }
+      }
+
+      // Clamp duck positions inside field
+      d.x = Math.max(35, Math.min(vWidth - 35, d.x));
+      d.y = Math.max(vHeight * 0.48, Math.min(vHeight - 45, d.y));
+    }
+
+    // Duck-to-Duck Separation Force (prevents stacking & keeps meter bars distinct)
+    const minSeparation = 56;
+    for (let i = 0; i < this.ducks.length; i++) {
+      for (let j = i + 1; j < this.ducks.length; j++) {
+        const d1 = this.ducks[i];
+        const d2 = this.ducks[j];
+        let dx = d1.x - d2.x;
+        let dy = d1.y - d2.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minSeparation) {
+          if (dist < 0.001) {
+            dx = (i - j) * 4;
+            dy = (i - j) * 4;
+            dist = Math.sqrt(dx * dx + dy * dy);
+          }
+          const overlap = (minSeparation - dist) / dist;
+          const pushX = dx * overlap * 0.5;
+          const pushY = dy * overlap * 0.5;
+          const pushFactor = Math.min(1.0, dt * 7);
+          d1.x += pushX * pushFactor;
+          d1.y += pushY * pushFactor;
+          d2.x -= pushX * pushFactor;
+          d2.y -= pushY * pushFactor;
         }
       }
     }
@@ -385,21 +436,37 @@ export class DuckPicnicScene extends BaseScene {
 
     this.particles.render(ctx);
 
-    // Top HUD Info
-    ctx.fillStyle = '#263238';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`🦆 Round ${this.round}`, 20, 42);
+    // Centered Top HUD Pill Badge (never overlaps HUD Home or controls)
+    const scoreX = vWidth / 2;
+    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
+    const badgeW = isPortrait ? 270 : 250;
+    const badgeH = 46;
 
-    ctx.textAlign = 'right';
-    ctx.fillText(`Score: ${this.score}`, vWidth - 20, 42);
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+    ctx.beginPath();
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
+    ctx.fill();
+    ctx.strokeStyle = '#FFE082';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`🦆 Round: ${this.round}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
 
     if (this.isDancing) {
-      ctx.fillStyle = '#D81B60';
-      ctx.font = 'bold 22px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('🎶 DUCK CELEBRATION DANCE! 🎶', vWidth / 2, 75);
+      ctx.fillStyle = 'rgba(216, 27, 96, 0.95)';
+      ctx.beginPath();
+      ctx.roundRect(scoreX - 150, scoreY + 54, 300, 44, 22);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+      ctx.fillText('🎶 DUCK PICNIC DANCE! 🎶', scoreX, scoreY + 76);
     }
+    ctx.restore();
   }
 
   getEntities(): Record<string, unknown> {

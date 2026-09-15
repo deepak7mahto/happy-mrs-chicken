@@ -164,10 +164,11 @@ export class IceCreamVanScene extends BaseScene {
     drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
 
     // Ice Cream Van Awning & Counter
+    const awningY = isPortrait ? 130 : 60;
     ctx.save();
     ctx.fillStyle = '#FFF9C4';
     ctx.beginPath();
-    ctx.roundRect(16, 60, vWidth - 32, 100, 16);
+    ctx.roundRect(16, awningY, vWidth - 32, 100, 16);
     ctx.fill();
 
     // Striped Awning
@@ -175,7 +176,7 @@ export class IceCreamVanScene extends BaseScene {
     for (let i = 0; i < 8; i++) {
       ctx.fillStyle = i % 2 === 0 ? '#E91E63' : '#FFFFFF';
       ctx.beginPath();
-      ctx.roundRect(16 + i * stripeW, 60, stripeW, 26, [8, 8, 4, 4]);
+      ctx.roundRect(16 + i * stripeW, awningY, stripeW, 26, [8, 8, 4, 4]);
       ctx.fill();
     }
 
@@ -183,7 +184,7 @@ export class IceCreamVanScene extends BaseScene {
     ctx.font = '900 22px "Comic Sans MS", cursive, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#C2185B';
-    ctx.fillText("🍦 Miss Bunny's Ice Cream 🍦", vWidth / 2, 114);
+    ctx.fillText("🍦 Miss Bunny's Ice Cream 🍦", vWidth / 2, awningY + 54);
     ctx.restore();
 
     // Miss Bunny Host on Left
@@ -346,16 +347,26 @@ export class IceCreamVanScene extends BaseScene {
       ctx.restore();
     }
 
-    // Top HUD Stats
-    ctx.save();
-    ctx.font = 'bold 18px "Comic Sans MS", sans-serif';
-    ctx.fillStyle = '#2E7D32';
-    ctx.textAlign = 'left';
-    ctx.fillText(`🍨 Scoops: ${this.totalScooped}`, 22, 38);
+    // Top HUD Pill Badge
+    const scoreX = vWidth / 2;
+    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
+    const badgeW = isPortrait ? 280 : 260;
+    const badgeH = 46;
 
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#C2185B';
-    ctx.fillText(`★ Score: ${this.score}`, vWidth - 22, 38);
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+    ctx.beginPath();
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
+    ctx.fill();
+    ctx.strokeStyle = '#F48FB1';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`🍨 Scoops: ${this.totalScooped}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
     ctx.restore();
   }
 }

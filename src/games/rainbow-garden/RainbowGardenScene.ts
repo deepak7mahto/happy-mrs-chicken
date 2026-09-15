@@ -332,15 +332,27 @@ export class RainbowGardenScene extends BaseScene {
     ctx.fillStyle = '#37474F';
     ctx.fillText('🌸 Tap mounds to water & grow flowers!', vWidth / 2, vHeight - 30);
 
-    // Top HUD
-    ctx.font = 'bold 18px "Comic Sans MS", sans-serif';
-    ctx.fillStyle = '#2E7D32';
-    ctx.textAlign = 'left';
-    ctx.fillText(`🌻 Bloomed: ${this.totalBloomed}`, 22, 38);
+    // Top HUD Pill Badge
+    const isPortrait = display.isPortrait;
+    const scoreX = vWidth / 2;
+    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
+    const badgeW = isPortrait ? 280 : 260;
+    const badgeH = 46;
 
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#D81B60';
-    ctx.fillText(`★ Score: ${this.score}`, vWidth - 22, 38);
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+    ctx.beginPath();
+    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
+    ctx.fill();
+    ctx.strokeStyle = '#A5D6A7';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`🌻 Bloomed: ${this.totalBloomed}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
     ctx.restore();
   }
 }

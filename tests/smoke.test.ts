@@ -436,6 +436,26 @@ describe('Tier 2: 9 Mini-Game Simulation & Mechanics', () => {
     const ctx = canvas.getContext('2d')!;
     expect(() => scene.render(ctx, 1.0, engine.display)).not.toThrow();
   });
+
+  test('T2.17 Mode 16: Duck separation repulsion pushes overlapping ducks apart', () => {
+    const scene = engine.scenes.get('DUCK_PICNIC') as DuckPicnicScene;
+    scene.enter();
+
+    // Force mama and pip into the exact same coordinates
+    scene.ducks[0].x = 200;
+    scene.ducks[0].y = 300;
+    scene.ducks[1].x = 200;
+    scene.ducks[1].y = 300;
+
+    // Update simulation
+    scene.update(0.05, engine.input);
+
+    // Repulsion should have pushed them apart
+    const dx = scene.ducks[0].x - scene.ducks[1].x;
+    const dy = scene.ducks[0].y - scene.ducks[1].y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    expect(dist).toBeGreaterThan(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -115,10 +115,11 @@ export const App: React.FC = () => {
     if (!engine) return;
     soundEngine.playSFX('click');
     Haptics.tap();
-    if (typeof window !== 'undefined' && window.location.hash) {
-      window.history.back();
-    } else {
-      engine.changeScene('MENU');
+    engine.changeScene('MENU');
+    if (typeof window !== 'undefined' && window.history && window.location.hash) {
+      try {
+        window.history.replaceState({ mode: 'MENU' }, '', window.location.pathname + window.location.search);
+      } catch (_) {}
     }
   }, [engine]);
 

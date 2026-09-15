@@ -21,8 +21,12 @@ export const HUD: React.FC<HUDProps> = ({
   onToggleFullscreen,
   onGoHome
 }) => {
+  const lastActionTime = React.useRef(0);
   const handleAction = (cb?: () => void) => (e: React.SyntheticEvent) => {
     e.stopPropagation();
+    const now = Date.now();
+    if (now - lastActionTime.current < 250) return;
+    lastActionTime.current = now;
     cb?.();
   };
 
@@ -34,6 +38,7 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             type="button"
             onClick={handleAction(onGoHome)}
+            onPointerUp={handleAction(onGoHome)}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="Back to Menu"
             className="hud-btn-home"
@@ -50,6 +55,7 @@ export const HUD: React.FC<HUDProps> = ({
             <button
               type="button"
               onClick={handleAction(onOpenInstall)}
+              onPointerUp={handleAction(onOpenInstall)}
               onPointerDown={(e) => e.stopPropagation()}
               aria-label="Install App"
               className="hud-btn-icon"
@@ -66,6 +72,7 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             type="button"
             onClick={handleAction(onToggleFullscreen)}
+            onPointerUp={handleAction(onToggleFullscreen)}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="Toggle Fullscreen"
             className="hud-btn-icon hud-btn-fs"
@@ -75,6 +82,7 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             type="button"
             onClick={handleAction(onToggleMute)}
+            onPointerUp={handleAction(onToggleMute)}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="Toggle Audio"
             className="hud-btn-icon hud-btn-audio"
