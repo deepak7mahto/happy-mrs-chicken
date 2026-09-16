@@ -10,7 +10,7 @@ import { InputManager } from '../../engine/InputManager';
 import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
-import { drawDad } from '../../graphics/characters';
+import { renderCharacter } from '../../graphics/characters';
 
 interface MudSpot {
   x: number;
@@ -32,6 +32,7 @@ export class CarWashScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.cleanCarsCount = 0;
     this.celebrationTimer = 0;
@@ -87,6 +88,7 @@ export class CarWashScene extends BaseScene {
       const remaining = this.mudSpots.filter(s => !s.cleaned).length;
       if (remaining === 0) {
         this.cleanCarsCount++;
+        this.checkStoryGoal(this.cleanCarsCount);
         this.score += 100;
         this.game.storage.saveHighScore('carWash', this.score);
         this.celebrationTimer = 2.0;
@@ -158,12 +160,13 @@ export class CarWashScene extends BaseScene {
     ctx.fillRect(30, cy + 70, vWidth - 60, 30);
     ctx.restore();
 
-    // Dad Watching on Left
+    // Player Avatar Character Watching on Left
     ctx.save();
-    drawDad(ctx, 70, cy + 20, 0.45, {
+    renderCharacter(this.game.selectedAvatar, ctx, 70, cy + 20, 0.45, {
       panicStage: 0,
       time: this.time,
-      eyeBlink: Math.sin(this.time * 2) > 0.85
+      eyeBlink: Math.sin(this.time * 2) > 0.85,
+      expression: 'happy'
     });
     ctx.restore();
 

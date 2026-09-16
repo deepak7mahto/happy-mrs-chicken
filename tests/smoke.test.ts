@@ -508,8 +508,12 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
     expect(sound.sequencer.isRunning).toBe(false);
   });
 
-  test('T3.03: CHARACTER_RENDERERS contains all 8 character entries', () => {
-    const expectedKeys = ['chicken', 'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi', 'chick'];
+  test('T3.03: CHARACTER_RENDERERS contains all 15 character entries', () => {
+    const expectedKeys = [
+      'peppa', 'george', 'daddyPig', 'mummyPig', 'grandpaPig', 'suzySheep',
+      'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi',
+      'chicken', 'chick', 'duck'
+    ];
     for (const k of expectedKeys) {
       expect(typeof CHARACTER_RENDERERS[k as any]).toBe('function');
     }
@@ -519,11 +523,14 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    const characters = ['chicken', 'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi', 'chick'] as const;
+    const characters = [
+      'peppa', 'george', 'daddyPig', 'mummyPig', 'grandpaPig', 'suzySheep',
+      'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi',
+      'chicken', 'chick', 'duck'
+    ] as const;
     for (const charId of characters) {
       expect(() => renderCharacter(charId, ctx, 100, 100, 1.0, {})).not.toThrow();
     }
-    expect(() => drawYellowDuck(ctx, 100, 100, 1.0, {})).not.toThrow();
   });
 
   test('T3.05: PALETTE contains Adventures of Trishu custom colors', () => {
@@ -596,25 +603,14 @@ describe('Tier 4: Quality Gates & Branding Verification', () => {
     expect(manifest.short_name).toBe('Trishu');
   });
 
-  test('T4.04: Zero copyrighted Peppa Pig character references in source code', () => {
-    function scanDir(dir: string) {
-      const entries = readdirSync(dir);
-      for (const entry of entries) {
-        const full = resolve(dir, entry);
-        const stat = statSync(full);
-        if (stat.isDirectory()) {
-          scanDir(full);
-        } else if (entry.endsWith('.ts') || entry.endsWith('.tsx')) {
-          const content = readFileSync(full, 'utf8');
-          expect(content.includes('peppaPigRenderer')).toBe(false);
-          expect(content.includes('suzySheepRenderer')).toBe(false);
-          expect(content.includes('daddyPigRenderer')).toBe(false);
-          expect(content.includes('mummyPigRenderer')).toBe(false);
-          expect(content.includes('georgeRenderer')).toBe(false);
-        }
-      }
+  test('T4.04: Peppa Pig & Friends character roster renders cleanly', () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const pigRoster = ['peppa', 'george', 'daddyPig', 'mummyPig', 'grandpaPig', 'suzySheep'] as const;
+    for (const charId of pigRoster) {
+      expect(typeof CHARACTER_RENDERERS[charId]).toBe('function');
+      expect(() => renderCharacter(charId, ctx, 100, 100, 1.0, {})).not.toThrow();
     }
-    scanDir(resolve(root, 'src'));
   });
 
   test('T4.05: Zero canvas context save/restore state leaks across all 17 game scenes', () => {

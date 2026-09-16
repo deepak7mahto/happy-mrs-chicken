@@ -29,6 +29,7 @@ export class DuckPicnicScene extends BaseScene {
   public danceTimer: number = 0;
   public nextFoodId: number = 1;
   public basketBounce: number = 0;
+  public foodsFedCount: number = 0;
   private treatCycleIndex: number = 0;
 
   constructor(game: GameEngine) {
@@ -37,11 +38,14 @@ export class DuckPicnicScene extends BaseScene {
   }
 
   enter(): void {
+    super.enter();
+    soundEngine.setTrack('waltz');
     this.score = 0;
     this.round = 1;
     this.time = 0;
     this.isDancing = false;
     this.danceTimer = 0;
+    this.foodsFedCount = 0;
     this.foods = [];
     this.particles.clear();
     this.initDucks();
@@ -330,6 +334,8 @@ export class DuckPicnicScene extends BaseScene {
         } else {
           targetFood.eaten = true;
           d.hunger = Math.min(d.maxHunger, d.hunger + 1);
+          this.foodsFedCount++;
+          this.checkStoryGoal(this.foodsFedCount, 6);
           d.peckTimer = 0.35;
           d.wiggleTimer = 0.55;
           d.isHappy = true;

@@ -14,6 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills, drawHayNest, drawEgg } from '../../graphics/environmentRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import { drawMrsClucky } from '../../graphics/characters/chickenRenderer';
 import { drawBabyChick } from '../../graphics/characters/chickRenderer';
 import { createCharacterAnimState, updateCharacterAnimState } from '../../graphics/animations';
@@ -45,6 +46,7 @@ export class EggLayingScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.eggs = [];
     this.chicks = [];
@@ -232,6 +234,8 @@ export class EggLayingScene extends BaseScene {
             facingLeft: Math.random() > 0.5,
             state: 'SCAMPERING'
           });
+          this.score = this.chicks.length;
+          this.checkStoryGoal(this.chicks.length);
         }
       }
     }
@@ -282,6 +286,7 @@ export class EggLayingScene extends BaseScene {
       chick.facingLeft = chick.vx < 0;
     }
 
+    this.chicks.sort((a, b) => a.y - b.y);
     this.particles.update(dt);
   }
 
@@ -298,8 +303,7 @@ export class EggLayingScene extends BaseScene {
       drawEgg(ctx, egg.x, egg.y, 1.0, egg.rotation, egg.crackStage);
     }
 
-    const sortedChicks = [...this.chicks].sort((a, b) => a.y - b.y);
-    for (const chick of sortedChicks) {
+    for (const chick of this.chicks) {
       drawBabyChick(ctx, chick.x, chick.y, 1.0, {
         walkCycle: chick.walkCycle,
         facingLeft: chick.facingLeft,
@@ -314,6 +318,18 @@ export class EggLayingScene extends BaseScene {
       flap: this.chicken.flap,
       facingLeft: this.chicken.facingLeft
     });
+
+    // Cheering Player Avatar Companion
+    if (this.game.selectedAvatar !== 'chicken') {
+      const cheerX = isPortrait ? display.vWidth - 55 : display.vWidth - 85;
+      const cheerY = nestY + 10;
+      renderCharacter(this.game.selectedAvatar, ctx, cheerX, cheerY, 0.42, {
+        armWave: Math.sin(this.time * 6) * 0.25,
+        eyeBlink: this.animState.isBlinking,
+        expression: 'excited',
+        facingLeft: true
+      });
+    }
 
     this.particles.render(ctx);
 

@@ -14,6 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import { drawMimi } from '../../graphics/characters/mimiRenderer';
 import { drawTrishu } from '../../graphics/characters/trishuRenderer';
 import {
@@ -71,6 +72,8 @@ export class HopscotchBubbleScene extends BaseScene {
   }
 
   enter(): void {
+    super.enter();
+    soundEngine.setTrack('gentle');
     this.score = 0;
     this.bubblesPoppedCount = 0;
     this.time = 0;
@@ -243,6 +246,7 @@ export class HopscotchBubbleScene extends BaseScene {
         this.particles.spawnSparkles(vWidth / 2, vHeight / 2, 25);
         this.particles.spawnScorePopup(vWidth / 2, vHeight * 0.4, '🧺 Picnic Party! 🎉 +500');
         this.game.storage.saveHighScore('hopscotchBubble', this.score);
+        this.checkStoryGoal(1, 1);
       }
     } else {
       this.resetMimiPosition();
@@ -396,13 +400,14 @@ export class HopscotchBubbleScene extends BaseScene {
 
     const hopProgress = this.mimi.isHopping ? this.mimi.hopTimer / this.mimi.hopDuration : 0;
     const hopArt = getHopscotchPhase(hopProgress);
-    drawMimi(ctx, this.mimi.x, this.mimi.y + hopArt.hopY, isPortrait ? 1.15 : 1.1, {
+    renderCharacter(this.game.selectedAvatar, ctx, this.mimi.x, this.mimi.y + hopArt.hopY, isPortrait ? 1.15 : 1.1, {
       hopY: hopArt.hopY,
       earFlap: hopArt.earFlap,
       holdingWand: true,
       blowingBubble: this.bubbleWandPulse > 0,
       eyeBlink: this.animState.isBlinking,
-      animState: this.animState
+      animState: this.animState,
+      expression: 'happy'
     });
 
     for (const c of this.parachutingChicks) drawParachutingChick(ctx, c);

@@ -23,7 +23,8 @@ export type SFXName =
   | 'bunnySqueak'
   | 'toddlerGiggle'
   | 'duckQuack'
-  | 'duckFanfare';
+  | 'duckFanfare'
+  | 'pigOink';
 
 export interface SFXOptions {
   playbackRate?: number;
@@ -34,6 +35,8 @@ export interface SFXOptions {
   detune?: number;
 }
 
+export type BGMMoodTrack = 'classic' | 'frenzy' | 'waltz' | 'gentle';
+
 export interface ISoundEngine {
   init(): Promise<boolean | void>;
   unlock(): Promise<boolean | void>;
@@ -41,6 +44,8 @@ export interface ISoundEngine {
   startBGM(): void;
   stopBGM(): void;
   setBGMTempo(bpm: number): void;
+  setTrack?(track: BGMMoodTrack): void;
+  duckBGM?(durationSec?: number): void;
   toggleMute(): boolean;
   setMuted(muted: boolean): void;
   setVolume(volume: number): void;

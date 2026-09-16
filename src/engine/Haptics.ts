@@ -1,8 +1,11 @@
+import { storageManager } from './StorageManager';
+
 /**
  * Mobile Vibration & Tactile Feedback Subsystem
  */
 export const Haptics = {
   tap(): void {
+    if (!storageManager.data.settings.hapticsEnabled) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate(10);
@@ -10,6 +13,7 @@ export const Haptics = {
     }
   },
   medium(): void {
+    if (!storageManager.data.settings.hapticsEnabled) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate(22);
@@ -17,6 +21,7 @@ export const Haptics = {
     }
   },
   heavy(): void {
+    if (!storageManager.data.settings.hapticsEnabled) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate(35);
@@ -24,6 +29,7 @@ export const Haptics = {
     }
   },
   fanfare(): void {
+    if (!storageManager.data.settings.hapticsEnabled) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate([20, 40, 20, 40, 30]);
@@ -34,4 +40,3 @@ export const Haptics = {
     this.fanfare();
   }
 };
-

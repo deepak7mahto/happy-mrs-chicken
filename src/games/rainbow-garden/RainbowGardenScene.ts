@@ -11,7 +11,7 @@ import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawGrandpa } from '../../graphics/characters';
+import { renderCharacter } from '../../graphics/characters';
 
 interface FlowerMound {
   x: number;
@@ -36,6 +36,7 @@ export class RainbowGardenScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('gentle');
     this.score = 0;
     this.totalBloomed = 0;
     this.isWatering = false;
@@ -85,6 +86,7 @@ export class RainbowGardenScene extends BaseScene {
       mound.bloomed = true;
       mound.growth = 1.0;
       this.totalBloomed++;
+      this.checkStoryGoal(this.totalBloomed);
       this.score += 25;
       this.game.storage.saveHighScore('rainbowGarden', this.score);
       soundEngine.playSFX('veggiePop');
@@ -198,10 +200,11 @@ export class RainbowGardenScene extends BaseScene {
       ctx.restore();
     }
 
-    // Grandpa on Far Left
-    drawGrandpa(ctx, 60, groundY - 20, 0.42, {
+    // Player Avatar Character on Far Left
+    renderCharacter(this.game.selectedAvatar, ctx, 60, groundY - 20, 0.42, {
       pullTension: 0,
-      eyeBlink: Math.sin(this.time * 2) > 0.85
+      eyeBlink: Math.sin(this.time * 2) > 0.85,
+      expression: 'happy'
     });
 
     // Soil Mounds and Flowers

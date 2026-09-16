@@ -1,10 +1,13 @@
 import { DisplayManager } from './DisplayManager';
 import { InputManager } from './InputManager';
-import { StorageManager } from './StorageManager';
+import { StorageManager, storageManager } from './StorageManager';
 import { GameLoop } from './GameLoop';
 import { soundEngine } from './SoundEngine';
 import { ParticleEngine } from './ParticleEngine';
 import { GameModeId } from '../types/game';
+import { CharacterId } from '../types/characters';
+import { StoryProgress } from '../types/story';
+import { STORY_STOPS } from '../story/storyData';
 import {
   BaseScene,
   MenuScene,
@@ -35,9 +38,12 @@ export class GameEngine {
   public scenes: Map<GameModeId, BaseScene> = new Map();
   public currentSceneId: GameModeId = 'MENU';
   public onSceneChangeCallback?: (mode: GameModeId) => void;
+  public activeStoryStopIndex: number = -1;
+  public onStoryIntroCallback?: (stopIndex: number) => void;
+  public onStoryVictoryCallback?: (stopIndex: number, score: number, stars: number, isNewStamp: boolean) => void;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.storage = new StorageManager();
+    this.storage = storageManager;
     this.display = new DisplayManager(canvas);
     this.input = new InputManager(this.display);
     this.particles = new ParticleEngine(120);
@@ -72,9 +78,51 @@ export class GameEngine {
     return this.scenes.get(this.currentSceneId);
   }
 
+  get selectedAvatar(): CharacterId {
+    return this.storage.getSelectedAvatar();
+  }
+
+  setSelectedAvatar(avatar: CharacterId): void {
+    this.storage.setSelectedAvatar(avatar);
+  }
+
+  get storyProgress(): StoryProgress {
+    return this.storage.getStoryProgress();
+  }
+
+  get storyViewMode(): 'journey' | 'grid' {
+    return this.storage.getStoryViewMode();
+  }
+
+  setStoryViewMode(mode: 'journey' | 'grid'): void {
+    this.storage.setStoryViewMode(mode);
+  }
+
+  launchStoryStop(index: number, showIntro: boolean = true): void {
+    const stop = STORY_STOPS[index];
+    if (!stop) return;
+    this.activeStoryStopIndex = index;
+    this.changeScene(stop.modeId);
+    if (showIntro && this.onStoryIntroCallback) {
+      this.onStoryIntroCallback(index);
+    }
+  }
+
+  triggerStoryVictory(score: number, stars: number = 3): void {
+    if (this.activeStoryStopIndex < 0) return;
+    const stopIndex = this.activeStoryStopIndex;
+    const { newStamp } = this.storage.completeStoryStop(stopIndex, score, stars);
+    if (this.onStoryVictoryCallback) {
+      this.onStoryVictoryCallback(stopIndex, score, stars, Boolean(newStamp));
+    }
+  }
+
   changeScene(sceneId: GameModeId): void {
     if (this.activeScene) {
       this.activeScene.exit();
+    }
+    if (sceneId === 'MENU') {
+      this.activeStoryStopIndex = -1;
     }
     this.currentSceneId = sceneId;
     const next = this.scenes.get(sceneId);
@@ -118,6 +166,14 @@ export class GameEngine {
   }
 
   update(dt: number, isPaused: boolean = false): void {
+    this.input.pollGamepads();
+
+    if (this.input.isKeyJustPressed('Home')) {
+      if (this.currentSceneId !== 'MENU') {
+        this.changeScene('MENU');
+      }
+    }
+
     if (this.input.isKeyJustPressed('KeyM')) {
       const newMute = !this.storage.isMuted();
       this.storage.setMuted(newMute);
@@ -169,7 +225,15 @@ export class GameEngine {
           'DINOSAUR_BALLOON',
           'PANCAKE_FLIPPER',
           'VEGETABLE_HARVEST',
-          'HOPSCOTCH_BUBBLE'
+          'HOPSCOTCH_BUBBLE',
+          'MIX_MATCH',
+          'PEEK_A_BOO',
+          'ICE_CREAM_VAN',
+          'LITTLE_TRAIN',
+          'CAR_WASH',
+          'WINDY_KITE',
+          'RAINBOW_GARDEN',
+          'DUCK_PICNIC'
         ];
       },
       get subState() {

@@ -22,6 +22,9 @@ export class InputManager {
   public wheelDeltaY: number = 0;
   public wheelDeltaX: number = 0;
 
+  private _prevGamepadButtons: Map<number, boolean> = new Map();
+  private _gamepadKeysDown: Set<string> = new Set();
+
   private _listeners: Map<string, Array<(data: unknown) => void>> = new Map();
   private _boundOnPointerDown: (e: PointerEvent) => void;
   private _boundOnPointerMove: (e: PointerEvent) => void;
@@ -232,6 +235,86 @@ export class InputManager {
       for (const fn of list) {
         try { fn(data); } catch (err) { console.error('Input listener error:', err); }
       }
+    }
+  }
+
+  public pollGamepads(): void {
+    if (typeof navigator === 'undefined' || typeof navigator.getGamepads !== 'function') return;
+    const gamepads = navigator.getGamepads();
+    if (!gamepads) return;
+
+    for (let i = 0; i < gamepads.length; i++) {
+      const pad = gamepads[i];
+      if (!pad) continue;
+
+      // D-Pad buttons: 12: Up, 13: Down, 14: Left, 15: Right
+      const btnUp = Boolean(pad.buttons[12]?.pressed);
+      const btnDown = Boolean(pad.buttons[13]?.pressed);
+      const btnLeft = Boolean(pad.buttons[14]?.pressed);
+      const btnRight = Boolean(pad.buttons[15]?.pressed);
+
+      // Left Stick axes: 0: X (-1 to 1), 1: Y (-1 to 1)
+      const axisX = pad.axes && pad.axes.length > 0 ? pad.axes[0] : 0;
+      const axisY = pad.axes && pad.axes.length > 1 ? pad.axes[1] : 0;
+      const deadzone = 0.45;
+
+      const upActive = btnUp || axisY < -deadzone;
+      const downActive = btnDown || axisY > deadzone;
+      const leftActive = btnLeft || axisX < -deadzone;
+      const rightActive = btnRight || axisX > deadzone;
+
+      this._syncGamepadKey('ArrowUp', upActive);
+      this._syncGamepadKey('ArrowDown', downActive);
+      this._syncGamepadKey('ArrowLeft', leftActive);
+      this._syncGamepadKey('ArrowRight', rightActive);
+
+      // Button 0 / A: triggers action
+      const btnA = Boolean(pad.buttons[0]?.pressed);
+      this._syncGamepadKey('Space', btnA);
+      this._syncGamepadKey('Enter', btnA);
+      const prevA = this._prevGamepadButtons.get(0) || false;
+      if (btnA && !prevA) {
+        this.actionJustPressed = true;
+        this.actionIsDown = true;
+        this._unlockAudio();
+      } else if (!btnA && prevA) {
+        if (this.pointers.size === 0 && !this.keysDown.has('Space') && !this.keysDown.has('Enter')) {
+          this.actionIsDown = false;
+          this.actionJustReleased = true;
+        }
+      }
+      this._prevGamepadButtons.set(0, btnA);
+
+      // Button 9 / Start: triggers Home
+      const btnStart = Boolean(pad.buttons[9]?.pressed);
+      const prevStart = this._prevGamepadButtons.get(9) || false;
+      if (btnStart && !prevStart) {
+        this.keysJustPressed.add('Home');
+        this.keysDown.add('Home');
+        this.emit('home', {});
+      } else if (!btnStart && prevStart) {
+        this.keysDown.delete('Home');
+        this.keysJustReleased.add('Home');
+      }
+      this._prevGamepadButtons.set(9, btnStart);
+
+      break;
+    }
+  }
+
+  private _syncGamepadKey(code: string, active: boolean): void {
+    const wasActive = this._gamepadKeysDown.has(code);
+    if (active && !wasActive) {
+      this._gamepadKeysDown.add(code);
+      if (!this.keysDown.has(code)) {
+        this.keysJustPressed.add(code);
+      }
+      this.keysDown.add(code);
+      this._unlockAudio();
+    } else if (!active && wasActive) {
+      this._gamepadKeysDown.delete(code);
+      this.keysDown.delete(code);
+      this.keysJustReleased.add(code);
     }
   }
 

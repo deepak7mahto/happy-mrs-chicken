@@ -14,7 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawLeo } from '../../graphics/characters/leoRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -47,6 +47,7 @@ export class DinosaurBalloonScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('frenzy');
     this.score = 0;
     this.combo = 1;
     this.comboTimer = 0;
@@ -103,6 +104,7 @@ export class DinosaurBalloonScene extends BaseScene {
     if (!b || b.popped) return;
     b.popped = true;
     this.poppedCount++;
+    this.checkStoryGoal(this.poppedCount);
 
     const isGolden = b.color === '#FFD700' || b.color === '#FFC107';
     const basePts = isGolden ? 100 : 50;
@@ -236,7 +238,8 @@ export class DinosaurBalloonScene extends BaseScene {
     const jawAngle = getJawRotationAngle(this.chompTimer);
     const popReaction = getBalloonPopReaction(this.popTimer);
 
-    drawLeo(ctx, leoX, leoY, leoScale, {
+    // Player Avatar Character & Dinosaur
+    renderCharacter(this.game.selectedAvatar, ctx, leoX, leoY, leoScale, {
       holdingDino: true,
       dinoChomp: jawAngle > 0 ? jawAngle / (Math.PI / 6) : 0,
       squash: popReaction.surpriseScale,

@@ -1,5 +1,5 @@
 /**
- * Mode 0: Main Menu / 15-Game Arcade Selection Suite
+ * Mode 0: Main Menu / Story Journey & Arcade Free Play Suite
  * Adventures of Trishu Mini-Game Suite
  * Strictly under 500 Lines of Code
  */
@@ -12,18 +12,29 @@ import { ModeCardDef } from '../../types/game';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { MENU_CARDS, renderMenuCharacterPreview } from './menuData';
+import { MENU_CARDS } from './menuData';
+import { renderMenuCardGrid } from './menuGridRenderer';
+import { StoryMapRenderer } from '../../story/storyMapRenderer';
+import { STORY_STOPS } from '../../story/storyData';
 
 export class MenuScene extends BaseScene {
   public time: number = 0;
   public scrollY: number = 0;
   public scrollVy: number = 0;
+  public focusedCardIndex: number = 0;
+  public storyMap: StoryMapRenderer = new StoryMapRenderer();
+
   private isDragging: boolean = false;
   private dragStartY: number = 0;
   private dragStartX: number = 0;
   private dragStartScrollY: number = 0;
   private lastPointerY: number = 0;
   private lastPointerTime: number = 0;
+
+  private cachedCards: ModeCardDef[] = [];
+  private lastVWidth: number = -1;
+  private lastVHeight: number = -1;
+  private lastIsPortrait: boolean = false;
 
   constructor(game: GameEngine) {
     super(game);
@@ -34,14 +45,38 @@ export class MenuScene extends BaseScene {
     this.scrollY = 0;
     this.scrollVy = 0;
     this.isDragging = false;
+    soundEngine.setTrack('classic');
     soundEngine.unlock().then(() => {
       if (soundEngine.sequencer) {
         soundEngine.sequencer.start();
       }
     });
+
+    // In journey mode, auto-scroll to keep active stop in view
+    if (this.game.storyViewMode === 'journey') {
+      const activeIdx = this.game.storyProgress.currentStopIndex;
+      if (activeIdx > 2) {
+        const stepY = this.game.display.isPortrait ? 150 : 140;
+        this.scrollY = -Math.max(0, (activeIdx - 1) * stepY);
+      }
+    }
+  }
+
+  get viewMode(): 'journey' | 'grid' {
+    return this.game.storyViewMode;
   }
 
   private getContentHeight(display: DisplayManager): number {
+    if (this.viewMode === 'journey') {
+      return this.storyMap.getTotalContentHeight(display);
+    }
+    if (display.isPortrait) {
+      const cards = this.getModeCards(display);
+      if (cards.length > 0) {
+        const last = cards[cards.length - 1];
+        return last.y + last.h / 2 + 30;
+      }
+    }
     return display.vHeight + 40;
   }
 
@@ -49,55 +84,106 @@ export class MenuScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
-    const cards: ModeCardDef[] = [];
-    const cols = 4;
-    const rows = 4;
 
-    if (isPortrait) {
-      const topPad = Math.max(56, Math.round(vHeight * 0.072));
-      const bottomPad = 10;
-      const padX = 10;
-      const gapX = 8;
-      const gapY = 8;
-      const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
-      const cardH = (vHeight - topPad - bottomPad - (rows - 1) * gapY) / rows;
-
-      for (let i = 0; i < MENU_CARDS.length; i++) {
-        const info = MENU_CARDS[i];
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        const x = padX + cardW / 2 + col * (cardW + gapX);
-        const y = topPad + cardH / 2 + row * (cardH + gapY);
-        cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
-      }
-    } else {
-      const topPad = 48;
-      const bottomPad = 10;
-      const padX = 20;
-      const gapX = 12;
-      const gapY = 8;
-      const cardW = (vWidth - padX * 2 - (cols - 1) * gapX) / cols;
-      const cardH = (vHeight - topPad - bottomPad - (rows - 1) * gapY) / rows;
-
-      for (let i = 0; i < MENU_CARDS.length; i++) {
-        const info = MENU_CARDS[i];
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        const x = padX + cardW / 2 + col * (cardW + gapX);
-        const y = topPad + cardH / 2 + row * (cardH + gapY);
-        cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
-      }
+    if (
+      this.cachedCards.length === MENU_CARDS.length &&
+      this.lastVWidth === vWidth &&
+      this.lastVHeight === vHeight &&
+      this.lastIsPortrait === isPortrait
+    ) {
+      return this.cachedCards;
     }
 
+    const cards: ModeCardDef[] = [];
+    const cols = isPortrait ? 2 : 4;
+    const gapX = isPortrait ? 16 : 12;
+    const gapY = isPortrait ? 12 : 8;
+    const topPad = isPortrait ? Math.max(90, Math.round(vHeight * 0.11)) : 72;
+    const cardW = isPortrait ? 240 : (vWidth - 40 - 3 * gapX) / 4;
+    const cardH = isPortrait ? 144 : (vHeight - topPad - 10 - 3 * gapY) / 4;
+    const padX = isPortrait ? Math.round((vWidth - (2 * cardW + gapX)) / 2) : 20;
+
+    for (let i = 0; i < MENU_CARDS.length; i++) {
+      const info = MENU_CARDS[i];
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = padX + cardW / 2 + col * (cardW + gapX);
+      const y = topPad + cardH / 2 + row * (cardH + gapY);
+      cards.push({ id: info.id, title: info.title, sub: info.sub, badge: info.badge, color: info.color, x, y, w: cardW, h: cardH });
+    }
+
+    this.lastVWidth = vWidth;
+    this.lastVHeight = vHeight;
+    this.lastIsPortrait = isPortrait;
+    this.cachedCards = cards;
     return cards;
   }
 
+  private scrollCardIntoView(card: ModeCardDef, display: DisplayManager): void {
+    const topPad = display.isPortrait ? 88 : 72;
+    const vHeight = display.vHeight;
+    const contentH = this.getContentHeight(display);
+    const maxScroll = Math.max(0, contentH - vHeight);
+
+    const cardTop = card.y - card.h / 2;
+    const cardBottom = card.y + card.h / 2;
+
+    if (cardTop + this.scrollY < topPad + 10) {
+      this.scrollY = topPad + 10 - cardTop;
+    } else if (cardBottom + this.scrollY > vHeight - 12) {
+      this.scrollY = vHeight - 12 - cardBottom;
+    }
+
+    if (this.scrollY > 0) this.scrollY = 0;
+    if (this.scrollY < -maxScroll) this.scrollY = -maxScroll;
+  }
+
+  private handleModeToggleTap(x: number, y: number, display: DisplayManager): boolean {
+    const isPortrait = display.isPortrait;
+    const topH = isPortrait ? 86 : 68;
+    if (y > topH) return false;
+
+    const toggleW = isPortrait ? 270 : 310;
+    const toggleH = 32;
+    const toggleX = display.vWidth / 2 - toggleW / 2;
+    const toggleY = (isPortrait ? 48 : 36);
+
+    if (x >= toggleX && x <= toggleX + toggleW && y >= toggleY && y <= toggleY + toggleH) {
+      const clickSide = x < toggleX + toggleW / 2 ? 'journey' : 'grid';
+      if (this.game.storyViewMode !== clickSide) {
+        soundEngine.playSFX('click');
+        Haptics.tap();
+        this.game.setStoryViewMode(clickSide);
+        this.scrollY = 0;
+        this.scrollVy = 0;
+      }
+      return true;
+    }
+    return false;
+  }
+
   handleTap(x: number, y: number): boolean {
-    const titleAreaH = this.game.display.isPortrait ? 54 : 44;
+    // Check mode toggle switch at top
+    if (this.handleModeToggleTap(x, y, this.game.display)) {
+      return true;
+    }
+
+    const titleAreaH = this.game.display.isPortrait ? 86 : 68;
     if (y < titleAreaH) return false;
 
+    if (this.viewMode === 'journey') {
+      if (this.storyMap.handleTap(x, y, this.game.display, this.game, this.scrollY)) {
+        soundEngine.playSFX('click');
+        Haptics.medium();
+        return true;
+      }
+      return false;
+    }
+
+    // Grid tap handling
     const cards = this.getModeCards(this.game.display);
-    for (const card of cards) {
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
       const curY = card.y + this.scrollY;
       if (
         x >= card.x - card.w / 2 - 4 &&
@@ -105,6 +191,7 @@ export class MenuScene extends BaseScene {
         y >= curY - card.h / 2 - 4 &&
         y <= curY + card.h / 2 + 4
       ) {
+        this.focusedCardIndex = i;
         soundEngine.playSFX('click');
         Haptics.medium();
         this.game.changeScene(card.id);
@@ -118,228 +205,131 @@ export class MenuScene extends BaseScene {
     this.time += dt;
 
     const display = this.game.display;
-    const vHeight = display.vHeight;
     const contentH = this.getContentHeight(display);
-    const maxScroll = Math.max(0, contentH - vHeight);
+    const maxScroll = Math.max(0, contentH - display.vHeight);
 
+    // Continuous keyboard arrow scrolling for accessibility
+    if (input.isKeyDown('ArrowDown')) {
+      this.scrollY -= 350 * dt;
+      this.scrollVy = 0;
+    } else if (input.isKeyDown('ArrowUp')) {
+      this.scrollY += 350 * dt;
+      this.scrollVy = 0;
+    }
+
+    // Keyboard & Gamepad focus navigation
+    const cards = this.getModeCards(display);
+    const cols = display.isPortrait ? 2 : 4;
+    const totalCards = cards.length;
+
+    let nextIndex = this.focusedCardIndex;
+    if (input.isKeyJustPressed('ArrowRight')) {
+      if (nextIndex + 1 < totalCards) nextIndex++;
+    } else if (input.isKeyJustPressed('ArrowLeft')) {
+      if (nextIndex - 1 >= 0) nextIndex--;
+    } else if (input.isKeyJustPressed('ArrowDown')) {
+      if (nextIndex + cols < totalCards) nextIndex += cols;
+    } else if (input.isKeyJustPressed('ArrowUp')) {
+      if (nextIndex - cols >= 0) nextIndex -= cols;
+    }
+
+    if (nextIndex !== this.focusedCardIndex) {
+      this.focusedCardIndex = nextIndex;
+      soundEngine.playSFX('click');
+      Haptics.tap();
+      if (cards[nextIndex]) {
+        this.scrollCardIntoView(cards[nextIndex], display);
+      }
+      if (this.viewMode === 'journey') {
+        const nextStop = Math.min(STORY_STOPS.length - 1, nextIndex);
+        this.game.storage.setCurrentStoryStopIndex(nextStop);
+      }
+    }
+
+    if (input.isKeyJustPressed('Enter') || input.isKeyJustPressed('Space')) {
+      if (this.viewMode === 'journey') {
+        this.game.launchStoryStop(this.game.storyProgress.currentStopIndex, true);
+      } else if (cards[this.focusedCardIndex]) {
+        soundEngine.playSFX('click');
+        Haptics.medium();
+        this.game.changeScene(cards[this.focusedCardIndex].id);
+      }
+      return;
+    }
+
+    // Touchpad wheel scrolling
+    const wheelY = input.wheelDeltaY;
+    if (Math.abs(wheelY) > 0.5) {
+      this.scrollY -= wheelY * 0.85;
+      this.scrollVy = 0;
+    }
+
+    // Touch & Drag gestures
     const ptr = input.primaryPointer;
-    const isActionDown = input.isActionDown();
-
-    if (input.isActionJustPressed()) {
+    if (input.actionJustPressed) {
+      this.isDragging = true;
       this.dragStartY = ptr.y;
       this.dragStartX = ptr.x;
       this.dragStartScrollY = this.scrollY;
       this.lastPointerY = ptr.y;
       this.lastPointerTime = performance.now();
-      this.isDragging = false;
       this.scrollVy = 0;
-    } else if (isActionDown) {
+    } else if (this.isDragging && input.actionIsDown) {
       const dy = ptr.y - this.dragStartY;
-      const dx = ptr.x - this.dragStartX;
-      const dist = Math.hypot(dx, dy);
+      this.scrollY = this.dragStartScrollY + dy;
 
-      if (!this.isDragging && dist > 10) {
-        this.isDragging = true;
-      }
-
-      if (this.isDragging) {
-        const now = performance.now();
-        const dtMs = Math.max(1, now - this.lastPointerTime);
-        const instVy = ((ptr.y - this.lastPointerY) / dtMs) * 1000;
-        this.scrollVy = this.scrollVy * 0.4 + instVy * 0.6;
-        this.lastPointerY = ptr.y;
-        this.lastPointerTime = now;
-
-        let newScroll = this.dragStartScrollY + dy;
-        if (newScroll > 0) {
-          newScroll = newScroll * 0.35;
-        } else if (newScroll < -maxScroll) {
-          const over = newScroll + maxScroll;
-          newScroll = -maxScroll + over * 0.35;
-        }
-        this.scrollY = newScroll;
-      }
-    } else {
-      if (input.actionJustReleased) {
-        if (!this.isDragging) {
-          this.handleTap(ptr.x, ptr.y);
-        }
-        this.isDragging = false;
-      }
-    }
-
-    // Touchpad / mouse wheel scrolling
-    if (Math.abs(input.wheelDeltaY) > 0.01) {
-      this.scrollY -= input.wheelDeltaY;
-      this.scrollVy = -input.wheelDeltaY * 6;
+      const now = performance.now();
+      const dtPointer = Math.max(1, now - this.lastPointerTime);
+      this.scrollVy = ((ptr.y - this.lastPointerY) / dtPointer) * 16.67;
+      this.lastPointerY = ptr.y;
+      this.lastPointerTime = now;
+    } else if (this.isDragging && !input.actionIsDown) {
       this.isDragging = false;
+      const totalDist = Math.hypot(ptr.x - this.dragStartX, ptr.y - this.dragStartY);
+      if (totalDist < 12) {
+        this.handleTap(ptr.x, ptr.y);
+      }
     }
 
-    // Keyboard arrow keys scrolling
-    if (input.isKeyDown('ArrowDown') || input.isKeyDown('PageDown')) {
-      this.scrollY -= 400 * dt;
-    } else if (input.isKeyDown('ArrowUp') || input.isKeyDown('PageUp')) {
-      this.scrollY += 400 * dt;
-    }
-
-    if (!isActionDown) {
-      if (Math.abs(this.scrollVy) > 15) {
-        this.scrollY += this.scrollVy * dt;
-        this.scrollVy *= Math.pow(0.04, dt);
+    // Apply scroll inertia
+    if (!this.isDragging) {
+      if (Math.abs(this.scrollVy) > 0.1) {
+        this.scrollY += this.scrollVy;
+        this.scrollVy *= 0.92;
       } else {
         this.scrollVy = 0;
       }
 
+      // Elastic bounce-back limits
       if (this.scrollY > 0) {
-        this.scrollY = Math.max(0, this.scrollY - this.scrollY * 14 * dt);
-        this.scrollVy = 0;
+        this.scrollY += (0 - this.scrollY) * 0.22;
       } else if (this.scrollY < -maxScroll) {
-        const diff = -maxScroll - this.scrollY;
-        this.scrollY = Math.min(-maxScroll, this.scrollY + diff * 14 * dt);
-        this.scrollVy = 0;
+        this.scrollY += (-maxScroll - this.scrollY) * 0.22;
       }
     }
   }
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
-    const topPad = isPortrait ? 52 : 44;
-
-    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
-
-    // Clipped Scroll Area
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, topPad, vWidth, vHeight - topPad);
-    ctx.clip();
-
-    ctx.save();
-    ctx.translate(0, this.scrollY);
-
-    const cards = this.getModeCards(display);
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      const curY = card.y + this.scrollY;
-      if (curY < -card.h || curY > vHeight + card.h) continue;
-
-      const info = MENU_CARDS[i];
-      const bestScore = this.game.storage.getHighScore(info.scoreKey);
-
-      ctx.save();
-      ctx.translate(card.x, card.y);
-
-      // Card Drop Shadow
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2 + 4, card.w, card.h, 14);
-      ctx.fill();
-
-      // Card Background
-      ctx.fillStyle = card.color;
-      ctx.strokeStyle = info.borderColor;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 14);
-      ctx.fill();
-      ctx.stroke();
-
-      if (isPortrait) {
-        // --- PORTRAIT TILE LAYOUT ---
-        // Category Badge (Top-Left)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
-        ctx.beginPath();
-        ctx.roundRect(-card.w / 2 + 5, -card.h / 2 + 5, 48, 17, 8);
-        ctx.fill();
-        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#37474F';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(card.badge, -card.w / 2 + 29, -card.h / 2 + 13.5);
-
-        // Best Score Badge (Top-Right)
-        ctx.fillStyle = '#E53935';
-        ctx.strokeStyle = '#B71C1C';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.roundRect(card.w / 2 - 53, -card.h / 2 + 5, 48, 17, 8);
-        ctx.fill();
-        ctx.stroke();
-        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`★ ${bestScore}`, card.w / 2 - 29, -card.h / 2 + 13.5);
-
-        // Character Preview (Center)
-        renderMenuCharacterPreview(ctx, card.id, 0, -card.h * 0.05, card.w * 0.85, this.time);
-
-        // Title & Subtitle Labels (Bottom)
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = 'bold 13px "Comic Sans MS", cursive, sans-serif';
-        ctx.fillStyle = '#212121';
-        ctx.fillText(card.title, 0, card.h / 2 - 24);
-
-        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#455A64';
-        ctx.fillText(card.sub, 0, card.h / 2 - 10);
-      } else {
-        // --- LANDSCAPE HORIZONTAL TILE LAYOUT ---
-        // Character Preview (Left Half)
-        renderMenuCharacterPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, this.time);
-
-        // Category Badge (Top-Right section)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-        ctx.beginPath();
-        ctx.roundRect(card.w / 2 - 115, -card.h / 2 + 5, 52, 17, 8);
-        ctx.fill();
-        ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#37474F';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(card.badge, card.w / 2 - 89, -card.h / 2 + 13.5);
-
-        // Best Score Badge (Far Top-Right)
-        ctx.fillStyle = '#E53935';
-        ctx.strokeStyle = '#B71C1C';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.roundRect(card.w / 2 - 58, -card.h / 2 + 5, 52, 17, 8);
-        ctx.fill();
-        ctx.stroke();
-        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`★ ${bestScore}`, card.w / 2 - 32, -card.h / 2 + 13.5);
-
-        // Title & Subtitle Labels (Right Half Center)
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = 'bold 13.5px "Comic Sans MS", cursive, sans-serif';
-        ctx.fillStyle = '#212121';
-        ctx.fillText(card.title, card.w * 0.16, 0);
-
-        ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
-        ctx.fillStyle = '#455A64';
-        ctx.fillText(card.sub, card.w * 0.16, 20);
-      }
-
-      ctx.restore();
-    }
-    ctx.restore();
-    ctx.restore();
-
-    // Scroll Indicator Pill (Right Edge - only if content exceeds viewport)
+    const isPortrait = display.isPortrait;
     const contentH = this.getContentHeight(display);
-    const maxScroll = Math.max(0, contentH - vHeight);
-    if (maxScroll > 15) {
-      const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScroll));
-      const trackH = vHeight - topPad - 20;
+
+    if (this.viewMode === 'journey') {
+      this.storyMap.render(ctx, display, this.game, this.scrollY, this.time);
+    } else {
+      drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
+      const cards = this.getModeCards(display);
+      renderMenuCardGrid(ctx, cards, this.scrollY, display, this.game, this.time, this.focusedCardIndex);
+    }
+
+    // Scroll Indicator Pill (Right Edge)
+    const maxScrollPill = Math.max(0, contentH - vHeight);
+    if (maxScrollPill > 15) {
+      const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScrollPill));
+      const trackH = vHeight - (isPortrait ? 90 : 76) - 20;
       const barH = Math.max(25, trackH * (vHeight / contentH));
-      const barY = topPad + 10 + scrollRatio * (trackH - barH);
+      const barY = (isPortrait ? 90 : 76) + 10 + scrollRatio * (trackH - barH);
       const barX = vWidth - 6;
 
       ctx.save();
@@ -350,21 +340,70 @@ export class MenuScene extends BaseScene {
       ctx.restore();
     }
 
-    // Fixed Title Banner (Top)
+    // Fixed Top Header & Mode Toggle Switch
+    this.renderHeader(ctx, display);
+  }
+
+  private renderHeader(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
+    const vWidth = display.vWidth;
+    const isPortrait = display.isPortrait;
+    const mode = this.viewMode;
+
     ctx.save();
-    const titleBob = Math.sin(this.time * 2.5) * 2;
-    const titleX = vWidth / 2;
-    const titleY = (isPortrait ? 26 : 22) + titleBob;
-    ctx.translate(titleX, titleY);
-    ctx.font = `900 ${isPortrait ? '24px' : '26px'} "Comic Sans MS", cursive, sans-serif`;
+    // Top frosted banner background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 3;
+    ctx.fillRect(0, 0, vWidth, isPortrait ? 86 : 70);
+    ctx.shadowColor = 'transparent';
+
+    // Title text
+    ctx.font = `900 ${isPortrait ? '20px' : '22px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#3E2723';
+    ctx.lineWidth = isPortrait ? 3.8 : 4.2;
+    ctx.strokeText('Adventures of Trishu', vWidth / 2, isPortrait ? 22 : 18);
+    ctx.fillStyle = '#FFD54F';
+    ctx.fillText('Adventures of Trishu', vWidth / 2, isPortrait ? 22 : 18);
+
+    // Segmented Pill Switch: [ 🗺️ Story Journey ]  [ 🎮 Free Play ]
+    const toggleW = isPortrait ? 270 : 310;
+    const toggleH = 30;
+    const toggleX = vWidth / 2 - toggleW / 2;
+    const toggleY = isPortrait ? 46 : 34;
+
+    // Outer pill container
+    ctx.fillStyle = '#ECEFF1';
+    ctx.strokeStyle = '#CFD8DC';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(toggleX, toggleY, toggleW, toggleH, 15);
+    ctx.fill();
+    ctx.stroke();
+
+    // Active pill slider
+    const halfW = toggleW / 2;
+    const activeX = mode === 'journey' ? toggleX + 2 : toggleX + halfW;
+    ctx.fillStyle = mode === 'journey' ? '#4CAF50' : '#42A5F5';
+    ctx.beginPath();
+    ctx.roundRect(activeX, toggleY + 2, halfW - 2, toggleH - 4, 13);
+    ctx.fill();
+
+    // Labels
+    ctx.font = 'bold 12.5px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = isPortrait ? 4.5 : 5.5;
-    ctx.strokeText('Adventures of Trishu', 0, 0);
-    ctx.fillStyle = '#FFE600';
-    ctx.fillText('Adventures of Trishu', 0, 0);
+    // Journey label
+    ctx.fillStyle = mode === 'journey' ? '#FFFFFF' : '#546E7A';
+    ctx.fillText('🗺️ Story Journey', toggleX + halfW / 2, toggleY + toggleH / 2);
+
+    // Free Play label
+    ctx.fillStyle = mode === 'grid' ? '#FFFFFF' : '#546E7A';
+    ctx.fillText('🎮 Free Play', toggleX + halfW + halfW / 2, toggleY + toggleH / 2);
+
     ctx.restore();
   }
 }

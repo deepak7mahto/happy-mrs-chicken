@@ -14,7 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawGrandpa } from '../../graphics/characters/grandpaRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -69,6 +69,7 @@ export class VegetableHarvestScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.harvestedCount = 0;
     this.pumpkinTugs = 0;
@@ -225,6 +226,7 @@ export class VegetableHarvestScene extends BaseScene {
           veg.isFlying = false;
           veg.isHarvested = true;
           this.harvestedCount++;
+          this.checkStoryGoal(this.harvestedCount);
           this.score += veg.points;
           this.wheelbarrowBounce = 1.0;
           this.pumpkinTugs = 0;
@@ -314,12 +316,13 @@ export class VegetableHarvestScene extends BaseScene {
     this.drawWheelbarrow(ctx, wbX, wbY, this.harvestedCount);
 
     const pullArt = getVeggiePullTension(this.currentPullTension, this.time);
-    drawGrandpa(ctx, grandpaX, grandpaY + pullArt.pullY, isPortrait ? 1.15 : 1.1, {
+    renderCharacter(this.game.selectedAvatar, ctx, grandpaX, grandpaY + pullArt.pullY, isPortrait ? 1.15 : 1.1, {
       pulling: this.activePullMoundIdx >= 0,
       pullTension: this.currentPullTension,
       welliesMuddy: true,
       eyeBlink: this.animState.isBlinking,
-      animState: this.animState
+      animState: this.animState,
+      expression: 'straining'
     });
 
     for (const m of this.mounds) {

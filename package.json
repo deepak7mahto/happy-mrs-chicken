@@ -1,7 +1,7 @@
 {
   "name": "adventures-of-trishu",
   "version": "3.1.0",
-  "description": "Adventures of Trishu - 9-Game Kids Mini-Game Suite (TypeScript + React + Vite)",
+  "description": "Adventures of Trishu - 16-Game Kids Mini-Game Suite (TypeScript + React + Vite)",
   "homepage": "https://deepak7mahto.github.io/happy-mrs-chicken/",
   "scripts": {
     "dev": "vite",
@@ -30,6 +30,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vudovn/ag-kit": "^2026.8.31",
     "gh-pages": "^6.3.0",
     "tsx": "^4.23.13",
     "typescript": "^5.7.3",

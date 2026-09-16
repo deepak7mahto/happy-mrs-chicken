@@ -10,7 +10,7 @@ import { InputManager } from '../../engine/InputManager';
 import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
-import { drawGrandpa, drawTrishu, drawMimi, drawLeo, drawBabyChick } from '../../graphics/characters';
+import { renderCharacter, drawGrandpa, drawTrishu, drawMimi, drawLeo, drawBabyChick } from '../../graphics/characters';
 
 interface PassengerStation {
   x: number;
@@ -32,6 +32,7 @@ export class LittleTrainScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('waltz');
     this.score = 0;
     this.trainX = 0;
     this.trainSpeed = 110;
@@ -116,6 +117,7 @@ export class LittleTrainScene extends BaseScene {
         st.pickedUp = true;
         this.passengers.push(st.type);
         this.score += 50;
+        this.checkStoryGoal(this.passengers.length);
         this.game.storage.saveHighScore('littleTrain', this.score);
         soundEngine.playSFX('fanfare');
         soundEngine.playSFX('bunnySqueak');
@@ -311,10 +313,11 @@ export class LittleTrainScene extends BaseScene {
     ctx.fill();
     ctx.stroke();
 
-    // Driver: Grandpa in Cab
-    drawGrandpa(ctx, trainBaseX + 22, trainBaseY - 55, 0.35, {
+    // Driver: Selected Avatar in Cab
+    renderCharacter(this.game.selectedAvatar, ctx, trainBaseX + 22, trainBaseY - 55, 0.35, {
       pullTension: 0,
-      eyeBlink: Math.sin(this.time * 2) > 0.85
+      eyeBlink: Math.sin(this.time * 2) > 0.85,
+      expression: 'happy'
     });
     ctx.restore();
 

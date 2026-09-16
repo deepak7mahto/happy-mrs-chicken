@@ -45,6 +45,8 @@ export class PeekABooScene extends BaseScene {
   }
 
   enter(): void {
+    super.enter();
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.peekFoundCount = 0;
     this.time = 0;
@@ -105,6 +107,7 @@ export class PeekABooScene extends BaseScene {
     spot.peekTimer = 2.4;
     spot.foundCount++;
     this.peekFoundCount++;
+    this.checkStoryGoal(this.peekFoundCount, 4);
     this.score += 50;
 
     // Trigger surprise SFX & Delight based on character

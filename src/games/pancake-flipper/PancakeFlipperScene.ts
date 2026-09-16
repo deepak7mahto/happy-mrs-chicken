@@ -14,7 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawMom } from '../../graphics/characters/momRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import {
   createCharacterAnimState,
   updateCharacterAnimState,
@@ -53,6 +53,7 @@ export class PancakeFlipperScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.stackCount = 0;
     this.multiplier = 1;
@@ -106,6 +107,7 @@ export class PancakeFlipperScene extends BaseScene {
     const plateBaseY = isPortrait ? vHeight * 0.65 : vHeight * 0.68;
     this.isAirborne = false;
     this.stackCount++;
+    this.checkStoryGoal(this.stackCount);
     const topY = plateBaseY - this.stackCount * 12;
 
     // 100% Golden Delight for Toddlers: every flip is delicious!
@@ -216,13 +218,14 @@ export class PancakeFlipperScene extends BaseScene {
     ctx.fillRect(0, counterY - 14, vWidth, 14);
     ctx.restore();
 
-    // Mom Character
+    // Player Avatar Character
     const panArt = getFryingPanAngle(this.flipPhase);
-    drawMom(ctx, mummyX, mummyY, isPortrait ? 1.2 : 1.15, {
+    renderCharacter(this.game.selectedAvatar, ctx, mummyX, mummyY, isPortrait ? 1.2 : 1.15, {
       holdingPan: true,
       panAngle: panArt.panAngle,
       eyeBlink: this.animState.isBlinking,
-      animState: this.animState
+      animState: this.animState,
+      expression: 'focused'
     });
 
     // Frying Pan & Stove

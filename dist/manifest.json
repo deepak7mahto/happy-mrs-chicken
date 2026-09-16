@@ -1,7 +1,7 @@
 {
   "name": "Adventures of Trishu",
   "short_name": "Trishu",
-  "description": "Joyful 9-game kids mini-game suite featuring Trishu, Leo, Mrs. Clucky, and farm friends!",
+  "description": "Joyful 16-game kids mini-game suite featuring Trishu, Leo, Mrs. Clucky, and farm friends!",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
@@ -52,7 +52,7 @@
       "name": "Happy Mrs. Clucky",
       "short_name": "Mrs. Clucky",
       "description": "Lay eggs and watch chirping baby chicks hatch!",
-      "url": "./index.html#egglaying",
+      "url": "./index.html#egg_laying",
       "icons": [
         {
           "src": "./icons/icon-192.png",
@@ -64,7 +64,7 @@
       "name": "Balloon Pop",
       "short_name": "Balloons",
       "description": "Tap and pop flying colorful balloons with confetti!",
-      "url": "./index.html#dinosaurballoon",
+      "url": "./index.html#dinosaur_balloon",
       "icons": [
         {
           "src": "./icons/icon-192.png",
@@ -76,7 +76,7 @@
       "name": "Puddle Splash",
       "short_name": "Puddles",
       "description": "Jump in muddy garden puddles with splash combos!",
-      "url": "./index.html#muddypuddles",
+      "url": "./index.html#muddy_puddles",
       "icons": [
         {
           "src": "./icons/icon-192.png",
@@ -88,7 +88,7 @@
       "name": "Muddy Car Wash",
       "short_name": "Car Wash",
       "description": "Scrub soapy bubbles and shine the family car!",
-      "url": "./index.html#muddycarwash",
+      "url": "./index.html#car_wash",
       "icons": [
         {
           "src": "./icons/icon-192.png",

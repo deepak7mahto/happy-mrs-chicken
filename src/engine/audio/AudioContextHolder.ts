@@ -85,4 +85,18 @@ export class AudioContextHolder {
     this.volume = Math.max(0, Math.min(1, volume));
     if (this.masterGain && this.ctx && !this.isMuted) this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
   }
+
+  public setBgmVolume(volume: number): void {
+    const v = Math.max(0, Math.min(1, volume));
+    if (this.musicGain && this.ctx) {
+      this.musicGain.gain.setValueAtTime(v * 0.45, this.ctx.currentTime);
+    }
+  }
+
+  public setSfxVolume(volume: number): void {
+    const v = Math.max(0, Math.min(1, volume));
+    if (this.sfxGain && this.ctx) {
+      this.sfxGain.gain.setValueAtTime(v, this.ctx.currentTime);
+    }
+  }
 }

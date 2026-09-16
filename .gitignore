@@ -1,4 +1,5 @@
 .agents/
 node_modules/
+.ag-kit-backups/
 .DS_Store
 *.log

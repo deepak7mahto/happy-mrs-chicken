@@ -12,7 +12,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawDad } from '../../graphics/characters/dadRenderer';
+import { renderCharacter } from '../../graphics/characters';
 
 export class DadKitchenScene extends BaseScene {
   public time: number = 0;
@@ -30,6 +30,8 @@ export class DadKitchenScene extends BaseScene {
   }
 
   enter(): void {
+    super.enter();
+    soundEngine.setTrack('frenzy');
     this.score = 0;
     this.fever = 0;
     this.timer = 20.0;
@@ -61,6 +63,7 @@ export class DadKitchenScene extends BaseScene {
     }
 
     this.itemsStacked++;
+    this.checkStoryGoal(this.itemsStacked, 6);
     this.fever = Math.min(100, this.fever + 6);
     this.multiplier = this.fever >= 90 ? 5 : (this.fever >= 60 ? 3 : (this.fever >= 30 ? 2 : 1));
     const earned = 10 * this.multiplier;
@@ -191,13 +194,14 @@ export class DadKitchenScene extends BaseScene {
     ctx.roundRect(deskX - 80, deskY - 16, 50, 38, 4);
     ctx.fill();
 
-    // Dad Character
+    // Player Avatar Character
     const dadX = isPortrait ? vWidth / 2 : vWidth * 0.72;
     const dadY = isPortrait ? vHeight * 0.38 : 240;
-    drawDad(ctx, dadX, dadY, isPortrait ? 1.25 : 1.1, {
+    renderCharacter(this.game.selectedAvatar, ctx, dadX, dadY, isPortrait ? 1.25 : 1.1, {
       panicStage,
       time: this.time,
-      sweatCount: panicStage > 0 ? panicStage * 2 : 0
+      sweatCount: panicStage > 0 ? panicStage * 2 : 0,
+      expression: panicStage > 0 ? 'surprised' : 'happy'
     });
 
     this.particles.render(ctx);

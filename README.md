@@ -87,6 +87,7 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
   * **Grandpa**: Friendly gardener with straw sun hat, garden overalls, and rubber boots.
   * **Mimi the Bunny**: Cute white bunny with pink inner ears, floral dress, and bubble wand.
   * **Mrs Clucky & Baby Chicks**: Proud farm hen and fluffy yellow chicks that peep and waddle.
+  * **Peppa Pig & Friends**: Peppa Pig, George Pig (with toy dino), Daddy Pig, Mummy Pig, Grandpa Pig (naval sailor cap & wellies), and Suzy Sheep (nurse outfit).
   * **Yellow Ducks**: Mama Ducky (flower head tuft), Pip (nimble quacker), and Baby Squeak (bouncy peep).
 * **Volume Preservation & Animations**: Physics-based squash & stretch, stochastic blinking intervals, breathing cycles, and dynamic facial expressions.
 
@@ -94,15 +95,16 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 
 ## 🚀 Features & Architecture
 
+* **🗺️ Continuous Story Journey Mode**: The 16 mini-games are woven together into a continuous 5-chapter narrative adventure from morning to sunset. Features an interactive procedural winding canvas map, milestone nodes, active avatar position beacons, and bite-sized toddler goals.
+* **📖 16-Stamp Adventure Passport Album**: Complete each story stop to earn a collectible gold stamp and star ratings. Collecting all 16 stamps awards the Grand Master Explorer Trophy (🏆).
+* **🐷 Universal 15-Character Avatar Selector**: Choose from 15 vector-rendered characters (Peppa Pig & friends, Trishu family, and farmyard animals) that seamlessly propagate across all 16 mini-games.
+* **🎵 4 Procedural BGM Mood Tracks & Dynamic Ducking**: Includes Classic (128 BPM), Frenzy (144 BPM), Waltz (108 BPM), and Gentle (92 BPM) procedural tracks with dynamic volume ducking on celebratory fanfares.
+* **🎛️ Dual-Mode Menu Switcher**: Effortlessly switch between `[ 🗺️ Story Journey ]` (default) and `[ 🎮 Free Play ]` (responsive 2-column portrait / 4-column landscape card grid).
 * **100% Zero-Dependency Standalone**: Pure TypeScript + React 19 + Vite. Zero external CDN dependencies; all code, vector art, and audio synthesis run 100% offline.
-* **Single-Screen 4×4 Responsive Menu**: Adaptive arcade grid fitting all 16 mini-games on a single screen without requiring scrolling across desktop and mobile.
-* **Standardized Centered HUD Badges**: All 16 games feature responsive centered pill badges that prevent overlap with the on-screen Home button and audio/fullscreen controls.
-* **Instant Touch Home Navigation**: Touchscreen-optimized pointer handling with 250ms debouncing ensures instant and reliable return to the menu across standalone PWAs, bookmarks, and mobile browsers.
 * **Heavy PWA & Automated Precache Pipeline**: Build-time injection (`scripts/generate-sw.mjs`) captures 100% of Vite hashed chunks, HTML, and assets into `dist/sw.js` Cache Storage for reliable, instant offline launch.
 * **Screen Wake Lock API**: Automatically locks the screen awake during active mini-gameplay so toddler play sessions are never interrupted by display dimming or sleep.
 * **Tactile In-App Install Experience**: Kid-friendly HUD install button with native `beforeinstallprompt` flow for Android/Chrome/Desktop and a step-by-step visual install guide for iOS Safari.
-* **Procedural Web Audio Engine**: All 20 sound effects (including roars, sizzles, whooshes, veggie pops, bubble pops, duck quacks, and dance fanfares) and 128 BPM multi-track background music are dynamically synthesized via the Web Audio API.
-* **Persistent High Scores**: High scores for all modes are stored locally via `localStorage`.
+* **Persistent State & Safe Toddler Lock**: Story progress, passport stamps, selected avatar, and audio settings are safely persisted in `localStorage`. Includes a 3-second hold toddler lock for the Home button.
 
 ---
 

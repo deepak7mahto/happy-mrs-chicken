@@ -11,7 +11,7 @@ import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawTrishu } from '../../graphics/characters';
+import { renderCharacter } from '../../graphics/characters';
 
 interface RainbowRibbon {
   x: number;
@@ -36,6 +36,8 @@ export class WindyKiteScene extends BaseScene {
   }
 
   enter(): void {
+    super.enter();
+    soundEngine.setTrack('gentle');
     const vWidth = this.game.display.vWidth;
     this.score = 0;
     this.collectedCount = 0;
@@ -81,6 +83,7 @@ export class WindyKiteScene extends BaseScene {
 
   update(dt: number, input: InputManager): void {
     this.time += dt;
+    this.checkStoryGoal(this.time, 15);
 
     if (this.loopTimer > 0) {
       this.loopTimer -= dt;
@@ -169,10 +172,10 @@ export class WindyKiteScene extends BaseScene {
       }
     }
 
-    // Trishu on Ground
+    // Player Avatar on Ground
     const trishuX = 85;
     const trishuY = vHeight - 110;
-    drawTrishu(ctx, trishuX, trishuY, 0.45, {
+    renderCharacter(this.game.selectedAvatar, ctx, trishuX, trishuY, 0.45, {
       armWave: Math.sin(this.time * 4) * 0.25,
       eyeBlink: Math.sin(this.time * 2.2) > 0.85,
       jumpY: this.loopTimer > 0 ? 8 : 0,

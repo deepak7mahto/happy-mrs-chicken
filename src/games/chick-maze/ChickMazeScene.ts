@@ -28,6 +28,7 @@ export class ChickMazeScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.score = 0;
     this.coopSavedCount = 0;
     this.seeds = [];
@@ -175,6 +176,7 @@ export class ChickMazeScene extends BaseScene {
       if (cdx * cdx + cdy * cdy <= coopDoor.r * coopDoor.r) {
         this.coopSavedCount++;
         this.score += 100;
+        this.checkStoryGoal(this.coopSavedCount);
         this.particles.spawnConfetti(coopDoor.x, coopDoor.y, 25);
         this.particles.spawnSparkles(coopDoor.x, coopDoor.y, 14);
         this.particles.spawnScorePopup(coopDoor.x, coopDoor.y - 25, '+100');

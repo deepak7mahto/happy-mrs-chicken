@@ -3,9 +3,26 @@
  * Adventures of Trishu 8-Game Suite
  */
 
-import { StorageData, HighScores, IStorageManager } from '../types/storage';
+import { StorageData, HighScores, IStorageManager, SettingsState } from '../types/storage';
+import { CharacterId } from '../types/characters';
+import { StoryProgress } from '../types/story';
+import { STORY_STOPS } from '../story/storyData';
 
 const STORAGE_KEY = 'hmc_game_data_v1';
+
+const VALID_AVATARS: Set<string> = new Set([
+  'peppa', 'george', 'daddyPig', 'mummyPig', 'grandpaPig', 'suzySheep',
+  'trishu', 'leo', 'dad', 'mom', 'grandpa', 'mimi',
+  'chicken', 'chick', 'duck'
+]);
+
+const DEFAULT_STORY_PROGRESS: StoryProgress = {
+  currentStopIndex: 0,
+  completedStops: {},
+  passportStamps: [],
+  viewMode: 'journey',
+  hasCompletedGrandFinale: false
+};
 
 const DEFAULT_HIGH_SCORES: HighScores = {
   eggLaying: 0,
@@ -123,14 +140,35 @@ export class StorageManager implements IStorageManager {
             };
 
             const rawSettings = parsed.settings || {};
-            const settings = {
+            const settings: SettingsState = {
               soundMuted: Boolean(rawSettings.soundMuted),
               musicMuted: Boolean(rawSettings.musicMuted),
               volume: typeof rawSettings.volume === 'number' ? Math.max(0, Math.min(1, rawSettings.volume)) : 1.0,
-              hapticsEnabled: rawSettings.hapticsEnabled !== undefined ? Boolean(rawSettings.hapticsEnabled) : true
+              bgmVolume: typeof rawSettings.bgmVolume === 'number' ? Math.max(0, Math.min(1, rawSettings.bgmVolume)) : 0.7,
+              sfxVolume: typeof rawSettings.sfxVolume === 'number' ? Math.max(0, Math.min(1, rawSettings.sfxVolume)) : 0.9,
+              hapticsEnabled: rawSettings.hapticsEnabled !== undefined ? Boolean(rawSettings.hapticsEnabled) : true,
+              toddlerLock: Boolean(rawSettings.toddlerLock),
+              selectedAvatar: (rawSettings.selectedAvatar && VALID_AVATARS.has(rawSettings.selectedAvatar))
+                ? (rawSettings.selectedAvatar as CharacterId)
+                : 'peppa'
             };
 
-            return { highScores, settings, version: 1, lastSaved: Date.now() };
+            const rawStory = parsed.storyProgress || {};
+            const storyProgress: StoryProgress = {
+              currentStopIndex: typeof rawStory.currentStopIndex === 'number'
+                ? Math.max(0, Math.min(15, rawStory.currentStopIndex))
+                : 0,
+              completedStops: typeof rawStory.completedStops === 'object' && rawStory.completedStops
+                ? rawStory.completedStops
+                : {},
+              passportStamps: Array.isArray(rawStory.passportStamps)
+                ? rawStory.passportStamps
+                : [],
+              viewMode: rawStory.viewMode === 'grid' ? 'grid' : 'journey',
+              hasCompletedGrandFinale: Boolean(rawStory.hasCompletedGrandFinale)
+            };
+
+            return { highScores, settings, storyProgress, version: 1, lastSaved: Date.now() };
           }
         }
       }
@@ -140,7 +178,17 @@ export class StorageManager implements IStorageManager {
 
     return {
       highScores: { ...DEFAULT_HIGH_SCORES },
-      settings: { soundMuted: false, musicMuted: false, volume: 1.0, hapticsEnabled: true },
+      settings: {
+        soundMuted: false,
+        musicMuted: false,
+        volume: 1.0,
+        bgmVolume: 0.7,
+        sfxVolume: 0.9,
+        hapticsEnabled: true,
+        toddlerLock: false,
+        selectedAvatar: 'peppa'
+      },
+      storyProgress: { ...DEFAULT_STORY_PROGRESS, completedStops: {} },
       version: 1,
       lastSaved: Date.now()
     };
@@ -202,13 +250,147 @@ export class StorageManager implements IStorageManager {
     this.save();
   }
 
+  getBgmVolume(): number {
+    return typeof this.data.settings.bgmVolume === 'number' ? this.data.settings.bgmVolume : 0.7;
+  }
+
+  setBgmVolume(volume: number): void {
+    this.data.settings.bgmVolume = Math.max(0, Math.min(1, volume));
+    this.save();
+  }
+
+  getSfxVolume(): number {
+    return typeof this.data.settings.sfxVolume === 'number' ? this.data.settings.sfxVolume : 0.9;
+  }
+
+  setSfxVolume(volume: number): void {
+    this.data.settings.sfxVolume = Math.max(0, Math.min(1, volume));
+    this.save();
+  }
+
+  isHapticsEnabled(): boolean {
+    return this.data.settings.hapticsEnabled !== false;
+  }
+
+  setHapticsEnabled(enabled: boolean): void {
+    this.data.settings.hapticsEnabled = Boolean(enabled);
+    this.save();
+  }
+
+  isToddlerLockEnabled(): boolean {
+    return Boolean(this.data.settings.toddlerLock);
+  }
+
+  setToddlerLockEnabled(enabled: boolean): void {
+    this.data.settings.toddlerLock = Boolean(enabled);
+    this.save();
+  }
+
+  getSelectedAvatar(): CharacterId {
+    return this.data.settings.selectedAvatar || 'peppa';
+  }
+
+  setSelectedAvatar(avatar: CharacterId): void {
+    if (VALID_AVATARS.has(avatar)) {
+      this.data.settings.selectedAvatar = avatar;
+      this.save();
+    }
+  }
+
+  resetHighScores(): void {
+    this.data.highScores = { ...DEFAULT_HIGH_SCORES };
+    this.save();
+  }
+
+  getStoryProgress(): StoryProgress {
+    if (!this.data.storyProgress) {
+      this.data.storyProgress = { ...DEFAULT_STORY_PROGRESS, completedStops: {} };
+    }
+    return this.data.storyProgress;
+  }
+
+  saveStoryProgress(progress: StoryProgress): boolean {
+    this.data.storyProgress = progress;
+    return this.save();
+  }
+
+  getStoryViewMode(): 'journey' | 'grid' {
+    return this.getStoryProgress().viewMode || 'journey';
+  }
+
+  setStoryViewMode(mode: 'journey' | 'grid'): void {
+    const progress = this.getStoryProgress();
+    progress.viewMode = mode;
+    this.save();
+  }
+
+  getCurrentStoryStopIndex(): number {
+    return this.getStoryProgress().currentStopIndex;
+  }
+
+  setCurrentStoryStopIndex(index: number): void {
+    const progress = this.getStoryProgress();
+    progress.currentStopIndex = Math.max(0, Math.min(15, index));
+    this.save();
+  }
+
+  completeStoryStop(stopIndex: number, score: number, stars: number = 3): { unlockedNext: boolean; newStamp?: string } {
+    const progress = this.getStoryProgress();
+    const stop = STORY_STOPS[stopIndex];
+    if (!stop) return { unlockedNext: false };
+
+    const existing = progress.completedStops[stop.id];
+    const prevStars = existing?.stars || 0;
+    const prevScore = existing?.bestScore || 0;
+
+    progress.completedStops[stop.id] = {
+      completed: true,
+      stars: Math.max(stars, prevStars),
+      bestScore: Math.max(score, prevScore),
+      timestamp: Date.now()
+    };
+
+    let newStamp: string | undefined;
+    if (!progress.passportStamps.includes(stop.stampId)) {
+      progress.passportStamps.push(stop.stampId);
+      newStamp = stop.stampId;
+    }
+
+    let unlockedNext = false;
+    if (progress.currentStopIndex <= stopIndex && stopIndex < 15) {
+      progress.currentStopIndex = stopIndex + 1;
+      unlockedNext = true;
+    } else if (stopIndex === 15) {
+      progress.hasCompletedGrandFinale = true;
+    }
+
+    this.save();
+    return { unlockedNext, newStamp };
+  }
+
+  hasPassportStamp(stampId: string): boolean {
+    return this.getStoryProgress().passportStamps.includes(stampId);
+  }
+
   resetAll(): void {
     this.data = {
       highScores: { ...DEFAULT_HIGH_SCORES },
-      settings: { soundMuted: false, musicMuted: false, volume: 1.0, hapticsEnabled: true },
+      settings: {
+        soundMuted: false,
+        musicMuted: false,
+        volume: 1.0,
+        bgmVolume: 0.7,
+        sfxVolume: 0.9,
+        hapticsEnabled: true,
+        toddlerLock: false,
+        selectedAvatar: 'peppa'
+      },
+      storyProgress: { ...DEFAULT_STORY_PROGRESS, completedStops: {} },
       version: 1,
       lastSaved: Date.now()
     };
     this.save();
   }
 }
+
+export const storageManager = new StorageManager();

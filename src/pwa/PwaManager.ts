@@ -9,7 +9,23 @@ export type PwaEventType =
   | 'connectionChange'
   | 'wakeLockChange';
 
-export type PwaEventListener = (data?: any) => void;
+export type PwaEventDataMap = {
+  installableChange: boolean;
+  installed: void;
+  updateAvailable: void;
+  connectionChange: boolean;
+  wakeLockChange: boolean;
+};
+
+interface WakeLockSentinelLike {
+  release: () => Promise<void>;
+  released?: boolean;
+  addEventListener?: (name: string, cb: () => void) => void;
+}
+
+export type PwaEventListener<E extends PwaEventType = PwaEventType> = (data: PwaEventDataMap[E]) => void;
+
+export type PwaGenericListener = (data?: unknown) => void;
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -20,11 +36,11 @@ export class PwaManager {
   private static instance: PwaManager | null = null;
 
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
-  private wakeLockSentinel: any = null;
+  private wakeLockSentinel: WakeLockSentinelLike | null = null;
   private shouldKeepWakeLock: boolean = false;
   private waitingServiceWorker: ServiceWorker | null = null;
   private updatePending: boolean = false;
-  private listeners: Map<PwaEventType, Set<PwaEventListener>> = new Map();
+  private listeners: Map<PwaEventType, Set<PwaGenericListener>> = new Map();
 
   private constructor() {
     this.initListeners();
@@ -80,14 +96,14 @@ export class PwaManager {
   public isStandalone(): boolean {
     if (typeof window === 'undefined') return false;
     const isStandaloneMQ = window.matchMedia?.('(display-mode: standalone)').matches;
-    const isIOSStandalone = (window.navigator as any)?.standalone === true;
+    const isIOSStandalone = (window.navigator as unknown as { standalone?: boolean })?.standalone === true;
     return Boolean(isStandaloneMQ || isIOSStandalone);
   }
 
   public isIOS(): boolean {
     if (typeof navigator === 'undefined') return false;
     const ua = navigator.userAgent || '';
-    return /iPad|iPhone|iPod/.test(ua) && !(window as any)?.MSStream;
+    return /iPad|iPhone|iPod/.test(ua) && !(window as unknown as { MSStream?: unknown })?.MSStream;
   }
 
   public isInstallable(): boolean {
@@ -144,7 +160,9 @@ export class PwaManager {
         return true;
       }
 
-      this.wakeLockSentinel = await (navigator as any).wakeLock.request('screen');
+      this.wakeLockSentinel = await (navigator as unknown as {
+        wakeLock: { request: (type: string) => Promise<WakeLockSentinelLike> }
+      }).wakeLock.request('screen');
       this.wakeLockSentinel.addEventListener?.('release', () => {
         this.emit('wakeLockChange', false);
       });
@@ -202,22 +220,22 @@ export class PwaManager {
   }
 
   // --- Event Emitter ---
-  public on(event: PwaEventType, listener: PwaEventListener): () => void {
+  public on<E extends PwaEventType>(event: E, listener: PwaEventListener<E>): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
-    this.listeners.get(event)!.add(listener);
+    this.listeners.get(event)!.add(listener as unknown as PwaGenericListener);
     return () => this.off(event, listener);
   }
 
-  public off(event: PwaEventType, listener: PwaEventListener): void {
+  public off<E extends PwaEventType>(event: E, listener: PwaEventListener<E>): void {
     const set = this.listeners.get(event);
     if (set) {
-      set.delete(listener);
+      set.delete(listener as unknown as PwaGenericListener);
     }
   }
 
-  private emit(event: PwaEventType, data?: any): void {
+  private emit<E extends PwaEventType>(event: E, data?: PwaEventDataMap[E]): void {
     const set = this.listeners.get(event);
     if (set) {
       for (const listener of set) {

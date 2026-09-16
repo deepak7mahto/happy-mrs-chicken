@@ -12,6 +12,11 @@
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="manifest" href="./manifest.json">
+  <meta name="description" content="Adventures of Trishu - 16 joyful toddler mini-games featuring Peppa Pig, Trishu, and farmyard friends!">
+  <meta property="og:title" content="Adventures of Trishu">
+  <meta property="og:description" content="16 joyful toddler mini-games featuring Peppa Pig, Trishu, and farmyard friends!">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="./icons/icon-512.png">
   <title>Adventures of Trishu</title>
   <style>
     * {
@@ -167,7 +172,8 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to main content</a>
+  <div id="root"><main id="main"></main></div>
   <script type="module" src="./src/main.tsx"></script>
 </body>
 </html>

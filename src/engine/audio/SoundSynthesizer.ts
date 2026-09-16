@@ -309,6 +309,39 @@ export class SoundSynthesizer {
     setTimeout(() => this.playFanfare(), 450);
   }
 
+  public playPigOink(): void {
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(145, now);
+    osc.frequency.exponentialRampToValueAtTime(85, now + 0.22);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(650, now);
+    filter.Q.setValueAtTime(4.5, now);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.35, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+    osc.onended = () => {
+      osc.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
+  }
+
   public playSFX(name: SFXName, options: SFXOptions = {}): void {
     switch (name) {
       case 'cluck': this.playCluck(options.type); break;
@@ -328,10 +361,10 @@ export class SoundSynthesizer {
       case 'mudThud': this.playMudThud(); break;
       case 'bubblePop': this.playBubblePop(options); break;
       case 'bunnySqueak': this.playBunnySqueak(); break;
-      case 'sheepBleat' as any: this.playBunnySqueak(); break;
       case 'toddlerGiggle': this.playToddlerGiggle(); break;
       case 'duckQuack': this.playDuckQuack(options.pitch ?? 1.0); break;
       case 'duckFanfare': this.playDuckFanfare(); break;
+      case 'pigOink': this.playPigOink(); break;
     }
   }
 }

@@ -11,7 +11,7 @@ import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { drawMimi, drawTrishu } from '../../graphics/characters';
+import { drawMimi, renderCharacter } from '../../graphics/characters';
 
 interface FlavorTub {
   name: string;
@@ -43,6 +43,7 @@ export class IceCreamVanScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('waltz');
     this.score = 0;
     this.totalScooped = 0;
     this.scoops = [];
@@ -78,6 +79,7 @@ export class IceCreamVanScene extends BaseScene {
     });
 
     this.totalScooped++;
+    this.checkStoryGoal(this.totalScooped);
     this.score += isCelebration ? 50 : 10;
     this.game.storage.saveHighScore('iceCreamVan', this.score);
 
@@ -198,11 +200,11 @@ export class IceCreamVanScene extends BaseScene {
     });
     ctx.restore();
 
-    // Customer on Right
+    // Customer on Right: Selected Avatar
     ctx.save();
     const custX = vWidth - 65;
     const custY = isPortrait ? 235 : 205;
-    drawTrishu(ctx, custX, custY, 0.45, {
+    renderCharacter(this.game.selectedAvatar, ctx, custX, custY, 0.45, {
       jumpY: this.celebrationTimer > 0 ? Math.abs(Math.sin(this.time * 8)) * 10 : 0,
       squish: 1.0,
       squash: 1.0,

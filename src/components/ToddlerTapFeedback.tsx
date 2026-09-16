@@ -36,26 +36,19 @@ export const ToddlerTapFeedback: React.FC = () => {
   }, [ripples]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
+    <div className="tap-feedback-overlay">
       {ripples.map((r) => (
         <div
           key={r.id}
-          className="absolute animate-ping text-3xl select-none"
+          className="tap-feedback-emoji"
           style={{
-            left: `${r.x - 16}px`,
-            top: `${r.y - 16}px`,
-            animation: 'toddlerBurst 0.65s cubic-bezier(0.1, 0.9, 0.2, 1) forwards'
+            left: `${r.x}px`,
+            top: `${r.y}px`
           }}
         >
           {r.emoji}
         </div>
       ))}
-      <style>{`
-        @keyframes toddlerBurst {
-          0% { transform: scale(0.4) translateY(0); opacity: 1; }
-          100% { transform: scale(1.8) translateY(-40px); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 };

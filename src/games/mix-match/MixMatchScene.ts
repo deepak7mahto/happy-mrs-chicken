@@ -56,6 +56,7 @@ export class MixMatchScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('classic');
     this.time = 0;
     this.headIdx = 0;
     this.torsoIdx = 0;
@@ -84,23 +85,17 @@ export class MixMatchScene extends BaseScene {
 
   public nextHead(dir: number = 1): void {
     this.headIdx = (this.headIdx + dir + 7) % 7;
-    soundEngine.playSFX('click');
-    Haptics.tap();
-    this.triggerPartChange();
+    soundEngine.playSFX('click'); Haptics.tap(); this.triggerPartChange();
   }
 
   public nextTorso(dir: number = 1): void {
     this.torsoIdx = (this.torsoIdx + dir + 7) % 7;
-    soundEngine.playSFX('click');
-    Haptics.tap();
-    this.triggerPartChange();
+    soundEngine.playSFX('click'); Haptics.tap(); this.triggerPartChange();
   }
 
   public nextLegs(dir: number = 1): void {
     this.legsIdx = (this.legsIdx + dir + 7) % 7;
-    soundEngine.playSFX('click');
-    Haptics.tap();
-    this.triggerPartChange();
+    soundEngine.playSFX('click'); Haptics.tap(); this.triggerPartChange();
   }
 
   private triggerPartChange(): void {
@@ -116,12 +111,8 @@ export class MixMatchScene extends BaseScene {
     this.game.storage.saveHighScore('mixMatch', this.score);
 
     soundEngine.playSFX('toddlerGiggle');
-    if (this.headIdx === 6 || this.torsoIdx === 6 || this.legsIdx === 6) {
-      soundEngine.playSFX('cluck');
-    }
-    if (this.headIdx === 5 || this.torsoIdx === 5 || this.legsIdx === 5) {
-      soundEngine.playSFX('bunnySqueak');
-    }
+    if (this.headIdx === 6 || this.torsoIdx === 6 || this.legsIdx === 6) soundEngine.playSFX('cluck');
+    if (this.headIdx === 5 || this.torsoIdx === 5 || this.legsIdx === 5) soundEngine.playSFX('bunnySqueak');
     Haptics.medium();
 
     const vW = this.game.display.vWidth;
@@ -133,6 +124,7 @@ export class MixMatchScene extends BaseScene {
   public snapPhoto(): void {
     this.photoFlashTimer = 0.35;
     this.photosSnapped++;
+    this.checkStoryGoal(this.photosSnapped);
     this.score += 100;
     this.game.storage.saveHighScore('mixMatch', this.score);
 
@@ -144,6 +136,49 @@ export class MixMatchScene extends BaseScene {
     const vH = this.game.display.vHeight;
     this.particles.spawnConfetti(vW / 2, vH * 0.45, 30);
     this.particles.spawnScorePopup(vW / 2, vH * 0.3, '📸 PHOTO SAVED! +100');
+    this.saveSnapshotToAlbum();
+  }
+
+  private saveSnapshotToAlbum(): void {
+    if (typeof document === 'undefined') return;
+    try {
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = 360;
+      snapCanvas.height = 360;
+      const sctx = snapCanvas.getContext('2d');
+      if (!sctx) return;
+
+      sctx.fillStyle = '#FFF8E1';
+      sctx.fillRect(0, 0, 360, 360);
+      sctx.strokeStyle = '#FFD54F';
+      sctx.lineWidth = 10;
+      sctx.strokeRect(5, 5, 350, 350);
+
+      sctx.fillStyle = '#FF7043';
+      sctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+      sctx.textAlign = 'center';
+      sctx.textBaseline = 'middle';
+      sctx.fillText(this.currentTitle, 180, 42, 320);
+
+      drawCompositeCharacter(sctx, this.headIdx, this.torsoIdx, this.legsIdx, 180, 195, 1.35, this.animState);
+
+      sctx.fillStyle = '#8D6E63';
+      sctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+      sctx.fillText('Adventures of Trishu', 180, 335);
+
+      const dataUrl = typeof snapCanvas.toDataURL === 'function'
+        ? snapCanvas.toDataURL('image/png')
+        : 'data:image/png;base64,mock_photo';
+      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('hmc_saved_photos') : null;
+      const photos: string[] = raw ? JSON.parse(raw) : [];
+      photos.unshift(dataUrl);
+      if (photos.length > 6) photos.length = 6;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('hmc_saved_photos', JSON.stringify(photos));
+      }
+    } catch (e) {
+      console.warn('Failed to save snapshot:', e);
+    }
   }
 
   private updateTitle(): void {
@@ -426,30 +461,18 @@ export class MixMatchScene extends BaseScene {
 
   override getEntities(): Record<string, unknown> {
     return {
-      headIdx: this.headIdx,
-      torsoIdx: this.torsoIdx,
-      legsIdx: this.legsIdx,
-      title: this.currentTitle,
-      photosSnapped: this.photosSnapped,
-      isShuffling: this.isShuffling,
-      isDancing: this.isDancing,
+      headIdx: this.headIdx, torsoIdx: this.torsoIdx, legsIdx: this.legsIdx,
+      title: this.currentTitle, photosSnapped: this.photosSnapped,
+      isShuffling: this.isShuffling, isDancing: this.isDancing,
       particles: this.particles.active
     };
   }
 
   override getModeState(): Record<string, unknown> {
     return {
-      score: this.score,
-      headIdx: this.headIdx,
-      torsoIdx: this.torsoIdx,
-      legsIdx: this.legsIdx,
-      title: this.currentTitle,
-      photosSnapped: this.photosSnapped,
-      timer: this.time,
-      multiplier: 1,
-      feverMeter: 0,
-      coopSavedCount: 0,
-      isOverheating: false
+      score: this.score, headIdx: this.headIdx, torsoIdx: this.torsoIdx, legsIdx: this.legsIdx,
+      title: this.currentTitle, photosSnapped: this.photosSnapped, timer: this.time,
+      multiplier: 1, feverMeter: 0, coopSavedCount: 0, isOverheating: false
     };
   }
 }

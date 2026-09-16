@@ -14,7 +14,7 @@ import { ParticleEngine } from '../../engine/ParticleEngine';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
 import { drawLandscapeSkyHills, drawMuddyPuddle } from '../../graphics/environmentRenderer';
-import { drawTrishu } from '../../graphics/characters/trishuRenderer';
+import { renderCharacter } from '../../graphics/characters';
 import { createCharacterAnimState, updateCharacterAnimState } from '../../graphics/animations';
 
 export class MuddyPuddlesScene extends BaseScene {
@@ -36,6 +36,7 @@ export class MuddyPuddlesScene extends BaseScene {
   }
 
   enter(): void {
+    soundEngine.setTrack('frenzy');
     this.score = 0;
     this.timer = 60.0;
     this.splashesCount = 0;
@@ -165,6 +166,7 @@ export class MuddyPuddlesScene extends BaseScene {
           if (dNorm <= 1.25) { // Generous toddler hit radius
             hit = true;
             this.splashesCount++;
+            this.checkStoryGoal(this.splashesCount);
             this.muddyBootsTimer = 4.0;
             pud.ripplePhase = 0.01;
             const pts = pud.type === 'GOLDEN' ? 100 : 30;
@@ -226,8 +228,8 @@ export class MuddyPuddlesScene extends BaseScene {
       drawMuddyPuddle(ctx, pud.x, pud.y, pud.rx, pud.ry, { type: pud.type, ripplePhase: pud.ripplePhase });
     }
 
-    // Trishu Character
-    drawTrishu(ctx, this.trishu.x, this.trishu.y, isPortrait ? 1.15 : 1.0, {
+    // Player Avatar Character
+    renderCharacter(this.game.selectedAvatar, ctx, this.trishu.x, this.trishu.y, isPortrait ? 1.15 : 1.0, {
       animState: this.animState,
       jumpY: this.trishu.jumpY,
       squish: this.trishu.squish,

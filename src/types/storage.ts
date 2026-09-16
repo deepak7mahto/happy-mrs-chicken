@@ -23,12 +23,19 @@ export interface HighScores {
   [key: string]: number;
 }
 
+import { CharacterId } from './characters';
+import { StoryProgress } from './story';
+
 export interface SettingsState {
   soundMuted: boolean;
   musicMuted: boolean;
   volume: number;
+  bgmVolume?: number;
+  sfxVolume?: number;
   hapticsEnabled?: boolean;
+  toddlerLock?: boolean;
   highContrast?: boolean;
+  selectedAvatar?: CharacterId;
 }
 
 export type GameSettings = SettingsState;
@@ -36,6 +43,7 @@ export type GameSettings = SettingsState;
 export interface StorageData {
   highScores: HighScores;
   settings: SettingsState;
+  storyProgress?: StoryProgress;
   version: number;
   lastSaved?: number;
 }
@@ -52,5 +60,16 @@ export interface IStorageManager {
   setMusicMuted(muted: boolean): void;
   getVolume(): number;
   setVolume(volume: number): void;
+  getBgmVolume(): number;
+  setBgmVolume(volume: number): void;
+  getSfxVolume(): number;
+  setSfxVolume(volume: number): void;
+  isHapticsEnabled(): boolean;
+  setHapticsEnabled(enabled: boolean): void;
+  isToddlerLockEnabled(): boolean;
+  setToddlerLockEnabled(enabled: boolean): void;
+  getSelectedAvatar(): CharacterId;
+  setSelectedAvatar(avatar: CharacterId): void;
+  resetHighScores(): void;
   resetAll(): void;
 }
