@@ -4,7 +4,6 @@ import { storageManager } from '../engine/StorageManager';
 import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { AVATAR_ROSTER } from '../types/characters';
-import { STORY_STOPS } from '../story/storyData';
 
 interface HUDProps {
   engine: GameEngine | null;
@@ -35,13 +34,21 @@ export const HUD: React.FC<HUDProps> = ({
   onToggleFullscreen,
   onGoHome
 }) => {
-  const lastActionTime = useRef(0);
+  const [viewMode, setViewMode] = useState<'journey' | 'grid'>(() => {
+    return engine?.storyViewMode || storageManager.getStoryViewMode();
+  });
   const [holdProgress, setHoldProgress] = useState<number>(0);
   const [isHoldingHome, setIsHoldingHome] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
   const holdTimerRef = useRef<number | null>(null);
   const holdStartTimeRef = useRef<number>(0);
   const hintTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (engine) {
+      setViewMode(engine.storyViewMode);
+    }
+  }, [engine, currentMode]);
 
   const selectedAvatarId = engine?.selectedAvatar || storageManager.getSelectedAvatar();
   const avatarInfo = AVATAR_ROSTER.find(a => a.id === selectedAvatarId);
@@ -51,13 +58,22 @@ export const HUD: React.FC<HUDProps> = ({
     ? engine.storage.isToddlerLockEnabled()
     : storageManager.isToddlerLockEnabled();
 
-  const handleAction = useCallback((cb?: () => void) => (e: React.SyntheticEvent) => {
-    e.stopPropagation();
-    const now = Date.now();
-    if (now - lastActionTime.current < 250) return;
-    lastActionTime.current = now;
-    cb?.();
-  }, []);
+  const handleSwitchMode = (mode: 'journey' | 'grid') => {
+    if (viewMode === mode) return;
+    setViewMode(mode);
+    if (engine) {
+      engine.setStoryViewMode(mode);
+      const menuScene = engine.scenes.get('MENU') as { scrollY?: number; scrollVy?: number } | undefined;
+      if (menuScene) {
+        menuScene.scrollY = 0;
+        menuScene.scrollVy = 0;
+      }
+    } else {
+      storageManager.setStoryViewMode(mode);
+    }
+    soundEngine.playSFX('click');
+    Haptics.tap();
+  };
 
   const clearHoldTimer = useCallback(() => {
     if (holdTimerRef.current !== null) {
@@ -104,7 +120,7 @@ export const HUD: React.FC<HUDProps> = ({
   const handleHomePointerUp = (e: React.PointerEvent) => {
     e.stopPropagation();
     if (!isToddlerLocked) {
-      handleAction(onGoHome)(e);
+      onGoHome();
       return;
     }
 
@@ -128,18 +144,22 @@ export const HUD: React.FC<HUDProps> = ({
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isToddlerLocked) {
-      // Handled via pointer events for hold progress
-      return;
-    }
-    handleAction(onGoHome)(e);
+    if (isToddlerLocked) return;
+    onGoHome();
   };
 
+  const isMenuMode = currentMode === 'MENU';
+
   return (
-    <header className="hud-layer">
-      {/* Top Navigation Bar */}
+    <header className={`hud-layer ${isMenuMode ? 'hud-menu-layer' : 'hud-game-layer'}`}>
+      {/* Top Navigation Row */}
       <div className="hud-top-bar">
-        {currentMode !== 'MENU' ? (
+        {isMenuMode ? (
+          <div className="hud-brand">
+            <span className="hud-brand-sparkle">🌟</span>
+            <span className="hud-brand-title">Adventures of Trishu</span>
+          </div>
+        ) : (
           <div className="hud-home-wrapper">
             <button
               type="button"
@@ -150,9 +170,8 @@ export const HUD: React.FC<HUDProps> = ({
               onPointerCancel={handleHomePointerCancel}
               aria-label="Back to Menu"
               className="hud-btn-home"
-              style={{ position: 'relative' }}
             >
-              <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>🏠</span>
+              <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>🏠</span>
               <span>Home {isToddlerLocked ? '🔒' : ''}</span>
               {isToddlerLocked && isHoldingHome && (
                 <div className="toddler-lock-progress">
@@ -174,35 +193,48 @@ export const HUD: React.FC<HUDProps> = ({
               </div>
             )}
           </div>
-        ) : (
-          <div />
         )}
 
-        <div className="hud-controls-right">
-          {canInstall && onOpenInstall && (
+        {/* Desktop Mode Toggle (Center of header on wide screens) */}
+        {isMenuMode && (
+          <div className="hud-mode-toggle hud-mode-toggle-desktop" role="tablist" aria-label="Game Mode">
             <button
               type="button"
-              onClick={handleAction(onOpenInstall)}
-              onPointerUp={handleAction(onOpenInstall)}
-              onPointerDown={(e) => e.stopPropagation()}
+              role="tab"
+              aria-selected={viewMode === 'journey'}
+              className={`hud-mode-pill ${viewMode === 'journey' ? 'active' : ''}`}
+              onClick={() => handleSwitchMode('journey')}
+            >
+              🗺️ Story Journey
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'grid'}
+              className={`hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => handleSwitchMode('grid')}
+            >
+              🎮 Free Play
+            </button>
+          </div>
+        )}
+
+        {/* Action Controls Right */}
+        <div className="hud-controls-right">
+          {canInstall && onOpenInstall && isMenuMode && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onOpenInstall(); }}
               aria-label="Install App"
-              className="hud-btn-icon"
-              style={{
-                background: 'linear-gradient(180deg, #FFB74D 0%, #FF9800 100%)',
-                border: '3.5px solid #E65100',
-                boxShadow: '0 3px 0 #E65100, 0 5px 12px rgba(0, 0, 0, 0.22)',
-                color: '#FFFFFF'
-              }}
+              className="hud-btn-icon hud-btn-install"
             >
               📲
             </button>
           )}
-          {onOpenPassport && (
+          {onOpenPassport && isMenuMode && (
             <button
               type="button"
-              onClick={handleAction(onOpenPassport)}
-              onPointerUp={handleAction(onOpenPassport)}
-              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onOpenPassport(); }}
               aria-label="Open Adventure Passport"
               className="hud-btn-icon hud-btn-passport"
             >
@@ -212,9 +244,7 @@ export const HUD: React.FC<HUDProps> = ({
           {onOpenAvatarSelect && (
             <button
               type="button"
-              onClick={handleAction(onOpenAvatarSelect)}
-              onPointerUp={handleAction(onOpenAvatarSelect)}
-              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onOpenAvatarSelect(); }}
               aria-label="Select Avatar Hero"
               className="hud-btn-icon hud-btn-avatar"
             >
@@ -224,9 +254,7 @@ export const HUD: React.FC<HUDProps> = ({
           {onOpenSettings && (
             <button
               type="button"
-              onClick={handleAction(onOpenSettings)}
-              onPointerUp={handleAction(onOpenSettings)}
-              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onOpenSettings(); }}
               aria-label="Open Settings"
               className="hud-btn-icon hud-btn-settings"
             >
@@ -235,9 +263,7 @@ export const HUD: React.FC<HUDProps> = ({
           )}
           <button
             type="button"
-            onClick={handleAction(onToggleFullscreen)}
-            onPointerUp={handleAction(onToggleFullscreen)}
-            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onToggleFullscreen(); }}
             aria-label="Toggle Fullscreen"
             className="hud-btn-icon hud-btn-fs"
           >
@@ -245,9 +271,7 @@ export const HUD: React.FC<HUDProps> = ({
           </button>
           <button
             type="button"
-            onClick={handleAction(onToggleMute)}
-            onPointerUp={handleAction(onToggleMute)}
-            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onToggleMute(); }}
             aria-label="Toggle Audio"
             className="hud-btn-icon hud-btn-audio"
           >
@@ -255,6 +279,32 @@ export const HUD: React.FC<HUDProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Mobile Mode Row (Row 2, centered on mobile portrait) */}
+      {isMenuMode && (
+        <div className="hud-mode-row-mobile">
+          <div className="hud-mode-toggle" role="tablist" aria-label="Game Mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'journey'}
+              className={`hud-mode-pill ${viewMode === 'journey' ? 'active' : ''}`}
+              onClick={() => handleSwitchMode('journey')}
+            >
+              🗺️ Story Journey
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'grid'}
+              className={`hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => handleSwitchMode('grid')}
+            >
+              🎮 Free Play
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

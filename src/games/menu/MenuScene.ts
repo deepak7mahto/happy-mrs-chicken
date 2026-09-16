@@ -56,7 +56,7 @@ export class MenuScene extends BaseScene {
     if (this.game.storyViewMode === 'journey') {
       const activeIdx = this.game.storyProgress.currentStopIndex;
       if (activeIdx > 2) {
-        const stepY = this.game.display.isPortrait ? 150 : 140;
+        const stepY = this.game.display.isPortrait ? 155 : 140;
         this.scrollY = -Math.max(0, (activeIdx - 1) * stepY);
       }
     }
@@ -98,7 +98,7 @@ export class MenuScene extends BaseScene {
     const cols = isPortrait ? 2 : 4;
     const gapX = isPortrait ? 16 : 12;
     const gapY = isPortrait ? 12 : 8;
-    const topPad = isPortrait ? Math.max(90, Math.round(vHeight * 0.11)) : 72;
+    const topPad = isPortrait ? 108 : 74;
     const cardW = isPortrait ? 240 : (vWidth - 40 - 3 * gapX) / 4;
     const cardH = isPortrait ? 144 : (vHeight - topPad - 10 - 3 * gapY) / 4;
     const padX = isPortrait ? Math.round((vWidth - (2 * cardW + gapX)) / 2) : 20;
@@ -120,7 +120,7 @@ export class MenuScene extends BaseScene {
   }
 
   private scrollCardIntoView(card: ModeCardDef, display: DisplayManager): void {
-    const topPad = display.isPortrait ? 88 : 72;
+    const topPad = display.isPortrait ? 108 : 74;
     const vHeight = display.vHeight;
     const contentH = this.getContentHeight(display);
     const maxScroll = Math.max(0, contentH - vHeight);
@@ -140,13 +140,13 @@ export class MenuScene extends BaseScene {
 
   private handleModeToggleTap(x: number, y: number, display: DisplayManager): boolean {
     const isPortrait = display.isPortrait;
-    const topH = isPortrait ? 86 : 68;
+    const topH = isPortrait ? 88 : 70;
     if (y > topH) return false;
 
     const toggleW = isPortrait ? 270 : 310;
-    const toggleH = 32;
+    const toggleH = 34;
     const toggleX = display.vWidth / 2 - toggleW / 2;
-    const toggleY = (isPortrait ? 48 : 36);
+    const toggleY = isPortrait ? 44 : 32;
 
     if (x >= toggleX && x <= toggleX + toggleW && y >= toggleY && y <= toggleY + toggleH) {
       const clickSide = x < toggleX + toggleW / 2 ? 'journey' : 'grid';
@@ -163,12 +163,11 @@ export class MenuScene extends BaseScene {
   }
 
   handleTap(x: number, y: number): boolean {
-    // Check mode toggle switch at top
     if (this.handleModeToggleTap(x, y, this.game.display)) {
       return true;
     }
 
-    const titleAreaH = this.game.display.isPortrait ? 86 : 68;
+    const titleAreaH = this.game.display.isPortrait ? 88 : 64;
     if (y < titleAreaH) return false;
 
     if (this.viewMode === 'journey') {
@@ -327,9 +326,9 @@ export class MenuScene extends BaseScene {
     const maxScrollPill = Math.max(0, contentH - vHeight);
     if (maxScrollPill > 15) {
       const scrollRatio = Math.max(0, Math.min(1, -this.scrollY / maxScrollPill));
-      const trackH = vHeight - (isPortrait ? 90 : 76) - 20;
+      const trackH = vHeight - (isPortrait ? 96 : 78) - 20;
       const barH = Math.max(25, trackH * (vHeight / contentH));
-      const barY = (isPortrait ? 90 : 76) + 10 + scrollRatio * (trackH - barH);
+      const barY = (isPortrait ? 96 : 78) + 10 + scrollRatio * (trackH - barH);
       const barX = vWidth - 6;
 
       ctx.save();
@@ -339,71 +338,5 @@ export class MenuScene extends BaseScene {
       ctx.fill();
       ctx.restore();
     }
-
-    // Fixed Top Header & Mode Toggle Switch
-    this.renderHeader(ctx, display);
-  }
-
-  private renderHeader(ctx: CanvasRenderingContext2D, display: DisplayManager): void {
-    const vWidth = display.vWidth;
-    const isPortrait = display.isPortrait;
-    const mode = this.viewMode;
-
-    ctx.save();
-    // Top frosted banner background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 3;
-    ctx.fillRect(0, 0, vWidth, isPortrait ? 86 : 70);
-    ctx.shadowColor = 'transparent';
-
-    // Title text
-    ctx.font = `900 ${isPortrait ? '20px' : '22px'} "Comic Sans MS", cursive, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = isPortrait ? 3.8 : 4.2;
-    ctx.strokeText('Adventures of Trishu', vWidth / 2, isPortrait ? 22 : 18);
-    ctx.fillStyle = '#FFD54F';
-    ctx.fillText('Adventures of Trishu', vWidth / 2, isPortrait ? 22 : 18);
-
-    // Segmented Pill Switch: [ 🗺️ Story Journey ]  [ 🎮 Free Play ]
-    const toggleW = isPortrait ? 270 : 310;
-    const toggleH = 30;
-    const toggleX = vWidth / 2 - toggleW / 2;
-    const toggleY = isPortrait ? 46 : 34;
-
-    // Outer pill container
-    ctx.fillStyle = '#ECEFF1';
-    ctx.strokeStyle = '#CFD8DC';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(toggleX, toggleY, toggleW, toggleH, 15);
-    ctx.fill();
-    ctx.stroke();
-
-    // Active pill slider
-    const halfW = toggleW / 2;
-    const activeX = mode === 'journey' ? toggleX + 2 : toggleX + halfW;
-    ctx.fillStyle = mode === 'journey' ? '#4CAF50' : '#42A5F5';
-    ctx.beginPath();
-    ctx.roundRect(activeX, toggleY + 2, halfW - 2, toggleH - 4, 13);
-    ctx.fill();
-
-    // Labels
-    ctx.font = 'bold 12.5px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // Journey label
-    ctx.fillStyle = mode === 'journey' ? '#FFFFFF' : '#546E7A';
-    ctx.fillText('🗺️ Story Journey', toggleX + halfW / 2, toggleY + toggleH / 2);
-
-    // Free Play label
-    ctx.fillStyle = mode === 'grid' ? '#FFFFFF' : '#546E7A';
-    ctx.fillText('🎮 Free Play', toggleX + halfW + halfW / 2, toggleY + toggleH / 2);
-
-    ctx.restore();
   }
 }

@@ -48,8 +48,8 @@ export class StoryMapRenderer {
 
     const layouts: StoryNodeLayout[] = [];
     const nodeRadius = isPortrait ? 38 : 44;
-    const startY = isPortrait ? 130 : 120;
-    const stepY = isPortrait ? 150 : 140;
+    const startY = isPortrait ? 180 : 160;
+    const stepY = isPortrait ? 165 : 150;
     const amplitude = isPortrait ? Math.min(100, vWidth * 0.28) : Math.min(180, vWidth * 0.22);
     const centerX = vWidth / 2;
 
@@ -89,8 +89,8 @@ export class StoryMapRenderer {
 
   public getTotalContentHeight(display: DisplayManager): number {
     const isPortrait = display.isPortrait;
-    const startY = isPortrait ? 130 : 120;
-    const stepY = isPortrait ? 150 : 140;
+    const startY = isPortrait ? 180 : 160;
+    const stepY = isPortrait ? 165 : 150;
     return startY + STORY_STOPS.length * stepY + 140;
   }
 
@@ -224,8 +224,14 @@ export class StoryMapRenderer {
       const firstNode = nodes[firstStopIdx];
       if (!firstNode) continue;
 
-      const bannerY = firstNode.y + scrollY - 68;
+      const prevNode = firstStopIdx > 0 ? nodes[firstStopIdx - 1] : null;
+      const bannerY = prevNode
+        ? (prevNode.y + firstNode.y) / 2 + scrollY + 8
+        : firstNode.y + scrollY - 82;
       const bannerX = display.vWidth / 2 - bannerW / 2;
+
+      // Viewport culling
+      if (bannerY + bannerH < 0 || bannerY > display.vHeight) continue;
 
       // Chapter badge pill
       ctx.save();

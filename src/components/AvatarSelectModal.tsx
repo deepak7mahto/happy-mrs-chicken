@@ -157,7 +157,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = ({
           <button
             type="button"
             onClick={handleClose}
-            className="avatar-close-btn"
+            className="avatar-close-btn modal-close-btn"
             aria-label="Close Avatar Selection"
           >
             ✕

@@ -1,15 +1,15 @@
 /**
  * Adventures of Trishu - High Performance Offline Service Worker
- * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu3pkcay
+ * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu4c52ae
  */
 
-const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu3pkcay';
+const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu4c52ae';
 const PRECACHE_ASSETS = [
   "./",
   "./assets/audio-engine-Bycu_N8A.js",
   "./assets/graphics-engine-DrboW5gd.js",
-  "./assets/index-CQ84Hwz4.css",
-  "./assets/index-DKGX0muH.js",
+  "./assets/index-CJbs87oV.css",
+  "./assets/index-Cx7VGBp0.js",
   "./assets/vendor-react-CmQgMwmH.js",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
