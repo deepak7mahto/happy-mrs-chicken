@@ -20,7 +20,7 @@ const DEFAULT_STORY_PROGRESS: StoryProgress = {
   currentStopIndex: 0,
   completedStops: {},
   passportStamps: [],
-  viewMode: 'journey',
+  viewMode: 'grid',
   hasCompletedGrandFinale: false
 };
 
@@ -164,7 +164,7 @@ export class StorageManager implements IStorageManager {
               passportStamps: Array.isArray(rawStory.passportStamps)
                 ? rawStory.passportStamps
                 : [],
-              viewMode: rawStory.viewMode === 'grid' ? 'grid' : 'journey',
+              viewMode: rawStory.viewMode === 'journey' ? 'journey' : 'grid',
               hasCompletedGrandFinale: Boolean(rawStory.hasCompletedGrandFinale)
             };
 
@@ -315,7 +315,7 @@ export class StorageManager implements IStorageManager {
   }
 
   getStoryViewMode(): 'journey' | 'grid' {
-    return this.getStoryProgress().viewMode || 'journey';
+    return this.getStoryProgress().viewMode || 'grid';
   }
 
   setStoryViewMode(mode: 'journey' | 'grid'): void {

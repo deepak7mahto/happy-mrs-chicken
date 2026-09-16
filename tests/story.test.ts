@@ -85,16 +85,16 @@ describe('Tier 10: Story Journey Narrative & Adventure Map', () => {
     expect(storage.getStoryProgress().completedStops[stop0.id]?.bestScore).toBe(250);
   });
 
-  test('T10.03: StorageManager - View mode switching (journey <-> grid) and stop index clamping', () => {
+  test('T10.03: StorageManager - View mode switching (grid <-> journey) and stop index clamping', () => {
     localStorage.clear();
     const storage = new StorageManager();
-    expect(storage.getStoryViewMode()).toBe('journey');
-
-    storage.setStoryViewMode('grid');
     expect(storage.getStoryViewMode()).toBe('grid');
 
     storage.setStoryViewMode('journey');
     expect(storage.getStoryViewMode()).toBe('journey');
+
+    storage.setStoryViewMode('grid');
+    expect(storage.getStoryViewMode()).toBe('grid');
 
     // Index clamping
     storage.setCurrentStoryStopIndex(5);
@@ -202,24 +202,25 @@ describe('Tier 10: Story Journey Narrative & Adventure Map', () => {
     localStorage.clear();
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
-    engine.storage.setStoryViewMode('journey');
     const menu = engine.scenes.get('MENU') as MenuScene;
     menu.enter();
 
-    expect(menu.viewMode).toBe('journey');
-
-    // Tap toggle switch to switch to grid
-    const vWidth = engine.display.vWidth;
-    // Right tab is Free Play: x ~ vWidth / 2 + 65, y ~ 52
-    menu.handleTap(vWidth / 2 + 65, 52);
+    // Defaults to Free Play (grid)
     expect(menu.viewMode).toBe('grid');
     expect(engine.storyViewMode).toBe('grid');
 
-    // Tap toggle switch back to journey
+    // Tap toggle switch to switch to journey
+    const vWidth = engine.display.vWidth;
     // Left tab is Story Journey: x ~ vWidth / 2 - 65, y ~ 52
     menu.handleTap(vWidth / 2 - 65, 52);
     expect(menu.viewMode).toBe('journey');
     expect(engine.storyViewMode).toBe('journey');
+
+    // Tap toggle switch back to grid
+    // Right tab is Free Play: x ~ vWidth / 2 + 65, y ~ 52
+    menu.handleTap(vWidth / 2 + 65, 52);
+    expect(menu.viewMode).toBe('grid');
+    expect(engine.storyViewMode).toBe('grid');
 
     engine.destroy();
   });

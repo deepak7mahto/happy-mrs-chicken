@@ -118,7 +118,7 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.input.keysJustPressed.add('Enter');
     menu.update(0.016, engine.input);
     expect(engine.currentSceneId).toBe('MUDDY_PUDDLES');
-    engine.storage.setStoryViewMode('journey');
+    engine.storage.setStoryViewMode('grid');
     engine.changeScene('MENU');
     delete (window as any).__GAME_STATE__;
     engine.destroy();
