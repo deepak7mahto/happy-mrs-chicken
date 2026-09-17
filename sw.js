@@ -1,16 +1,31 @@
 /**
  * Adventures of Trishu - High Performance Offline Service Worker
- * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu4cfspk
+ * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu53gaed
  */
 
-const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu4cfspk';
+const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu53gaed';
 const PRECACHE_ASSETS = [
   "./",
   "./assets/audio-engine-Bycu_N8A.js",
-  "./assets/graphics-engine-DrboW5gd.js",
-  "./assets/index-CJbs87oV.css",
-  "./assets/index-XVaID-0T.js",
-  "./assets/vendor-react-CmQgMwmH.js",
+  "./assets/fredoka-hebrew-400-normal-CT3eDt6U.woff2",
+  "./assets/fredoka-hebrew-400-normal-S03uWvSu.woff",
+  "./assets/fredoka-hebrew-500-normal-BtShCMVp.woff",
+  "./assets/fredoka-hebrew-500-normal-DdMTjgiE.woff2",
+  "./assets/fredoka-hebrew-600-normal-BiVDObXj.woff",
+  "./assets/fredoka-hebrew-600-normal-CTBxhdlE.woff2",
+  "./assets/fredoka-hebrew-700-normal-DBqnFHCe.woff2",
+  "./assets/fredoka-hebrew-700-normal-DiqR04Vd.woff",
+  "./assets/fredoka-latin-400-normal-17JuUzdy.woff2",
+  "./assets/fredoka-latin-400-normal-DbXSrOeS.woff",
+  "./assets/fredoka-latin-500-normal-B0JifZgm.woff2",
+  "./assets/fredoka-latin-500-normal-BL692wg7.woff",
+  "./assets/fredoka-latin-600-normal-C4zohCW5.woff2",
+  "./assets/fredoka-latin-600-normal-CcrEjrB4.woff",
+  "./assets/fredoka-latin-700-normal-BOIZVyIN.woff2",
+  "./assets/fredoka-latin-700-normal-C8FeHd3X.woff",
+  "./assets/graphics-engine-CgHJLHft.js",
+  "./assets/index-1HFVTLcw.js",
+  "./assets/index-CPu8b1qn.css",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
