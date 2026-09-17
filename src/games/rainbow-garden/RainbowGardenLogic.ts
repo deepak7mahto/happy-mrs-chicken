@@ -20,14 +20,34 @@ export class RainbowGardenLogic {
   public wateringCanX: number = 200;
   public isWatering: boolean = false;
   public rainbowTimer: number = 0;
+  public sunState = { x: 0, y: 75, radius: 38, winkTimer: 0 };
 
   public reset(vWidth: number, vHeight: number): void {
     this.score = 0;
     this.totalBloomed = 0;
     this.isWatering = false;
     this.rainbowTimer = 0;
+    this.sunState.x = vWidth - 75;
+    this.sunState.y = 75;
+    this.sunState.winkTimer = 0;
     this.initMounds(vWidth, vHeight);
     this.initButterflies();
+  }
+
+  public tapSun(): boolean {
+    this.sunState.winkTimer = 0.8;
+    this.score += 15;
+    for (const m of this.mounds) {
+      if (!m.bloomed) {
+        m.growth = Math.min(1.0, m.growth + 0.25);
+        if (m.growth >= 1.0) {
+          m.bloomed = true;
+          this.totalBloomed++;
+          this.score += 25;
+        }
+      }
+    }
+    return true;
   }
 
   public initMounds(vWidth: number, vHeight: number): void {
@@ -78,6 +98,10 @@ export class RainbowGardenLogic {
   }
 
   public update(dt: number, time: number): void {
+    if (this.sunState.winkTimer > 0) {
+      this.sunState.winkTimer = Math.max(0, this.sunState.winkTimer - dt);
+    }
+
     if (this.rainbowTimer > 0) {
       this.rainbowTimer -= dt;
       if (this.rainbowTimer <= 0) {

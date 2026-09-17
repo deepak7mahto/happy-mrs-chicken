@@ -21,6 +21,64 @@ export class WindyKiteRenderer {
 
     drawLandscapeSkyHills(ctx, vWidth, vHeight, logic.time);
 
+    // Puffy Sheep Clouds
+    for (const c of logic.clouds) {
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      const scale = c.puffTimer > 0 ? 1.0 + Math.sin(c.puffTimer * Math.PI) * 0.35 : 1.0;
+      ctx.scale(scale, scale);
+
+      // Cloud body puffs
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#CFD8DC';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, c.radius * 0.7, 0, Math.PI * 2);
+      ctx.arc(-c.radius * 0.45, 0, c.radius * 0.5, 0, Math.PI * 2);
+      ctx.arc(c.radius * 0.45, 0, c.radius * 0.5, 0, Math.PI * 2);
+      ctx.arc(-c.radius * 0.2, -c.radius * 0.35, c.radius * 0.45, 0, Math.PI * 2);
+      ctx.arc(c.radius * 0.2, -c.radius * 0.35, c.radius * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Sheep Face
+      ctx.fillStyle = '#FFE0B2';
+      ctx.beginPath();
+      ctx.ellipse(c.radius * 0.5, 0, 10, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sheep ear & eye
+      ctx.fillStyle = '#FFA726';
+      ctx.beginPath();
+      ctx.ellipse(c.radius * 0.5 + 4, -8, 5, 3, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.arc(c.radius * 0.5 + 4, -1, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (c.puffTimer > 0) {
+        ctx.strokeStyle = '#FFF59D';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, c.radius * 1.15, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Rainbow Spiral Ribbon Trail
+    for (const p of logic.trail) {
+      ctx.save();
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     // Floating Rainbow Ribbons (Stars)
     for (const r of logic.ribbons) {
       if (!r.collected) {

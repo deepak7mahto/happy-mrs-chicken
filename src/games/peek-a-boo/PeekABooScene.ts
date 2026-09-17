@@ -60,11 +60,25 @@ export class PeekABooScene extends BaseScene {
   }
 
   public tapSpot(spot: HidingSpot): void {
-    const { tapped, isMilestone } = this.logic.tapSpot(spot);
+    const { tapped, isMilestone, isFriendGiggle } = this.logic.tapSpot(spot);
     if (!tapped) return;
 
     this.syncFromLogic();
     this.checkStoryGoal(this.peekFoundCount, 4);
+
+    if (isFriendGiggle) {
+      soundEngine.playSFX('toddlerGiggle');
+      if (spot.type === 'BARN') soundEngine.playSFX('cluck');
+      else if (spot.type === 'BUSH') soundEngine.playSFX('bunnySqueak');
+      else if (spot.type === 'HAY') soundEngine.playSFX('dinoBite');
+      else if (spot.type === 'BARREL') soundEngine.playSFX('click');
+
+      Haptics.tap();
+      this.particles.spawnSparkles(spot.x, spot.y - 30, 8);
+      this.particles.spawnScorePopup(spot.x, spot.y - spot.h * 0.5 - 20, 'Giggle! 💖 +20');
+      this.game.storage.saveHighScore('peekABoo', this.score);
+      return;
+    }
 
     if (spot.type === 'BARN') {
       soundEngine.playSFX('cluck', { type: 'high' });

@@ -11,7 +11,8 @@ export function renderPicnicEnvironment(
   ctx: CanvasRenderingContext2D,
   vWidth: number,
   vHeight: number,
-  isPortrait: boolean
+  isPortrait: boolean,
+  frogTongueTimer: number = 0
 ): void {
   // Sky Gradient
   const skyGrad = ctx.createLinearGradient(0, 0, 0, vHeight * 0.6);
@@ -69,13 +70,59 @@ export function renderPicnicEnvironment(
   ctx.fill();
   ctx.stroke();
 
-  // Lily Pad
+  // Lily Pad & Friendly Frog
+  const frogX = pondX - 20;
+  const frogY = pondY + 5;
   ctx.fillStyle = '#43A047';
   ctx.beginPath();
-  ctx.arc(pondX - 20, pondY + 5, 12, 0.3, Math.PI * 1.85);
-  ctx.lineTo(pondX - 20, pondY + 5);
+  ctx.arc(frogX, frogY, 15, 0.3, Math.PI * 1.85);
+  ctx.lineTo(frogX, frogY);
   ctx.closePath();
   ctx.fill();
+
+  // Frog Body
+  ctx.save();
+  ctx.fillStyle = '#66BB6A';
+  ctx.strokeStyle = '#2E7D32';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(frogX, frogY - 4, 11, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Frog Big Eyes
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(frogX - 5, frogY - 11, 4.5, 0, Math.PI * 2);
+  ctx.arc(frogX + 5, frogY - 11, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(frogX - 5, frogY - 11, 2, 0, Math.PI * 2);
+  ctx.arc(frogX + 5, frogY - 11, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Frog Smile
+  ctx.strokeStyle = '#1B5E20';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(frogX, frogY - 4, 6, 0.2, Math.PI - 0.2);
+  ctx.stroke();
+
+  // Tongue Snap
+  if (frogTongueTimer > 0) {
+    ctx.strokeStyle = '#FF4081';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(frogX, frogY - 2);
+    ctx.quadraticCurveTo(frogX - 25, frogY - 15, frogX - 45, frogY - 8);
+    ctx.stroke();
+    ctx.fillStyle = '#E91E63';
+    ctx.beginPath();
+    ctx.arc(frogX - 45, frogY - 8, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
 export function renderPicnicBlanketAndBasket(

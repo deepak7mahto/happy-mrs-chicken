@@ -89,20 +89,37 @@ export class WindyKiteScene extends BaseScene {
       }, 400);
     }
 
+    const handleTap = (x: number, y: number, isJustPressed: boolean) => {
+      if (isJustPressed) {
+        const hitCloud = this.logic.findHitCloud(x, y);
+        if (hitCloud) {
+          this.logic.tapCloud(hitCloud);
+          soundEngine.playTone(520, 0.16, 'sine', 0.22);
+          soundEngine.playSFX('bunnySqueak');
+          this.particles.spawnSparkles(hitCloud.x, hitCloud.y, 12);
+          this.particles.spawnScorePopup(hitCloud.x, hitCloud.y - 20, 'Baa! Puffy Cloud! ☁️ +20');
+          Haptics.tap();
+          this.game.storage.saveHighScore('windyKite', this.score);
+          return;
+        }
+      }
+      this.swoopKite(x, y, isJustPressed);
+    };
+
     if (input.isActionJustPressed()) {
-      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, true);
+      handleTap(input.primaryPointer.x, input.primaryPointer.y, true);
     } else if (input.isActionDown()) {
-      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, false);
+      handleTap(input.primaryPointer.x, input.primaryPointer.y, false);
     } else if (input.actionJustReleased) {
-      this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, false);
+      handleTap(input.primaryPointer.x, input.primaryPointer.y, false);
     }
 
     for (const ptr of input.pointers.values()) {
       if (ptr.justPressed) {
-        this.swoopKite(ptr.x, ptr.y, true);
+        handleTap(ptr.x, ptr.y, true);
         break;
       } else if (ptr.isDown) {
-        this.swoopKite(ptr.x, ptr.y, false);
+        handleTap(ptr.x, ptr.y, false);
         break;
       }
     }

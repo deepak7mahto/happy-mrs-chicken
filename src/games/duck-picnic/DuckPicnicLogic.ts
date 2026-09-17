@@ -21,6 +21,7 @@ export class DuckPicnicLogic {
   public nextFoodId: number = 1;
   public basketBounce: number = 0;
   public foodsFedCount: number = 0;
+  public frog = { x: 0, y: 0, radius: 18, tongueTimer: 0 };
   private treatCycleIndex: number = 0;
 
   public reset(vWidth: number, vHeight: number, isPortrait: boolean): void {
@@ -31,7 +32,32 @@ export class DuckPicnicLogic {
     this.foodsFedCount = 0;
     this.foods = [];
     this.basketBounce = 0;
+
+    const hillY = isPortrait ? vHeight * 0.46 : vHeight * 0.44;
+    const pondX = isPortrait ? vWidth - 40 : vWidth - 80;
+    const pondY = hillY + 30;
+    this.frog = { x: pondX - 20, y: pondY + 5, radius: 18, tongueTimer: 0 };
+
     this.initDucks(vWidth, vHeight, isPortrait);
+  }
+
+  public snapFrogTongue(): boolean {
+    this.frog.tongueTimer = 0.45;
+    this.score += 25;
+    return true;
+  }
+
+  public findHitDuck(x: number, y: number): DuckEntity | null {
+    for (const d of this.ducks) {
+      if (Math.hypot(x - d.x, y - d.y) <= 35 * d.scale) {
+        return d;
+      }
+    }
+    return null;
+  }
+
+  public findHitFrog(x: number, y: number): boolean {
+    return Math.hypot(x - this.frog.x, y - this.frog.y) <= this.frog.radius + 14;
   }
 
   public initDucks(vWidth: number, vHeight: number, isPortrait: boolean): void {
@@ -159,6 +185,7 @@ export class DuckPicnicLogic {
     events?: DuckPicnicEvents
   ): void {
     if (this.basketBounce > 0) this.basketBounce = Math.max(0, this.basketBounce - dt * 3.5);
+    if (this.frog.tongueTimer > 0) this.frog.tongueTimer = Math.max(0, this.frog.tongueTimer - dt);
 
     // Dance Mode State
     if (this.isDancing) {

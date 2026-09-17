@@ -108,6 +108,34 @@ export class DuckPicnicScene extends BaseScene {
     if (input.isActionJustPressed()) {
       const p = input.primaryPointer;
       if (p.inside && p.y > 60) {
+        // 1. Check duck tickle tap
+        const hitDuck = this.logic.findHitDuck(p.x, p.y);
+        if (hitDuck) {
+          soundEngine.playDuckQuack(hitDuck.scale < 0.9 ? 1.4 : 1.0);
+          hitDuck.peckTimer = 0.35;
+          hitDuck.wiggleTimer = 0.55;
+          hitDuck.isHappy = true;
+          this.particles.spawnSparkles(hitDuck.x, hitDuck.y - 15, 8);
+          this.particles.spawnScorePopup(hitDuck.x, hitDuck.y - 25, 'Quack! 🦆 +15');
+          Haptics.tap();
+          this.score += 15;
+          this.game.storage.saveHighScore('duckPicnic', this.score);
+          return;
+        }
+
+        // 2. Check lily pad frog tap
+        if (this.logic.findHitFrog(p.x, p.y)) {
+          this.logic.snapFrogTongue();
+          soundEngine.playSFX('bubblePop', { pitch: 1.5 });
+          soundEngine.playSFX('bunnySqueak');
+          this.particles.spawnSparkles(this.logic.frog.x, this.logic.frog.y - 10, 10);
+          this.particles.spawnScorePopup(this.logic.frog.x, this.logic.frog.y - 25, 'Ribbit! 🐸 +25');
+          Haptics.tap();
+          this.score = this.logic.score;
+          this.game.storage.saveHighScore('duckPicnic', this.score);
+          return;
+        }
+
         const dxBasket = p.x - basketPos.x;
         const dyBasket = p.y - basketPos.y;
         if (Math.hypot(dxBasket, dyBasket) < 55) {
@@ -157,7 +185,7 @@ export class DuckPicnicScene extends BaseScene {
     const bH = isPortrait ? 130 : 150;
     const hasFood = this.logic.foods.some(f => !f.eaten);
 
-    renderPicnicEnvironment(ctx, vWidth, vHeight, isPortrait);
+    renderPicnicEnvironment(ctx, vWidth, vHeight, isPortrait, this.logic.frog.tongueTimer);
     renderPicnicBlanketAndBasket(
       ctx,
       blanketPos,

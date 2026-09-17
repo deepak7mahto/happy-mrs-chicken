@@ -26,6 +26,58 @@ export class RainbowGardenRenderer {
     // 1. Sky & Hills Background
     drawLandscapeSkyHills(ctx, vWidth, vHeight, time);
 
+    // Smiling Sun in Sky
+    const sunX = vWidth - 65;
+    const sunY = 70;
+    ctx.save();
+    ctx.translate(sunX, sunY);
+
+    // Radiant Rays
+    ctx.strokeStyle = '#FFE082';
+    ctx.lineWidth = 3;
+    const rayCount = 8;
+    const raySpin = time * 0.8;
+    for (let r = 0; r < rayCount; r++) {
+      const angle = raySpin + (r * Math.PI * 2) / rayCount;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * 34, Math.sin(angle) * 34);
+      ctx.lineTo(Math.cos(angle) * 44, Math.sin(angle) * 44);
+      ctx.stroke();
+    }
+
+    // Sun Body
+    ctx.fillStyle = '#FFEE58';
+    ctx.strokeStyle = '#FBC02D';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Rosy Cheeks
+    ctx.fillStyle = '#FF8A80';
+    ctx.beginPath();
+    ctx.arc(-13, 4, 4, 0, Math.PI * 2);
+    ctx.arc(13, 4, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cute Smile
+    ctx.strokeStyle = '#E65100';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 4, 9, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+
+    // Cute Eyes
+    ctx.fillStyle = '#212121';
+    ctx.beginPath();
+    ctx.arc(-8, -4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(8, -4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
     // 2. Rainbow Celebration Arc
     if (rainbowTimer > 0) {
       ctx.save();

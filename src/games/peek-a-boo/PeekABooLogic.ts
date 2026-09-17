@@ -49,9 +49,11 @@ export class PeekABooLogic {
     this.initSpots(isPortrait, vW, vH);
   }
 
-  public tapSpot(spot: HidingSpot): { tapped: boolean; isMilestone: boolean } {
-    if (spot.isOpen && spot.peekTimer > 0.8) {
-      return { tapped: false, isMilestone: false };
+  public tapSpot(spot: HidingSpot): { tapped: boolean; isMilestone: boolean; isFriendGiggle?: boolean } {
+    if (spot.isOpen) {
+      spot.peekTimer = Math.min(3.5, spot.peekTimer + 1.2);
+      this.score += 20;
+      return { tapped: true, isMilestone: false, isFriendGiggle: true };
     }
 
     spot.isOpen = true;
@@ -62,7 +64,7 @@ export class PeekABooLogic {
     this.score += 50;
 
     const isMilestone = this.peekFoundCount % 4 === 0;
-    return { tapped: true, isMilestone };
+    return { tapped: true, isMilestone, isFriendGiggle: false };
   }
 
   public findSpotAt(x: number, y: number): HidingSpot | null {
