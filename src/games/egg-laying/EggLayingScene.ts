@@ -112,7 +112,7 @@ export class EggLayingScene extends BaseScene {
           onChickHopped: (chick) => {
             soundEngine.playSFX('bunnySqueak');
             this.particles.spawnSparkles(chick.x, chick.y - 10, 8);
-            Haptics.light();
+            Haptics.tap();
           }
         });
         if (!hitChick) {

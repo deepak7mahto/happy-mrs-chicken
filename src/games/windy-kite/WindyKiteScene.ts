@@ -96,8 +96,8 @@ export class WindyKiteScene extends BaseScene {
           this.logic.tapCloud(hitCloud);
           soundEngine.playTone(520, 0.16, 'sine', 0.22);
           soundEngine.playSFX('bunnySqueak');
-          this.particles.spawnSparkles(hitCloud.x, hitCloud.y, 12);
-          this.particles.spawnScorePopup(hitCloud.x, hitCloud.y - 20, 'Baa! Puffy Cloud! ☁️ +20');
+          this.game.particles.spawnSparkles(hitCloud.x, hitCloud.y, 12);
+          this.game.particles.spawnScorePopup(hitCloud.x, hitCloud.y - 20, 'Baa! Puffy Cloud! ☁️ +20');
           Haptics.tap();
           this.game.storage.saveHighScore('windyKite', this.score);
           return;

@@ -17,6 +17,7 @@ export class LittleTrainRenderer {
   ): void {
     const vWidth = display.vWidth;
     const vHeight = display.vHeight;
+    const isPortrait = display.isPortrait;
     const trackY = vHeight - 90;
 
     // Sky and Hills with parallax
@@ -254,7 +255,6 @@ export class LittleTrainRenderer {
     ctx.restore();
 
     // Top HUD Pill Badge
-    const isPortrait = display.isPortrait;
     const scoreX = vWidth / 2;
     const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
     const badgeW = isPortrait ? 290 : 270;
