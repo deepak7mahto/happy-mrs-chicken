@@ -75,7 +75,12 @@ export class PancakeFlipperScene extends BaseScene {
   }
 
   flipPancake(): void {
-    const flipped = this.logic.flipPancake();
+    const flipped = this.logic.flipPancake({
+      onCeilingStick: () => {
+        soundEngine.playSFX('toddlerGiggle');
+        Haptics.heavy();
+      }
+    });
     if (flipped) {
       soundEngine.playSFX('whoosh');
       Haptics.tap();
@@ -101,7 +106,21 @@ export class PancakeFlipperScene extends BaseScene {
       }
     }
     if (userTriggered) {
-      this.flipPancake();
+      const ptr = input.primaryPointer;
+      if (ptr && ptr.inside && ptr.x > vWidth * 0.6 && this.logic.stackedPancakes.length > 0) {
+        this.logic.addSyrup({
+          onSyrupDrizzled: () => {
+            soundEngine.playSFX('eggPop');
+            soundEngine.playSFX('toddlerGiggle');
+            this.particles.spawnPancakeSyrup(plateX, plateBaseY - 20, 15);
+            this.particles.spawnSparkles(plateX, plateBaseY - 30, 10);
+            Haptics.medium();
+          }
+        });
+        this.score = this.logic.score;
+      } else {
+        this.flipPancake();
+      }
     }
 
     // Step pure pancake physics

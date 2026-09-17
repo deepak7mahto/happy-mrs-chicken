@@ -68,7 +68,15 @@ export class DadKitchenScene extends BaseScene {
     this.logic.tap({
       onIngredientAdded: (layer, earned) => {
         this.checkStoryGoal(this.logic.itemsStacked, 6);
-        soundEngine.playSFX('eggPop');
+        if (layer.type === 'RUBBER_DUCK') {
+          soundEngine.playSFX('bunnySqueak');
+        } else if (layer.type === 'TOY_DINO') {
+          soundEngine.playSFX('dinoBite');
+        } else if (layer.type === 'GOLDEN_CROWN') {
+          soundEngine.playSFX('fanfare');
+        } else {
+          soundEngine.playSFX('eggPop');
+        }
         Haptics.tap();
 
         if (this.logic.fever >= 60) {
@@ -76,11 +84,12 @@ export class DadKitchenScene extends BaseScene {
         }
       },
       onFeastCelebration: () => {
+        soundEngine.playSFX('coneMunch');
         soundEngine.playSFX('fanfare');
         soundEngine.playSFX('toddlerGiggle');
         Haptics.fanfare();
-        this.particles.spawnConfetti(dadX, dadY, 30);
-        this.particles.spawnSparkles(dadX, dadY - 40, 15);
+        this.particles.spawnConfetti(dadX, dadY, 35);
+        this.particles.spawnSparkles(dadX, dadY - 40, 18);
         this.game.storage.saveHighScore('daddyPig', this.score);
       }
     });

@@ -70,7 +70,7 @@ export class IceCreamVanRenderer {
     ctx.restore();
 
     // Customer Order Speech Bubble
-    this.renderSpeechBubble(ctx, custX - 28, custY - 48, logic.scoops.length);
+    this.renderSpeechBubble(ctx, custX - 28, custY - 48, logic.scoops.length, logic.requestedFlavor);
 
     // Big Waffle Cone in Center
     const coneX = vWidth / 2;
@@ -133,6 +133,19 @@ export class IceCreamVanRenderer {
       ctx.arc(18, 18, 10, 0, Math.PI * 2);
       ctx.fill();
 
+      if (s.sprinkles && s.sprinkles.length > 0) {
+        for (const sp of s.sprinkles) {
+          ctx.save();
+          ctx.translate(sp.x, sp.y);
+          ctx.rotate(sp.rotation);
+          ctx.fillStyle = sp.color;
+          ctx.beginPath();
+          ctx.roundRect(-4, -1.5, 8, 3, 1.5);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       if (s.hasCherry) {
         ctx.fillStyle = '#D50000';
         ctx.strokeStyle = '#B71C1C';
@@ -151,6 +164,52 @@ export class IceCreamVanRenderer {
       }
       ctx.restore();
     }
+
+    // Sprinkle Shaker Bottle on Counter
+    const shakerX = isPortrait ? vWidth - 46 : vWidth - 55;
+    const shakerY = coneY - 10;
+    logic.sprinkleShaker.x = shakerX;
+    logic.sprinkleShaker.y = shakerY;
+
+    ctx.save();
+    ctx.translate(shakerX, shakerY);
+    if (logic.sprinkleShaker.shakeTimer > 0) {
+      ctx.rotate(Math.sin(logic.time * 24) * 0.25);
+    }
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+    ctx.beginPath();
+    ctx.ellipse(0, 24, 16, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.strokeStyle = '#00ACC1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(-14, -12, 28, 34, [6, 6, 8, 8]);
+    ctx.fill();
+    ctx.stroke();
+
+    const sColors = ['#FF1744', '#FFEA00', '#00E676', '#00E5FF', '#D500F9'];
+    for (let i = 0; i < 6; i++) {
+      ctx.fillStyle = sColors[i % sColors.length];
+      ctx.beginPath();
+      ctx.arc(-7 + (i % 3) * 7, 2 + Math.floor(i / 3) * 8, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#CFD8DC';
+    ctx.strokeStyle = '#78909C';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-10, -22, 20, 10, [4, 4, 1, 1]);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = 'bold 8px "Fredoka", "Quicksand", sans-serif';
+    ctx.fillStyle = '#00838F';
+    ctx.textAlign = 'center';
+    ctx.fillText('SPRINKLES', 0, 18);
+    ctx.restore();
 
     if (logic.munchTimer > 0) {
       ctx.save();
@@ -217,14 +276,14 @@ export class IceCreamVanRenderer {
     ctx.restore();
   }
 
-  private renderSpeechBubble(ctx: CanvasRenderingContext2D, x: number, y: number, scoops: number): void {
-    const text = scoops >= 3 ? 'Yummy! Eat it! 😋' : 'More please! 🍦';
+  private renderSpeechBubble(ctx: CanvasRenderingContext2D, x: number, y: number, scoops: number, requestedFlavor: string): void {
+    const text = scoops >= 3 ? 'Yummy! Eat it! 😋' : `${requestedFlavor} please! 🍨`;
     ctx.save();
     ctx.fillStyle = '#FFFFFF';
     ctx.strokeStyle = '#FF80AB';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.roundRect(x - 90, y - 16, 100, 26, 12);
+    ctx.roundRect(x - 96, y - 16, 120, 26, 12);
     ctx.fill();
     ctx.stroke();
 
@@ -232,7 +291,7 @@ export class IceCreamVanRenderer {
     ctx.font = 'bold 11px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, x - 40, y - 3);
+    ctx.fillText(text, x - 36, y - 3);
     ctx.restore();
   }
 }

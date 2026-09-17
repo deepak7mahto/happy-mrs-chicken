@@ -3,7 +3,15 @@
  * Types and State Definitions
  */
 
-export type KitchenIngredientType = 'BREAD' | 'CHEESE' | 'TOMATO' | 'LETTUCE' | 'CUCUMBER';
+export type KitchenIngredientType =
+  | 'BREAD'
+  | 'CHEESE'
+  | 'TOMATO'
+  | 'LETTUCE'
+  | 'CUCUMBER'
+  | 'RUBBER_DUCK'
+  | 'TOY_DINO'
+  | 'GOLDEN_CROWN';
 
 export interface FallingIngredient {
   id: number;

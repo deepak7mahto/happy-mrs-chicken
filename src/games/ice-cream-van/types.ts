@@ -11,10 +11,18 @@ export interface FlavorTub {
   radius: number;
 }
 
+export interface Sprinkle {
+  x: number;
+  y: number;
+  color: string;
+  rotation: number;
+}
+
 export interface Scoop {
   color: string;
   borderColor: string;
   wobblePhase: number;
   scale: number;
   hasCherry?: boolean;
+  sprinkles?: Sprinkle[];
 }

@@ -83,7 +83,13 @@ export class PancakeFlipperRenderer {
     ctx.restore();
 
     // 5. Active Pancake
-    if (!isAirborne && newPancakeDelay <= 0) {
+    if (activePancake.isCeilingStuck) {
+      this.drawPancake(ctx, activePancake.x, activePancake.y, activePancake.rotation, activePancake.cookTimer);
+      ctx.fillStyle = '#E65100';
+      ctx.font = '700 13px "Fredoka", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🥞 STUCK TO CEILING! 😂', activePancake.x, activePancake.y + 28);
+    } else if (!isAirborne && newPancakeDelay <= 0) {
       this.drawPancake(ctx, activePancake.x, activePancake.y - 3, 0, activePancake.cookTimer);
     } else if (isAirborne) {
       this.drawPancake(ctx, activePancake.x, activePancake.y, activePancake.rotation, activePancake.cookTimer);
@@ -103,6 +109,15 @@ export class PancakeFlipperRenderer {
       const p = stackedPancakes[i];
       const wobble = Math.sin(stackWobbleTimer * 8 + i * 0.5) * Math.max(0, 4 - stackWobbleTimer * 3);
       this.drawPancake(ctx, plateX + wobble, p.y, 0, 2.0);
+
+      if (p.syrup) {
+        ctx.fillStyle = 'rgba(255, 160, 0, 0.82)';
+        ctx.beginPath();
+        ctx.ellipse(plateX + wobble, p.y - 2, 28, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(plateX + wobble - 18, p.y - 1, 4, 8);
+        ctx.fillRect(plateX + wobble + 12, p.y - 1, 3, 6);
+      }
 
       // Butter pat on top of highest pancake
       if (i === stackedPancakes.length - 1) {

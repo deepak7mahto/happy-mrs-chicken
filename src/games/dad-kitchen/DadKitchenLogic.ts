@@ -15,7 +15,10 @@ const INGREDIENT_COLORS: Record<KitchenIngredientType, string> = {
   CHEESE: '#FFEE58',
   TOMATO: '#EF5350',
   LETTUCE: '#66BB6A',
-  CUCUMBER: '#81C784'
+  CUCUMBER: '#81C784',
+  RUBBER_DUCK: '#FFD54F',
+  TOY_DINO: '#81C784',
+  GOLDEN_CROWN: '#FFD700'
 };
 
 export class DadKitchenLogic {
@@ -25,6 +28,7 @@ export class DadKitchenLogic {
   public multiplier: number = 1;
   public itemsStacked: number = 0;
   public celebrationTimer: number = 0;
+  public feastBites: number = 0;
   public isOverheating: boolean = false;
   public ingredients: FallingIngredient[] = [];
   public layers: SandwichLayer[] = [];
@@ -37,6 +41,7 @@ export class DadKitchenLogic {
     this.multiplier = 1;
     this.itemsStacked = 0;
     this.celebrationTimer = 0;
+    this.feastBites = 0;
     this.isOverheating = false;
     this.ingredients = [];
     this.layers = [{ type: 'BREAD', color: '#BCAAA4', w: 100, h: 14 }];
@@ -46,6 +51,7 @@ export class DadKitchenLogic {
     if (this.celebrationTimer > 0) {
       this.celebrationTimer = 0;
       this.fever = 0;
+      this.feastBites = 0;
       this.isOverheating = false;
       this.layers = [{ type: 'BREAD', color: '#BCAAA4', w: 100, h: 14 }];
     }
@@ -56,7 +62,9 @@ export class DadKitchenLogic {
     const earned = 10 * this.multiplier;
     this.score += earned;
 
-    const types: KitchenIngredientType[] = ['CHEESE', 'TOMATO', 'LETTUCE', 'CUCUMBER', 'BREAD'];
+    const types: KitchenIngredientType[] = [
+      'CHEESE', 'TOMATO', 'LETTUCE', 'RUBBER_DUCK', 'CUCUMBER', 'TOY_DINO', 'GOLDEN_CROWN', 'BREAD'
+    ];
     const chosenType = types[this.itemsStacked % types.length];
     const newLayer: SandwichLayer = {
       type: chosenType,
@@ -86,8 +94,10 @@ export class DadKitchenLogic {
   public update(dt: number): void {
     if (this.celebrationTimer > 0) {
       this.celebrationTimer -= dt;
+      this.feastBites = Math.min(3, Math.floor((2.5 - this.celebrationTimer) / 0.8) + 1);
       if (this.celebrationTimer <= 0) {
         this.fever = 0;
+        this.feastBites = 0;
       }
     } else {
       this.fever = Math.max(0, this.fever - 2.5 * dt);

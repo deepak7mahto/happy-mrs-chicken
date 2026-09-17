@@ -47,7 +47,7 @@ export class IceCreamVanScene extends BaseScene {
   }
 
   public addScoop(flavor: FlavorTub): void {
-    const { added, isCelebration } = this.logic.addScoop(flavor);
+    const { added, isCelebration, isOrderMatch } = this.logic.addScoop(flavor);
     if (!added) return;
 
     soundEngine.playSFX('eggPop');
@@ -58,7 +58,13 @@ export class IceCreamVanScene extends BaseScene {
 
     const vWidth = this.game.display.vWidth;
     const vHeight = this.game.display.vHeight;
-    this.game.particles.spawnSparkles(vWidth / 2, vHeight - 160 - this.scoops.length * 28, 8);
+    const scoopY = vHeight - 160 - this.scoops.length * 28;
+    this.game.particles.spawnSparkles(vWidth / 2, scoopY, 8);
+
+    if (isOrderMatch) {
+      soundEngine.playSFX('bunnySqueak');
+      this.game.particles.spawnScorePopup(vWidth / 2, scoopY - 15, '✨ ORDER MATCH! +25');
+    }
 
     if (isCelebration) {
       soundEngine.playSFX('fanfare');
@@ -67,12 +73,28 @@ export class IceCreamVanScene extends BaseScene {
     }
   }
 
+  public addSprinkles(): void {
+    const shaken = this.logic.addSprinkles();
+    if (!shaken) return;
+
+    soundEngine.playSFX('seedDrop');
+    Haptics.tap();
+    this.syncFromLogic();
+    this.game.storage.saveHighScore('iceCreamVan', this.score);
+
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    const scoopY = vHeight - 160 - this.scoops.length * 28;
+    this.game.particles.spawnSparkles(vWidth / 2, scoopY, 12);
+    this.game.particles.spawnScorePopup(vWidth / 2, scoopY - 15, '🌈 SPRINKLES! +15');
+  }
+
   public munchFeast(): void {
     const munched = this.logic.munchFeast();
     if (!munched) return;
 
     this.syncFromLogic();
-    soundEngine.playSFX('coneMunch' as any);
+    soundEngine.playSFX('coneMunch');
     soundEngine.playSFX('pancakeSizzle');
     soundEngine.playSFX('toddlerGiggle');
     Haptics.medium();
@@ -88,6 +110,14 @@ export class IceCreamVanScene extends BaseScene {
     const flavors = this.logic.getFlavors(vWidth, vHeight);
 
     const checkTap = (x: number, y: number) => {
+      // 1. Check sprinkle shaker bottle
+      const shaker = this.logic.sprinkleShaker;
+      if (shaker.x > 0 && Math.hypot(x - shaker.x, y - shaker.y) <= shaker.radius + 14) {
+        this.addSprinkles();
+        return;
+      }
+
+      // 2. Check flavor tubs
       for (const f of flavors) {
         if (Math.hypot(x - f.x, y - f.y) <= f.radius + 12) {
           this.addScoop(f);
@@ -95,6 +125,7 @@ export class IceCreamVanScene extends BaseScene {
         }
       }
 
+      // 3. Check cone / scoop feast
       const coneX = vWidth / 2;
       const coneY = vHeight - 150;
       if (Math.hypot(x - coneX, y - coneY) <= 80 || y < coneY) {

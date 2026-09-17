@@ -34,22 +34,28 @@ export class DadKitchenRenderer {
       ctx.strokeStyle = '#F57F17';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.roundRect(vWidth * 0.08, vHeight * 0.15, vWidth * 0.84, vHeight * 0.45, 24);
+      ctx.roundRect(vWidth * 0.08, vHeight * 0.12, vWidth * 0.84, vHeight * 0.52, 24);
       ctx.fill();
       ctx.stroke();
 
       ctx.fillStyle = '#BF360C';
       ctx.font = `bold ${isPortrait ? '24px' : '30px'} "Fredoka", "Quicksand", sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('🥪 GIANT SANDWICH FEAST! 🥪', vWidth / 2, vHeight * 0.26);
+      ctx.fillText('🥪 GIANT SANDWICH FEAST! 🥪', vWidth / 2, vHeight * 0.22);
 
       ctx.font = 'bold 20px "Fredoka", "Quicksand", sans-serif';
       ctx.fillStyle = '#1B5E20';
-      ctx.fillText(`Delicious! +250 Bonus! Score: ${score}`, vWidth / 2, vHeight * 0.35);
+      ctx.fillText(`Delicious! +250 Bonus! Score: ${score}`, vWidth / 2, vHeight * 0.30);
 
-      ctx.fillStyle = '#3E2723';
-      ctx.font = '16px "Fredoka", "Quicksand", sans-serif';
-      ctx.fillText('Dad loved making the mega sandwich! 😋', vWidth / 2, vHeight * 0.43);
+      // Character munching in center
+      renderCharacter(selectedAvatar, ctx, vWidth / 2, vHeight * 0.44, 1.25, {
+        expression: 'excited',
+        armWave: Math.sin(time * 16) * 0.35
+      });
+
+      ctx.fillStyle = '#E65100';
+      ctx.font = 'bold 18px "Fredoka", "Quicksand", sans-serif';
+      ctx.fillText('CHOMP! NOM NOM NOM! 😋', vWidth / 2, vHeight * 0.56);
       ctx.restore();
       return;
     }
@@ -101,6 +107,21 @@ export class DadKitchenRenderer {
       ctx.roundRect(plateX - layer.w / 2, currentStackY - layer.h, layer.w, layer.h, 4);
       ctx.fill();
       ctx.stroke();
+
+      if (layer.type === 'RUBBER_DUCK') {
+        ctx.font = '13px "Fredoka", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🦆', plateX, currentStackY - 2);
+      } else if (layer.type === 'TOY_DINO') {
+        ctx.font = '13px "Fredoka", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🦖', plateX, currentStackY - 2);
+      } else if (layer.type === 'GOLDEN_CROWN') {
+        ctx.font = '13px "Fredoka", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('👑', plateX, currentStackY - 2);
+      }
+
       currentStackY -= layer.h + 1;
     }
     ctx.restore();

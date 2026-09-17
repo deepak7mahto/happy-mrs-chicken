@@ -101,8 +101,15 @@ export class MixMatchScene extends BaseScene {
     this.game.storage.saveHighScore('mixMatch', this.score);
 
     soundEngine.playSFX('toddlerGiggle');
-    if (this.headIdx === 6 || this.torsoIdx === 6 || this.legsIdx === 6) soundEngine.playSFX('cluck');
-    if (this.headIdx === 5 || this.torsoIdx === 5 || this.legsIdx === 5) soundEngine.playSFX('bunnySqueak');
+    if (this.headIdx === 6 || this.torsoIdx === 6 || this.legsIdx === 6) {
+      soundEngine.playSFX('cluck');
+    } else if (this.headIdx === 5 || this.torsoIdx === 5 || this.legsIdx === 5) {
+      soundEngine.playSFX('bunnySqueak');
+    } else if (this.headIdx === 1 || this.torsoIdx === 1 || this.legsIdx === 1) {
+      soundEngine.playSFX('dinoBite');
+    } else if (this.headIdx <= 4) {
+      soundEngine.playSFX('pigOink');
+    }
     Haptics.medium();
 
     const vW = this.game.display.vWidth;
@@ -165,23 +172,39 @@ export class MixMatchScene extends BaseScene {
     const cy = isPortrait ? vH * 0.44 : vH * 0.48;
 
     for (const pt of pointers) {
-      if (Math.hypot(pt.x - cx, pt.y - cy) < 90) {
-        this.triggerDance();
-        continue;
-      }
-
       const rowYHead = cy - 65;
       const rowYTorso = cy;
       const rowYLegs = cy + 65;
       const arrowLeftX = cx - 110;
       const arrowRightX = cx + 110;
 
-      if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYHead) < 28) this.nextHead(-1);
-      else if (Math.hypot(pt.x - arrowRightX, pt.y - rowYHead) < 28) this.nextHead(1);
-      else if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYTorso) < 28) this.nextTorso(-1);
-      else if (Math.hypot(pt.x - arrowRightX, pt.y - rowYTorso) < 28) this.nextTorso(1);
-      else if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYLegs) < 28) this.nextLegs(-1);
-      else if (Math.hypot(pt.x - arrowRightX, pt.y - rowYLegs) < 28) this.nextLegs(1);
+      // 1. Selector arrows
+      if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYHead) < 28) { this.nextHead(-1); continue; }
+      if (Math.hypot(pt.x - arrowRightX, pt.y - rowYHead) < 28) { this.nextHead(1); continue; }
+      if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYTorso) < 28) { this.nextTorso(-1); continue; }
+      if (Math.hypot(pt.x - arrowRightX, pt.y - rowYTorso) < 28) { this.nextTorso(1); continue; }
+      if (Math.hypot(pt.x - arrowLeftX, pt.y - rowYLegs) < 28) { this.nextLegs(-1); continue; }
+      if (Math.hypot(pt.x - arrowRightX, pt.y - rowYLegs) < 28) { this.nextLegs(1); continue; }
+
+      // 2. Direct tap on character segments
+      if (Math.abs(pt.x - cx) < 65) {
+        if (pt.y >= cy - 95 && pt.y < cy - 25) {
+          this.nextHead(1);
+          continue;
+        } else if (pt.y >= cy - 25 && pt.y <= cy + 30) {
+          this.nextTorso(1);
+          continue;
+        } else if (pt.y > cy + 30 && pt.y <= cy + 90) {
+          this.nextLegs(1);
+          continue;
+        }
+      }
+
+      // 3. Stage platform or surrounding tap -> Dance!
+      if (Math.hypot(pt.x - cx, pt.y - (cy + 95)) < 60 || Math.hypot(pt.x - cx, pt.y - cy) < 80) {
+        this.triggerDance();
+        continue;
+      }
 
       const btnY = isPortrait ? vH * 0.84 : vH * 0.86;
       const shuffleX = cx - 90;

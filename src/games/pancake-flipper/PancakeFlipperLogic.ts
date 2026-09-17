@@ -8,6 +8,8 @@ import { ActivePancakeState, StackedPancakeItem } from './types';
 export interface PancakeFlipperEvents {
   onSizzle?: () => void;
   onPancakeLanded?: (stackCount: number, earned: number, isSuperTower: boolean) => void;
+  onSyrupDrizzled?: () => void;
+  onCeilingStick?: () => void;
 }
 
 export class PancakeFlipperLogic {
@@ -65,13 +67,34 @@ export class PancakeFlipperLogic {
     };
   }
 
-  public flipPancake(): boolean {
+  public addSyrup(events?: PancakeFlipperEvents): boolean {
+    if (this.stackedPancakes.length === 0) return false;
+    for (const p of this.stackedPancakes) {
+      p.syrup = true;
+      p.butter = true;
+    }
+    this.score += 50;
+    if (events?.onSyrupDrizzled) {
+      events.onSyrupDrizzled();
+    }
+    return true;
+  }
+
+  public flipPancake(events?: PancakeFlipperEvents): boolean {
     if (this.isAirborne || this.newPancakeDelay > 0) return false;
     this.isAirborne = true;
     this.flipPhase = 0.05;
     this.activePancake.vy = -550;
     this.activePancake.vRot = Math.PI * 3.5;
     this.activePancake.flipCount++;
+
+    if (Math.random() < 0.22) {
+      this.activePancake.isCeilingStuck = true;
+      this.activePancake.ceilingTimer = 1.1;
+      if (events?.onCeilingStick) {
+        events.onCeilingStick();
+      }
+    }
     return true;
   }
 
@@ -132,6 +155,14 @@ export class PancakeFlipperLogic {
       if (this.sizzleIntervalTimer >= 0.6) {
         this.sizzleIntervalTimer = 0;
         if (events?.onSizzle) events.onSizzle();
+      }
+    } else if (this.activePancake.isCeilingStuck) {
+      this.activePancake.ceilingTimer = (this.activePancake.ceilingTimer ?? 1.1) - dt;
+      this.activePancake.y = 52;
+      this.activePancake.rotation = Math.sin(this.stackWobbleTimer * 8) * 0.12;
+      if (this.activePancake.ceilingTimer <= 0) {
+        this.activePancake.isCeilingStuck = false;
+        this.activePancake.vy = 220;
       }
     } else {
       // Airborne Parabola
