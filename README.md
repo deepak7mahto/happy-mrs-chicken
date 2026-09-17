@@ -95,13 +95,18 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 
 ## 🚀 Features & Architecture
 
+* **⚡ Pure Vanilla TypeScript Architecture**: Zero React virtual DOM overhead. Built with high-performance modular TypeScript, PixiJS v8 ready graphics, and pure DOM HUD/modals (`src/ui/`).
+* **🎨 Modern Playful Typography (Fredoka)**: Clean, friendly rounded typography using local `@fontsource/fredoka` (weights 400, 500, 600, 700). 100% offline with zero external Google Fonts or CDN network requests.
+* **🧸 3D Tactile "Toy Button" Cards**: Landing page cards feature a 3D extruded bottom bevel (+5px), subtle vertical surface gradient, top specular gloss sheen, and warm golden star achievement badges (`★ Best Score`).
+* **✨ Character Pedestal Spotlights**: Every character preview on the landing page is scaled up for mobile and framed within a soft, luminous circular spotlight disc.
+* **🔇 Background Audio Suspension Lifecycle**: Integrated Web Audio hardware lifecycle management (`AudioContext.suspend()` and `resume()`) wired to `visibilitychange` and `pagehide` to ensure zero sound leakage when switching apps or locking the phone.
 * **🗺️ Continuous Story Journey Mode**: The 16 mini-games are woven together into a continuous 5-chapter narrative adventure from morning to sunset. Features an interactive procedural winding canvas map, milestone nodes, active avatar position beacons, and bite-sized toddler goals.
 * **📖 16-Stamp Adventure Passport Album**: Complete each story stop to earn a collectible gold stamp and star ratings. Collecting all 16 stamps awards the Grand Master Explorer Trophy (🏆).
 * **🐷 Universal 15-Character Avatar Selector**: Choose from 15 vector-rendered characters (Peppa Pig & friends, Trishu family, and farmyard animals) that seamlessly propagate across all 16 mini-games.
 * **🎵 4 Procedural BGM Mood Tracks & Dynamic Ducking**: Includes Classic (128 BPM), Frenzy (144 BPM), Waltz (108 BPM), and Gentle (92 BPM) procedural tracks with dynamic volume ducking on celebratory fanfares.
-* **🎛️ Dual-Mode Menu Switcher**: Effortlessly switch between `[ 🗺️ Story Journey ]` (default) and `[ 🎮 Free Play ]` (responsive 2-column portrait / 4-column landscape card grid).
-* **100% Zero-Dependency Standalone**: Pure TypeScript + React 19 + Vite. Zero external CDN dependencies; all code, vector art, and audio synthesis run 100% offline.
-* **Heavy PWA & Automated Precache Pipeline**: Build-time injection (`scripts/generate-sw.mjs`) captures 100% of Vite hashed chunks, HTML, and assets into `dist/sw.js` Cache Storage for reliable, instant offline launch.
+* **🎛️ Dual-Mode Menu Switcher**: Effortlessly switch between `[ 🎮 Free Play ]` (default responsive 2-column portrait / 4-column landscape card grid) and `[ 🗺️ Story Journey ]`.
+* **100% Zero-Dependency Standalone**: Pure TypeScript + Vite. Zero external CDN dependencies; all code, vector art, fonts, and audio synthesis run 100% offline.
+* **Heavy PWA & Automated Precache Pipeline**: Build-time injection (`scripts/generate-sw.mjs`) captures 100% of Vite hashed chunks, HTML, font files, and assets into `dist/sw.js` Cache Storage for reliable, instant offline launch.
 * **Screen Wake Lock API**: Automatically locks the screen awake during active mini-gameplay so toddler play sessions are never interrupted by display dimming or sleep.
 * **Tactile In-App Install Experience**: Kid-friendly HUD install button with native `beforeinstallprompt` flow for Android/Chrome/Desktop and a step-by-step visual install guide for iOS Safari.
 * **Persistent State & Safe Toddler Lock**: Story progress, passport stamps, selected avatar, and audio settings are safely persisted in `localStorage`. Includes a 3-second hold toddler lock for the Home button.
@@ -121,8 +126,14 @@ npm install
 # Start local development server
 npm run dev
 
-# Run automated tests
+# Run unit & integration test suite (71 tests)
 npm test
+
+# Run Playwright mobile & desktop browser E2E tests (31 tests)
+python3 tests/browser_e2e.py
+
+# Run full project audit checklist
+python3 .agents/scripts/checklist.py .
 
 # Build production bundle
 npm run build
@@ -133,18 +144,26 @@ npm run deploy
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Quality Gates
 
-```bash
-npm test
-```
+The codebase is protected by **102 automated tests**:
 
-All 41 tests across 5 quality tiers pass in <0.05s:
+### 1. Automated Test Runner (`npm test` — 71 tests in <0.05s)
 - **Tier 1**: Smoke & Initialization (Engine, Display, Storage, Particle pool, Menu navigation)
 - **Tier 2**: 16 Mini-Game Simulations & Mechanics
-- **Tier 3**: Audio Synthesis (20 SFX recipes) & Character Renderers
-- **Tier 4**: Quality Gates, LOC limit (<500 LOC per file), Branding, and Canvas State Balance (0 leaks)
+- **Tier 3**: Audio Engine (20 SFX recipes, BGM sequencer, background suspension/resumption) & Character Renderers
+- **Tier 4**: Quality Gates (<500 LOC/file, zero external CDN dependencies, branding verification, and 0 canvas state leaks)
 - **Tier 5**: Heavy PWA & Native Capabilities (Service Worker precache, Wake Lock, Installability)
+- **Tier 6**: Frontend Architecture, Deep Linking Router & Controls
+- **Tier 7**: Menu 2-Column Portrait, Gamepad API, BGM Moods & Snapshots
+- **Tier 8**: Universal 15-Character Avatar Selector System
+- **Tier 10**: Story Journey Narrative & Adventure Map Engine
+
+### 2. Playwright Headless Browser E2E (`tests/browser_e2e.py` — 31 tests)
+- **Mobile iPhone 14 (390×844)**: Default Free Play view, clearance check, modal dialogs, and audio mute toggle.
+- **Android Samsung Galaxy (360×800)**: Narrow viewport horizontal clearance and touch targets.
+- **Google Pixel (412×915)**: Dynamic display scaling and modal responsiveness.
+- **Desktop Landscape (1280×720)**: 4-column card grid, header spacing, and deep linking URL hashes.
 
 ---
 

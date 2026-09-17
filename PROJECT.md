@@ -1,12 +1,12 @@
 # Project: Adventures of Trishu — 16-Game Mini-Game Suite
 
 ## Architecture
-A modular, high-performance HTML5 Canvas 2D game engine built with React 19, TypeScript, and Vite.
-- **Engine Core (`src/engine/`)**: 60 FPS fixed-timestep game loop, dual-orientation dynamic viewport manager (`DisplayManager.ts`), multi-touch gesture input manager (`InputManager.ts`), particle pool (`ParticleEngine.ts`), local storage persistence (`StorageManager.ts`), and procedural audio suite (`src/engine/audio/`).
-- **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, and an algorithmic 128 BPM multi-track nursery BGM sequencer with 20 procedural SFX recipes.
-- **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for all characters (Trishu, Leo with Plush Dino, Dad, Mom, Grandpa, Mimi the Bunny, Mrs Clucky, Baby Chicks, and Yellow Ducks) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.
+A modular, high-performance HTML5 Canvas 2D game engine built with Pure Vanilla TypeScript, PixiJS v8 readiness, and Vite (Zero React footprint).
+- **Engine Core (`src/engine/`)**: 60 FPS fixed-timestep game loop (`GameEngine.ts`), dual-orientation dynamic viewport manager (`DisplayManager.ts`), multi-touch gesture input manager (`InputManager.ts`), URL hash router (`Router.ts`), particle pool (`ParticleEngine.ts`), local storage persistence (`StorageManager.ts`), and procedural audio suite (`src/engine/audio/`).
+- **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, dynamic volume ducking, background hardware suspension/resumption (`visibilitychange` / `pagehide`), and an algorithmic 128 BPM multi-track nursery BGM sequencer with 20 procedural SFX recipes.
+- **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for 15 characters (Trishu family, Mimi the Bunny, Mrs Clucky, Baby Chicks, Yellow Ducks, and Peppa Pig & Friends roster) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.
 - **Mini-Game Modes (`src/games/`)**: 16 standalone mini-game scenes implementing the `BaseScene` contract (`enter`, `exit`, `update`, `render`, `getEntities`, `getModeState`).
-- **UI & Heavy PWA (`src/components/`, `src/pwa/`)**: Responsive single-screen 4×4 grid menu, centered HUD score pill badges, debounced instant touch Home button, PwaManager singleton, Screen Wake Lock API, in-app install modal with iOS guide, update toast, and build-time Service Worker precaching.
+- **Tactile UI & Heavy PWA (`src/ui/`, `src/pwa/`)**: Pure TypeScript DOM UI layer (`HUD.ts`, `SettingsModal.ts`, `AvatarSelectModal.ts`, `PassportModal.ts`, `StoryIntroModal.ts`, `StoryVictoryModal.ts`, `PwaModal.ts`), 3D tactile cards with bottom bevels and character spotlights, PwaManager singleton, Screen Wake Lock API, and build-time Service Worker precaching (`dist/sw.js`).
 
 ## Feature Inventory
 
@@ -41,14 +41,20 @@ A modular, high-performance HTML5 Canvas 2D game engine built with React 19, Typ
 | 27 | Mode 14: Windy Castle Kite | Touch-drag kite flight, wind sway, tail ribbons, and star collection | DONE |
 | 28 | Mode 15: Rainbow Flower Garden | Water mound sprouts, rainbow sky celebration, and blooming flowers | DONE |
 | 29 | Mode 16: Picnic Ducks | Feed the ducks with bread & basket treats, Boids separation, and grand celebration dance | DONE |
-| 30 | Single-Screen 4×4 Grid Menu | Fits all 16 mini-games on a single screen without scrolling across devices | DONE |
-| 31 | Centered Top HUD Badges | Standardized centered pill badges preventing top navigation overlap | DONE |
-| 32 | Instant Touch Home Navigation | Debounced pointer/touch handling returning directly to MENU | DONE |
-| 33 | Canvas State Stack Integrity | 0 `ctx.save()` / `ctx.restore()` state leaks verified across all 17 scenes | DONE |
-| 34 | Heavy PWA Precache Pipeline | Build-time chunk scanning and multi-tier Service Worker caching in `dist/sw.js` | DONE |
-| 35 | Native Device & Screen Wake Lock | `PwaManager` keeping display awake during toddler play sessions | DONE |
-| 36 | Tactile In-App Install & iOS Guide | Kid-friendly install prompt, native prompt trigger, and Safari 3-step guide | DONE |
-| 37 | Lean Automated Test Suite | Ultra-fast consolidated test suite (<0.05s execution) with 41 unit & E2E tests | DONE |
+| 30 | Responsive Dual-Orientation Menu | Free Play responsive 2-column portrait / 4-column landscape 3D card grid | DONE |
+| 31 | Tactile 3D "Toy Button" Cards | 3D bottom bevel (+5px), surface gradient, top gloss sheen, golden score pills | DONE |
+| 32 | Character Spotlight Pedestals | Scaled up character previews framed by soft glowing white circular pedestal discs | DONE |
+| 33 | Continuous Story Journey Mode | 5 chapters, 16 stops, milestone nodes, avatar position beacons, and toddler goals | DONE |
+| 34 | Universal 15-Character Avatar Selector | Full roster with Peppa Pig & Friends, Trishu family, and farmyard animals | DONE |
+| 35 | 16-Stamp Adventure Passport | Collectible passport album with gold stamps, star ratings, and trophy unlock | DONE |
+| 36 | Mobile Web Audio Suspension | Automatic `suspend()`/`resume()` on `visibilitychange` & `pagehide` preventing audio leak | DONE |
+| 37 | Modern Playful Typography (Fredoka) | Local `@fontsource/fredoka` with zero external CDN requests & scaled mobile font sizes | DONE |
+| 38 | Instant Touch Home Navigation | Debounced pointer/touch handling with 3-second hold safe Toddler Lock | DONE |
+| 39 | Canvas State Stack Integrity | 0 `ctx.save()` / `ctx.restore()` state leaks verified across all 17 scenes | DONE |
+| 40 | Heavy PWA Precache Pipeline | Build-time chunk scanning and multi-tier Service Worker caching in `dist/sw.js` | DONE |
+| 41 | Native Device & Screen Wake Lock | `PwaManager` keeping display awake during toddler play sessions | DONE |
+| 42 | Tactile In-App Install & iOS Guide | Kid-friendly install prompt, native prompt trigger, and Safari 3-step guide | DONE |
+| 43 | 102 Automated Tests Suite | 71 unit/integration tests (<0.05s) across 9 tiers + 31 Playwright browser E2E tests | DONE |
 
 ## Character Mapping
 
