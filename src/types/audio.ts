@@ -24,7 +24,11 @@ export type SFXName =
   | 'toddlerGiggle'
   | 'duckQuack'
   | 'duckFanfare'
-  | 'pigOink';
+  | 'pigOink'
+  | 'trainWhistle'
+  | 'waterHoseSpray'
+  | 'coneMunch'
+  | 'dinoBite';
 
 export interface SFXOptions {
   playbackRate?: number;

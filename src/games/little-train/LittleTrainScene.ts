@@ -10,130 +10,67 @@ import { InputManager } from '../../engine/InputManager';
 import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
-import { renderCharacter, drawGrandpa, drawTrishu, drawMimi, drawLeo, drawBabyChick } from '../../graphics/characters';
-
-interface PassengerStation {
-  x: number;
-  type: 'mimi' | 'trishu' | 'leo' | 'chick';
-  pickedUp: boolean;
-}
+import { PassengerStation, PassengerType, SteamPuff } from './types';
+import { LittleTrainLogic } from './LittleTrainLogic';
+import { LittleTrainRenderer } from './LittleTrainRenderer';
 
 export class LittleTrainScene extends BaseScene {
+  public logic: LittleTrainLogic;
+  public renderer: LittleTrainRenderer;
+
+  // Forwarded properties for test & state compatibility
   public time: number = 0;
-  private trainX: number = 0;
-  private trainSpeed: number = 110;
-  private whistleTimer: number = 0;
-  private passengers: Array<'mimi' | 'trishu' | 'leo' | 'chick'> = [];
-  private stations: PassengerStation[] = [];
-  private steamPuffs: Array<{ x: number; y: number; radius: number; life: number }> = [];
+  public get trainX(): number { return this.logic.trainX; }
+  public get trainSpeed(): number { return this.logic.trainSpeed; }
+  public get whistleTimer(): number { return this.logic.whistleTimer; }
+  public get passengers(): PassengerType[] { return this.logic.passengers; }
+  public get stations(): PassengerStation[] { return this.logic.stations; }
+  public get steamPuffs(): SteamPuff[] { return this.logic.steamPuffs; }
 
   constructor(game: GameEngine) {
     super(game);
+    this.logic = new LittleTrainLogic();
+    this.renderer = new LittleTrainRenderer();
   }
 
   enter(): void {
+    super.enter();
     soundEngine.setTrack('waltz');
-    this.score = 0;
-    this.trainX = 0;
-    this.trainSpeed = 110;
-    this.whistleTimer = 0;
-    this.passengers = ['trishu'];
-    this.steamPuffs = [];
-    this.initStations();
+    this.logic.reset();
+    this.syncFromLogic();
     soundEngine.unlock();
   }
 
-  private initStations(): void {
-    this.stations = [
-      { x: 450, type: 'mimi', pickedUp: false },
-      { x: 950, type: 'leo', pickedUp: false },
-      { x: 1450, type: 'chick', pickedUp: false },
-      { x: 1950, type: 'mimi', pickedUp: false },
-      { x: 2450, type: 'chick', pickedUp: false }
-    ];
+  private syncFromLogic(): void {
+    this.time = this.logic.time;
+    this.score = this.logic.score;
   }
 
-  blowWhistle(): void {
+  public blowWhistle(): void {
+    const vHeight = this.game.display.vHeight;
+    this.logic.blowWhistle(vHeight);
+    this.syncFromLogic();
+
+    soundEngine.playSFX('trainWhistle' as any);
     soundEngine.playSFX('whoosh');
     soundEngine.playSFX('toddlerGiggle');
     Haptics.medium();
-    this.whistleTimer = 0.8;
-    this.trainSpeed = 190;
-    this.score += 15;
-    this.game.storage.saveHighScore('littleTrain', this.score);
 
-    // Spawn massive steam puffs
-    const vHeight = this.game.display.vHeight;
-    const trainScreenX = 170;
-    const smokestackY = vHeight - 165;
-    for (let i = 0; i < 4; i++) {
-      this.steamPuffs.push({
-        x: trainScreenX - i * 15,
-        y: smokestackY - i * 8,
-        radius: 16 + i * 6,
-        life: 1.0
-      });
-    }
+    this.game.storage.saveHighScore('littleTrain', this.score);
   }
 
   update(dt: number, input: InputManager): void {
-    this.time += dt;
+    const vHeight = this.game.display.vHeight;
+    const { pickedUpPassenger } = this.logic.update(dt, vHeight);
+    this.syncFromLogic();
 
-    if (this.whistleTimer > 0) {
-      this.whistleTimer -= dt;
-      if (this.whistleTimer <= 0) {
-        this.trainSpeed = 110;
-      }
-    }
-
-    this.trainX += this.trainSpeed * dt;
-
-    // Periodic gentle steam puff
-    if (Math.random() < dt * 4) {
-      const vHeight = this.game.display.vHeight;
-      this.steamPuffs.push({
-        x: 170,
-        y: vHeight - 165,
-        radius: 14,
-        life: 1.0
-      });
-    }
-
-    // Update steam puffs
-    for (let i = this.steamPuffs.length - 1; i >= 0; i--) {
-      const p = this.steamPuffs[i];
-      p.x -= 80 * dt;
-      p.y -= 35 * dt;
-      p.radius += 18 * dt;
-      p.life -= dt * 1.1;
-      if (p.life <= 0) {
-        this.steamPuffs.splice(i, 1);
-      }
-    }
-
-    // Check station pickups
-    for (const st of this.stations) {
-      if (!st.pickedUp && this.trainX >= st.x) {
-        st.pickedUp = true;
-        this.passengers.push(st.type);
-        this.score += 50;
-        this.checkStoryGoal(this.passengers.length);
-        this.game.storage.saveHighScore('littleTrain', this.score);
-        soundEngine.playSFX('fanfare');
-        soundEngine.playSFX('bunnySqueak');
-        Haptics.success();
-
-        const vHeight = this.game.display.vHeight;
-        this.game.particles.spawnSparkles(220, vHeight - 140, 12);
-      }
-    }
-
-    // Loop stations when train travels far
-    if (this.trainX > 2800) {
-      this.trainX = 0;
-      for (const st of this.stations) {
-        st.pickedUp = false;
-      }
+    if (pickedUpPassenger) {
+      this.checkStoryGoal(this.logic.passengers.length);
+      this.game.storage.saveHighScore('littleTrain', this.score);
+      soundEngine.playSFX('fanfare');
+      soundEngine.playSFX('bunnySqueak');
+      Haptics.success();
+      this.game.particles.spawnSparkles(220, vHeight - 140, 12);
     }
 
     if (input.actionJustReleased) {
@@ -142,216 +79,28 @@ export class LittleTrainScene extends BaseScene {
   }
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    const vWidth = display.vWidth;
-    const vHeight = display.vHeight;
-    const trackY = vHeight - 90;
+    this.renderer.render(ctx, this.logic, display, this.game.selectedAvatar);
+  }
 
-    // Sky and Hills with parallax
-    ctx.save();
-    ctx.fillStyle = '#81D4FA';
-    ctx.fillRect(0, 0, vWidth, vHeight);
+  override getEntities(): Record<string, unknown> {
+    return {
+      trainX: this.trainX,
+      passengersCount: this.passengers.length,
+      stationsRemaining: this.stations.filter(s => !s.pickedUp).length
+    };
+  }
 
-    // Sun
-    ctx.fillStyle = '#FFEE58';
-    ctx.beginPath();
-    ctx.arc(vWidth - 80, 80, 42, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Far green hills (parallax)
-    const hillOff = (this.trainX * 0.2) % vWidth;
-    ctx.fillStyle = '#81C784';
-    ctx.beginPath();
-    ctx.arc(vWidth * 0.3 - hillOff, vHeight - 70, 220, Math.PI, 0);
-    ctx.arc(vWidth * 0.9 - hillOff, vHeight - 70, 260, Math.PI, 0);
-    ctx.arc(vWidth * 1.5 - hillOff, vHeight - 70, 240, Math.PI, 0);
-    ctx.fill();
-
-    // Near Green Ground
-    ctx.fillStyle = '#4CAF50';
-    ctx.fillRect(0, trackY, vWidth, vHeight - trackY);
-
-    // Railroad Track Sleepers & Rails
-    ctx.fillStyle = '#795548';
-    for (let x = -(this.trainX % 30); x < vWidth + 30; x += 30) {
-      ctx.fillRect(x, trackY + 8, 14, 16);
-    }
-    // Rails
-    ctx.fillStyle = '#9E9E9E';
-    ctx.fillRect(0, trackY + 10, vWidth, 4);
-    ctx.fillRect(0, trackY + 20, vWidth, 4);
-    ctx.restore();
-
-    // Upcoming Station Platforms
-    for (const st of this.stations) {
-      const screenX = st.x - this.trainX + 170;
-      if (screenX > -100 && screenX < vWidth + 100) {
-        ctx.save();
-        // Station Sign & Bench
-        ctx.fillStyle = '#FFF59D';
-        ctx.strokeStyle = '#FBC02D';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.roundRect(screenX - 30, trackY - 45, 60, 22, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = 'bold 11px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-        ctx.fillStyle = '#F57F17';
-        ctx.textAlign = 'center';
-        ctx.fillText('STATION', screenX, trackY - 30);
-
-        if (!st.pickedUp) {
-          if (st.type === 'mimi') {
-            drawMimi(ctx, screenX, trackY - 10, 0.35, { hopY: Math.abs(Math.sin(this.time * 6)) * 8, earFlap: 0.2 });
-          } else if (st.type === 'leo') {
-            drawLeo(ctx, screenX, trackY - 10, 0.35, { jumpY: Math.abs(Math.sin(this.time * 5)) * 6 });
-          } else if (st.type === 'chick') {
-            drawBabyChick(ctx, screenX, trackY - 5, 0.6, { isPeeping: true, walkCycle: this.time * 8 });
-          }
-        }
-        ctx.restore();
-      }
-    }
-
-    // Steam Puffs
-    for (const p of this.steamPuffs) {
-      ctx.save();
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, p.life * 0.85)})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // Train Carriages (Behind Engine)
-    const trainBaseX = 170;
-    const trainBaseY = trackY + 5;
-    const carriageCount = Math.min(3, Math.max(1, this.passengers.length));
-
-    for (let c = carriageCount; c >= 1; c--) {
-      const carX = trainBaseX - c * 95;
-      ctx.save();
-      // Carriage coupling
-      ctx.fillStyle = '#424242';
-      ctx.fillRect(carX + 75, trainBaseY - 15, 25, 6);
-
-      // Carriage Body
-      ctx.fillStyle = c === 1 ? '#42A5F5' : '#AB47BC';
-      ctx.strokeStyle = c === 1 ? '#1565C0' : '#6A1B9A';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.roundRect(carX, trainBaseY - 50, 80, 42, 8);
-      ctx.fill();
-      ctx.stroke();
-
-      // Carriage Wheels
-      ctx.fillStyle = '#212121';
-      ctx.strokeStyle = '#BDBDBD';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(carX + 18, trainBaseY - 4, 12, 0, Math.PI * 2);
-      ctx.arc(carX + 62, trainBaseY - 4, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Draw passenger inside
-      const pass = this.passengers[c - 1];
-      if (pass === 'trishu') {
-        drawTrishu(ctx, carX + 40, trainBaseY - 45, 0.32, { armWave: Math.sin(this.time * 6) * 0.2 });
-      } else if (pass === 'mimi') {
-        drawMimi(ctx, carX + 40, trainBaseY - 45, 0.32, { hopY: 0 });
-      } else if (pass === 'leo') {
-        drawLeo(ctx, carX + 40, trainBaseY - 45, 0.32, { holdingDino: true });
-      } else if (pass === 'chick') {
-        drawBabyChick(ctx, carX + 40, trainBaseY - 40, 0.5, { isPeeping: true });
-      }
-      ctx.restore();
-    }
-
-    // Engine Locomotive
-    ctx.save();
-    // Engine Body
-    ctx.fillStyle = '#E53935';
-    ctx.strokeStyle = '#B71C1C';
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.roundRect(trainBaseX, trainBaseY - 60, 95, 52, [12, 20, 4, 4]);
-    ctx.fill();
-    ctx.stroke();
-
-    // Engine Cab Roof
-    ctx.fillStyle = '#FFCA28';
-    ctx.beginPath();
-    ctx.roundRect(trainBaseX - 5, trainBaseY - 65, 55, 10, 5);
-    ctx.fill();
-
-    // Smokestack
-    ctx.fillStyle = '#424242';
-    ctx.fillRect(trainBaseX + 68, trainBaseY - 82, 16, 26);
-    ctx.fillStyle = '#FFD54F';
-    ctx.beginPath();
-    ctx.ellipse(trainBaseX + 76, trainBaseY - 82, 12, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Golden Cowcatcher on Front
-    ctx.fillStyle = '#FFA000';
-    ctx.beginPath();
-    ctx.moveTo(trainBaseX + 95, trainBaseY - 10);
-    ctx.lineTo(trainBaseX + 115, trainBaseY - 2);
-    ctx.lineTo(trainBaseX + 95, trainBaseY - 2);
-    ctx.closePath();
-    ctx.fill();
-
-    // Engine Wheels
-    ctx.fillStyle = '#212121';
-    ctx.strokeStyle = '#FFF';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.arc(trainBaseX + 22, trainBaseY - 6, 16, 0, Math.PI * 2);
-    ctx.arc(trainBaseX + 58, trainBaseY - 6, 16, 0, Math.PI * 2);
-    ctx.arc(trainBaseX + 85, trainBaseY - 6, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Driver: Selected Avatar in Cab
-    renderCharacter(this.game.selectedAvatar, ctx, trainBaseX + 22, trainBaseY - 55, 0.35, {
-      pullTension: 0,
-      eyeBlink: Math.sin(this.time * 2) > 0.85,
-      expression: 'happy'
-    });
-    ctx.restore();
-
-    // Whistle Callout
-    if (this.whistleTimer > 0) {
-      ctx.save();
-      ctx.font = '900 32px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#FF6F00';
-      ctx.fillText('TOOT! TOOT! 🚂💨', trainBaseX + 75, trainBaseY - 105);
-      ctx.restore();
-    }
-
-    // Top HUD Pill Badge
-    const isPortrait = display.isPortrait;
-    const scoreX = vWidth / 2;
-    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
-    const badgeW = isPortrait ? 290 : 270;
-    const badgeH = 46;
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
-    ctx.fill();
-    ctx.strokeStyle = '#90CAF9';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`🚂 Passengers: ${this.passengers.length}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
-    ctx.restore();
+  override getModeState(): Record<string, unknown> {
+    return {
+      score: this.score,
+      trainX: this.trainX,
+      trainSpeed: this.trainSpeed,
+      passengersCount: this.passengers.length,
+      timer: this.time,
+      feverMeter: 0,
+      multiplier: 1,
+      coopSavedCount: 0,
+      isOverheating: false
+    };
   }
 }

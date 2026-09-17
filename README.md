@@ -95,6 +95,9 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 
 ## 🚀 Features & Architecture
 
+* **⚡ 3-Tier Game Modularity Architecture**: Every single one of the 16 mini-games is decomposed into an isolated 3-part module (`types.ts`, `[Game]Logic.ts`, `[Game]Renderer.ts`, and `[Game]Scene.ts` < 200 LOC average), guaranteeing Separation of Concerns, 100% headless testability, and zero Canvas state leaks.
+* **🧩 Shared Core Game Infrastructure (`src/games/common/`)**: Reusable controllers for multiplier score escalation (`ScoreComboTracker.ts`), multi-stage round progression (`RoundManager.ts`), and autonomous steering / boundary clamping (`BoundaryPhysics.ts`).
+* **🔊 24 Algorithmic Web Audio Recipes**: 100% zero-asset sound synthesis using native Web Audio API oscillators, noise buffers, and biquad filters. Includes 4 newly added recipes: `trainWhistle`, `waterHoseSpray`, `coneMunch`, and `dinoBite`.
 * **⚡ Pure Vanilla TypeScript Architecture**: Zero React virtual DOM overhead. Built with high-performance modular TypeScript, PixiJS v8 ready graphics, and pure DOM HUD/modals (`src/ui/`).
 * **🎨 Modern Playful Typography (Fredoka)**: Clean, friendly rounded typography using local `@fontsource/fredoka` (weights 400, 500, 600, 700). 100% offline with zero external Google Fonts or CDN network requests.
 * **🧸 3D Tactile "Toy Button" Cards**: Landing page cards feature a 3D extruded bottom bevel (+5px), subtle vertical surface gradient, top specular gloss sheen, and warm golden star achievement badges (`★ Best Score`).

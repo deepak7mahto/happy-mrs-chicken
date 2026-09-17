@@ -342,6 +342,58 @@ export class SoundSynthesizer {
     };
   }
 
+  public playTrainWhistle(): void {
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+    const dur = 0.45;
+    // Dual-tone harmonic train whistle (approx E5 659Hz and A5 880Hz)
+    [659, 880].forEach(freq => {
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      // Gentle pitch bend up then down
+      osc.frequency.linearRampToValueAtTime(freq * 1.03, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.98, now + dur);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.connect(gain);
+      gain.connect(this.sfxGain!);
+      osc.start(now);
+      osc.stop(now + dur);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+    });
+    this.makeNoise(dur, 'bandpass', 1200, 2.0, 0.04);
+  }
+
+  public playWaterHoseSpray(): void {
+    this.makeNoise(0.35, 'bandpass', 2200, 1.2, 0.22);
+  }
+
+  public playConeMunch(): void {
+    this.makeNoise(0.12, 'highpass', 1800, 2.0, 0.28);
+    this.playTone(320, 0.08, 'triangle', 0.15);
+  }
+
+  public playDinoBite(): void {
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(280, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.12);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.15);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+    this.makeNoise(0.08, 'lowpass', 1500, 1.5, 0.25);
+  }
+
   public playSFX(name: SFXName, options: SFXOptions = {}): void {
     switch (name) {
       case 'cluck': this.playCluck(options.type); break;
@@ -365,6 +417,10 @@ export class SoundSynthesizer {
       case 'duckQuack': this.playDuckQuack(options.pitch ?? 1.0); break;
       case 'duckFanfare': this.playDuckFanfare(); break;
       case 'pigOink': this.playPigOink(); break;
+      case 'trainWhistle': this.playTrainWhistle(); break;
+      case 'waterHoseSpray': this.playWaterHoseSpray(); break;
+      case 'coneMunch': this.playConeMunch(); break;
+      case 'dinoBite': this.playDinoBite(); break;
     }
   }
 }

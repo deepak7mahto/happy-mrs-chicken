@@ -3,18 +3,23 @@
 ## Architecture
 A modular, high-performance HTML5 Canvas 2D game engine built with Pure Vanilla TypeScript, PixiJS v8 readiness, and Vite (Zero React footprint).
 - **Engine Core (`src/engine/`)**: 60 FPS fixed-timestep game loop (`GameEngine.ts`), dual-orientation dynamic viewport manager (`DisplayManager.ts`), multi-touch gesture input manager (`InputManager.ts`), URL hash router (`Router.ts`), particle pool (`ParticleEngine.ts`), local storage persistence (`StorageManager.ts`), and procedural audio suite (`src/engine/audio/`).
-- **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, dynamic volume ducking, background hardware suspension/resumption (`visibilitychange` / `pagehide`), and an algorithmic 128 BPM multi-track nursery BGM sequencer with 20 procedural SFX recipes.
+- **3-Tier Game Modularity Pattern (`src/games/`)**: All 16 mini-games decomposed into clean, maintainable modules:
+  - `types.ts`: Domain models, entities, and constants.
+  - `[Game]Logic.ts`: 100% headless, DOM-free simulation, math, physics, collision detection, and score/combo rules.
+  - `[Game]Renderer.ts`: Pure Canvas 2D vector drawing routines with strict `ctx.save()` / `ctx.restore()` integrity.
+  - `[Game]Scene.ts`: Lightweight coordinator (<200 LOC average) integrating engine systems, particles, audio, and inputs.
+- **Shared Core Game Infrastructure (`src/games/common/`)**: Reusable building blocks for score multiplier scaling (`ScoreComboTracker.ts`), multi-round progression & fanfare delays (`RoundManager.ts`), and boundary clamping / autonomous steering (`BoundaryPhysics.ts`).
+- **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, dynamic volume ducking, background hardware suspension/resumption (`visibilitychange` / `pagehide`), an algorithmic 128 BPM multi-track nursery BGM sequencer, and 24 procedural SFX recipes.
 - **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for 15 characters (Trishu family, Mimi the Bunny, Mrs Clucky, Baby Chicks, Yellow Ducks, and Peppa Pig & Friends roster) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.
-- **Mini-Game Modes (`src/games/`)**: 16 standalone mini-game scenes implementing the `BaseScene` contract (`enter`, `exit`, `update`, `render`, `getEntities`, `getModeState`).
 - **Tactile UI & Heavy PWA (`src/ui/`, `src/pwa/`)**: Pure TypeScript DOM UI layer (`HUD.ts`, `SettingsModal.ts`, `AvatarSelectModal.ts`, `PassportModal.ts`, `StoryIntroModal.ts`, `StoryVictoryModal.ts`, `PwaModal.ts`), 3D tactile cards with bottom bevels and character spotlights, PwaManager singleton, Screen Wake Lock API, and build-time Service Worker precaching (`dist/sw.js`).
 
 ## Feature Inventory
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
-| 1 | Master Types & Schema | `GameModeId` (16 modes), `SFXName` (20 sfx), `HighScores` (16 modes), Character anim types | DONE |
+| 1 | Master Types & Schema | `GameModeId` (16 modes), `SFXName` (24 sfx), `HighScores` (16 modes), Character anim types | DONE |
 | 2 | Modular Audio Engine (<500 LOC) | `AudioContextHolder`, `SoundSynthesizer`, `BGMSequencer`, `AudioSpy`, `index.ts` | DONE |
-| 3 | 20 Procedural SFX Recipes | Synthesize all 20 sound effects (roars, sizzle, whoosh, veggie pop, bubble pop, clucks, splashes, fanfare, squeak, duckQuack, duckFanfare) | DONE |
+| 3 | 24 Procedural SFX Recipes | Synthesize 24 sound effects (roars, sizzle, whoosh, veggie pop, bubble pop, clucks, splashes, fanfare, squeak, duckQuack, duckFanfare, trainWhistle, waterHoseSpray, coneMunch, dinoBite) | DONE |
 | 4 | Algorithmic BGM Sequencer | 128 BPM multi-track nursery music generator with dynamic tempo control | DONE |
 | 5 | Extended Particle Engine | Support confetti, soap bubbles, pancake syrup drips, mud clods, score popups, and sparkles | DONE |
 | 6 | Storage Manager 16-Mode Persistence | LocalStorage schema for all 16 high scores with fallback safety | DONE |

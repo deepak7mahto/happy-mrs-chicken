@@ -10,71 +10,53 @@ import { InputManager } from '../../engine/InputManager';
 import { DisplayManager } from '../../engine/DisplayManager';
 import { soundEngine } from '../../engine/SoundEngine';
 import { Haptics } from '../../engine/Haptics';
-import { drawLandscapeSkyHills } from '../../graphics/environmentRenderer';
-import { renderCharacter } from '../../graphics/characters';
-
-interface RainbowRibbon {
-  x: number;
-  y: number;
-  color: string;
-  collected: boolean;
-}
+import { RainbowRibbon } from './types';
+import { WindyKiteLogic } from './WindyKiteLogic';
+import { WindyKiteRenderer } from './WindyKiteRenderer';
 
 export class WindyKiteScene extends BaseScene {
+  public logic: WindyKiteLogic;
+  public renderer: WindyKiteRenderer;
+
+  // Forwarded properties for test & state compatibility
   public time: number = 0;
-  private kiteX: number = 240;
-  private kiteY: number = 180;
-  private targetKiteX: number = 240;
-  private targetKiteY: number = 180;
-  private ribbons: RainbowRibbon[] = [];
-  private ribbonBows: string[] = ['#FF4081', '#FFD700', '#00E676', '#448AFF'];
-  private collectedCount: number = 0;
-  private loopTimer: number = 0;
+  public get kiteX(): number { return this.logic.kiteX; }
+  public get kiteY(): number { return this.logic.kiteY; }
+  public get targetKiteX(): number { return this.logic.targetKiteX; }
+  public get targetKiteY(): number { return this.logic.targetKiteY; }
+  public get ribbons(): RainbowRibbon[] { return this.logic.ribbons; }
+  public get ribbonBows(): string[] { return this.logic.ribbonBows; }
+  public get collectedCount(): number { return this.logic.collectedCount; }
+  public get loopTimer(): number { return this.logic.loopTimer; }
 
   constructor(game: GameEngine) {
     super(game);
+    this.logic = new WindyKiteLogic();
+    this.renderer = new WindyKiteRenderer();
   }
 
   enter(): void {
     super.enter();
     soundEngine.setTrack('gentle');
     const vWidth = this.game.display.vWidth;
-    this.score = 0;
-    this.collectedCount = 0;
-    this.loopTimer = 0;
-    this.kiteX = vWidth * 0.5;
-    this.kiteY = 180;
-    this.targetKiteX = vWidth * 0.5;
-    this.targetKiteY = 180;
-    this.ribbonBows = ['#FF4081', '#FFD700', '#00E676', '#448AFF'];
-    this.ribbons = [];
-    this.spawnRibbons();
+    const vHeight = this.game.display.vHeight;
+    const isPortrait = this.game.display.isPortrait;
+    this.logic.reset(vWidth, vHeight, isPortrait);
+    this.syncFromLogic();
     soundEngine.unlock();
   }
 
-  private spawnRibbons(): void {
-    const vWidth = this.game.display.vWidth;
-    const vHeight = this.game.display.vHeight;
-    const colors = ['#FF5252', '#FFD740', '#69F0AE', '#40C4FF', '#E040FB'];
-    this.ribbons = [];
-    const skyMinY = this.game.display.isPortrait ? 130 : 80;
-    const skyMaxY = Math.min(vHeight - 160, this.game.display.isPortrait ? 400 : 290);
-    for (let i = 0; i < 5; i++) {
-      this.ribbons.push({
-        x: 60 + Math.random() * (vWidth - 120),
-        y: skyMinY + Math.random() * (skyMaxY - skyMinY),
-        color: colors[i % colors.length],
-        collected: false
-      });
-    }
+  private syncFromLogic(): void {
+    this.time = this.logic.time;
+    this.score = this.logic.score;
   }
 
-  swoopKite(tx: number, ty: number, playSound: boolean = true): void {
+  public swoopKite(tx: number, ty: number, playSound: boolean = true): void {
     const vWidth = this.game.display.vWidth;
     const vHeight = this.game.display.vHeight;
-    this.targetKiteX = Math.max(50, Math.min(vWidth - 50, tx));
-    this.targetKiteY = Math.max(70, Math.min(vHeight - 140, ty));
-    this.loopTimer = 0.5;
+    this.logic.swoopKite(tx, ty, vWidth, vHeight);
+    this.syncFromLogic();
+
     if (playSound) {
       soundEngine.playSFX('whoosh');
       Haptics.medium();
@@ -82,46 +64,31 @@ export class WindyKiteScene extends BaseScene {
   }
 
   update(dt: number, input: InputManager): void {
-    this.time += dt;
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    const isPortrait = this.game.display.isPortrait;
+
+    const { collectedRibbon, allCollected } = this.logic.update(dt, vWidth, vHeight, isPortrait);
+    this.syncFromLogic();
     this.checkStoryGoal(this.time, 15);
 
-    if (this.loopTimer > 0) {
-      this.loopTimer -= dt;
+    if (collectedRibbon) {
+      this.game.storage.saveHighScore('windyKite', this.score);
+      soundEngine.playSFX('bubblePop');
+      Haptics.tap();
+      this.game.particles.spawnSparkles(collectedRibbon.x, collectedRibbon.y, 8);
     }
 
-    // Responsive kite movement towards finger with gentle wind sway
-    const speed = Math.min(1.0, dt * 7.5);
-    const windSwayX = Math.sin(this.time * 2.5) * 18;
-    const windSwayY = Math.cos(this.time * 2.0) * 12;
-    this.kiteX += (this.targetKiteX + windSwayX - this.kiteX) * speed;
-    this.kiteY += (this.targetKiteY + windSwayY - this.kiteY) * speed;
-
-    // Check ribbon collection
-    for (const r of this.ribbons) {
-      if (!r.collected && Math.hypot(this.kiteX - r.x, this.kiteY - r.y) <= 45) {
-        r.collected = true;
-        this.collectedCount++;
-        this.ribbonBows.push(r.color);
-        this.score += 25;
-        this.game.storage.saveHighScore('windyKite', this.score);
-        soundEngine.playSFX('bubblePop');
-        Haptics.tap();
-        this.game.particles.spawnSparkles(r.x, r.y, 8);
-
-        // All collected? Respawn with celebration!
-        const remaining = this.ribbons.filter(rib => !rib.collected).length;
-        if (remaining === 0) {
-          soundEngine.playSFX('fanfare');
-          soundEngine.playSFX('toddlerGiggle');
-          Haptics.success();
-          this.score += 75;
-          this.game.storage.saveHighScore('windyKite', this.score);
-          setTimeout(() => this.spawnRibbons(), 400);
-        }
-      }
+    if (allCollected) {
+      soundEngine.playSFX('fanfare');
+      soundEngine.playSFX('toddlerGiggle');
+      Haptics.success();
+      this.game.storage.saveHighScore('windyKite', this.score);
+      setTimeout(() => {
+        this.logic.spawnRibbons(vWidth, vHeight, isPortrait);
+      }, 400);
     }
 
-    // Responsive touch: taps swoop, dragging glides kite smoothly
     if (input.isActionJustPressed()) {
       this.swoopKite(input.primaryPointer.x, input.primaryPointer.y, true);
     } else if (input.isActionDown()) {
@@ -142,162 +109,7 @@ export class WindyKiteScene extends BaseScene {
   }
 
   render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    const vWidth = display.vWidth;
-    const vHeight = display.vHeight;
-
-    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
-
-    // Floating Rainbow Ribbons (Stars)
-    for (const r of this.ribbons) {
-      if (!r.collected) {
-        const floatY = r.y + Math.sin(this.time * 3 + r.x) * 8;
-        ctx.save();
-        ctx.translate(r.x, floatY);
-
-        // Golden Star / Ribbon Glow
-        ctx.fillStyle = r.color;
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(0, 0, 16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = 'bold 13px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('★', 0, 1);
-        ctx.restore();
-      }
-    }
-
-    // Player Avatar on Ground
-    const trishuX = 85;
-    const trishuY = vHeight - 110;
-    renderCharacter(this.game.selectedAvatar, ctx, trishuX, trishuY, 0.45, {
-      armWave: Math.sin(this.time * 4) * 0.25,
-      eyeBlink: Math.sin(this.time * 2.2) > 0.85,
-      jumpY: this.loopTimer > 0 ? 8 : 0,
-      expression: 'excited'
-    });
-
-    // Kite String from Trishu's Hand to Kite
-    ctx.save();
-    ctx.strokeStyle = '#ECEFF1';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(trishuX + 18, trishuY - 20);
-    // Cathead curve for wind sag
-    const midX = (trishuX + this.kiteX) / 2;
-    const midY = (trishuY + this.kiteY) / 2 + 25;
-    ctx.quadraticCurveTo(midX, midY, this.kiteX, this.kiteY + 28);
-    ctx.stroke();
-    ctx.restore();
-
-    // The Flying Kite
-    ctx.save();
-    ctx.translate(this.kiteX, this.kiteY);
-    const loopAngle = this.loopTimer > 0 ? Math.sin(this.loopTimer * 10) * 0.4 : Math.sin(this.time * 2) * 0.12;
-    ctx.rotate(loopAngle);
-
-    // Kite Shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-    ctx.beginPath();
-    ctx.moveTo(0, -32 + 6);
-    ctx.lineTo(26, 0 + 6);
-    ctx.lineTo(0, 32 + 6);
-    ctx.lineTo(-26, 0 + 6);
-    ctx.closePath();
-    ctx.fill();
-
-    // 4 Quadrants of the Diamond Kite
-    const drawFacet = (p1x: number, p1y: number, p2x: number, p2y: number, color: string) => {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(p1x, p1y);
-      ctx.lineTo(p2x, p2y);
-      ctx.closePath();
-      ctx.fill();
-    };
-
-    drawFacet(0, -32, 26, 0, '#FF1744');
-    drawFacet(26, 0, 0, 32, '#FFEA00');
-    drawFacet(0, 32, -26, 0, '#00E676');
-    drawFacet(-26, 0, 0, -32, '#2979FF');
-
-    // Diamond Border & Cross Spars
-    ctx.strokeStyle = '#3E2723';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, -32);
-    ctx.lineTo(26, 0);
-    ctx.lineTo(0, 32);
-    ctx.lineTo(-26, 0);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, -32);
-    ctx.lineTo(0, 32);
-    ctx.moveTo(-26, 0);
-    ctx.lineTo(26, 0);
-    ctx.stroke();
-
-    // Fluttering Tail Ribbons
-    ctx.strokeStyle = '#37474F';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, 32);
-    for (let i = 1; i <= Math.min(6, this.ribbonBows.length); i++) {
-      const tailX = Math.sin(this.time * 6 + i * 0.8) * (14 + i * 4);
-      const tailY = 32 + i * 18;
-      ctx.lineTo(tailX, tailY);
-    }
-    ctx.stroke();
-
-    // Bow ties on the tail
-    for (let i = 1; i <= Math.min(6, this.ribbonBows.length); i++) {
-      const bowX = Math.sin(this.time * 6 + i * 0.8) * (14 + i * 4);
-      const bowY = 32 + i * 18;
-      ctx.fillStyle = this.ribbonBows[i % this.ribbonBows.length];
-      ctx.beginPath();
-      ctx.ellipse(bowX, bowY, 8, 4, Math.sin(this.time * 4) * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-
-    // Tap Prompt
-    ctx.save();
-    ctx.font = 'bold 15px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#37474F';
-    ctx.fillText('🪁 Tap anywhere to swoop the kite!', vWidth / 2, vHeight - 30);
-    ctx.restore();
-
-    // Top HUD Pill Badge
-    const isPortrait = display.isPortrait;
-    const scoreX = vWidth / 2;
-    const scoreY = isPortrait ? 76 : Math.max(18, vHeight * 0.035);
-    const badgeW = isPortrait ? 270 : 250;
-    const badgeH = 46;
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
-    ctx.beginPath();
-    ctx.roundRect(scoreX - badgeW / 2, scoreY, badgeW, badgeH, 23);
-    ctx.fill();
-    ctx.strokeStyle = '#FFE082';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`✨ Stars: ${this.collectedCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
-    ctx.restore();
+    this.renderer.render(ctx, this.logic, display, this.game.selectedAvatar);
   }
 
   override getEntities(): Record<string, unknown> {

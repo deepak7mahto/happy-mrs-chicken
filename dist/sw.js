@@ -1,12 +1,12 @@
 /**
  * Adventures of Trishu - High Performance Offline Service Worker
- * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu5d3iqo
+ * Generated at build time. Version: adventures-of-trishu-v3.1.0-mu5f0wtg
  */
 
-const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu5d3iqo';
+const CACHE_NAME = 'adventures-of-trishu-v3.1.0-mu5f0wtg';
 const PRECACHE_ASSETS = [
   "./",
-  "./assets/audio-engine-DscjPmBZ.js",
+  "./assets/audio-engine-Dcs9fFBF.js",
   "./assets/fredoka-hebrew-400-normal-CT3eDt6U.woff2",
   "./assets/fredoka-hebrew-400-normal-S03uWvSu.woff",
   "./assets/fredoka-hebrew-500-normal-BtShCMVp.woff",
@@ -23,8 +23,8 @@ const PRECACHE_ASSETS = [
   "./assets/fredoka-latin-600-normal-CcrEjrB4.woff",
   "./assets/fredoka-latin-700-normal-BOIZVyIN.woff2",
   "./assets/fredoka-latin-700-normal-C8FeHd3X.woff",
-  "./assets/graphics-engine-CupFgdVd.js",
-  "./assets/index-CJc0URvh.js",
+  "./assets/graphics-engine-CNkp1xKy.js",
+  "./assets/index-Brc4eC_M.js",
   "./assets/index-DM5KVhMt.css",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
