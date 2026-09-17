@@ -8,7 +8,7 @@
 
 ## Test Architecture
 
-### 1. Headless Automated Test Runner (`tests/e2e_runner.mjs` & `tests/smoke.test.ts` — 71 tests)
+### 1. Headless Automated Test Runner (`tests/e2e_runner.mjs` — 76 tests across 9 suites in <0.05s)
 - **Tier 1**: Smoke & Initialization (Engine instantiation, 17 scenes, dual-orientation display manager, storage, particle pool, menu drag/wheel navigation)
 - **Tier 2**: Mini-Game Mechanics (All 16 game modes: Happy Mrs Clucky, Puddle Splash, Fluffy Chick Trail, Dad's Kitchen Dash, Balloon Pop, Golden Pancake Flipper, Grandpa's Veggie Harvest, Rainbow Bubble Hopscotch, Mix & Match, Peek-a-Boo, Miss Bunny's Ice Cream Van, Grandpa's Little Train, Muddy Car Wash, Windy Castle Kite, Rainbow Flower Garden, Picnic Ducks)
 - **Tier 3**: Audio & Character Roster (20 procedural SFX recipes, BGM sequencer, character vector renderers, modular body parts, `pauseAll()` and `resumeAll()` background suspension)
@@ -16,7 +16,7 @@
 - **Tier 5**: Heavy PWA & Native Capabilities (PwaManager singleton, Service Worker precache updates, beforeinstallprompt, Screen Wake Lock API, online/offline detection)
 - **Tier 6**: Frontend Architecture, Deep Linking Router & Controls (Slug and hash resolution, storage settings, haptics, manifest shortcuts, HUD classes)
 - **Tier 7**: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots (Portrait cols=2 rows=8 layout, GC cache, arrow navigation, Gamepad polling, procedural mood tracks)
-- **Tier 8**: Universal Avatar Selection System & Peppa Roster (15-character roster metadata, storage synchronization, vector rendering without throwing, mini-game scene propagation)
+- **Tier 8**: Universal Avatar Selection System & Dress-Up Wardrobe (15-character roster metadata, storage synchronization, vector rendering without throwing, mini-game scene propagation, 10 vector accessories, character anchors completeness, storage equip/unequip persistence, layered rendering, and story progression accessory unlocks)
 - **Tier 10**: Story Journey Narrative & Adventure Map (5 chapters, 16 stops, progress tracking, view mode switching, tap hit testing, goal verification)
 
 ### 2. Playwright Headless Browser E2E (`tests/browser_e2e.py` — 31 tests)
