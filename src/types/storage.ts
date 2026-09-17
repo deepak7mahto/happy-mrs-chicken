@@ -25,6 +25,7 @@ export interface HighScores {
 
 import { CharacterId } from './characters';
 import { StoryProgress } from './story';
+import { AccessoryId, AccessorySlot } from './accessories';
 
 export interface SettingsState {
   soundMuted: boolean;
@@ -36,6 +37,8 @@ export interface SettingsState {
   toddlerLock?: boolean;
   highContrast?: boolean;
   selectedAvatar?: CharacterId;
+  equippedAccessories?: Partial<Record<AccessorySlot, AccessoryId>>;
+  unlockedAccessories?: AccessoryId[];
 }
 
 export type GameSettings = SettingsState;
@@ -70,6 +73,13 @@ export interface IStorageManager {
   setToddlerLockEnabled(enabled: boolean): void;
   getSelectedAvatar(): CharacterId;
   setSelectedAvatar(avatar: CharacterId): void;
+  getEquippedAccessories(): Partial<Record<AccessorySlot, AccessoryId>>;
+  getEquippedAccessory(slot: AccessorySlot): AccessoryId;
+  equipAccessory(id: AccessoryId, slot?: AccessorySlot): void;
+  unequipAccessory(slot: AccessorySlot): void;
+  getUnlockedAccessories(): AccessoryId[];
+  isAccessoryUnlocked(id: AccessoryId): boolean;
+  unlockAccessory(id: AccessoryId): boolean;
   resetHighScores(): void;
   resetAll(): void;
 }

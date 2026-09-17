@@ -72,7 +72,8 @@ export class UIManager {
       stopIndex: number,
       score: number,
       stars: number,
-      isNewStamp: boolean
+      isNewStamp: boolean,
+      unlockedAccessory?: string
     ) => {
       const stop = STORY_STOPS[stopIndex];
       if (!stop) return;
@@ -89,7 +90,8 @@ export class UIManager {
           onNext: () => this.engine.launchStoryStop(stopIndex + 1),
           onReplay: () => this.engine.launchStoryStop(stopIndex, false),
           onBackToMap: () => this.engine.changeScene('MENU')
-        }
+        },
+        unlockedAccessory
       );
     };
 

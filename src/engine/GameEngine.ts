@@ -40,7 +40,7 @@ export class GameEngine {
   public onSceneChangeCallback?: (mode: GameModeId) => void;
   public activeStoryStopIndex: number = -1;
   public onStoryIntroCallback?: (stopIndex: number) => void;
-  public onStoryVictoryCallback?: (stopIndex: number, score: number, stars: number, isNewStamp: boolean) => void;
+  public onStoryVictoryCallback?: (stopIndex: number, score: number, stars: number, isNewStamp: boolean, unlockedAccessory?: string) => void;
 
   constructor(canvas: HTMLCanvasElement) {
     this.storage = storageManager;
@@ -111,9 +111,9 @@ export class GameEngine {
   triggerStoryVictory(score: number, stars: number = 3): void {
     if (this.activeStoryStopIndex < 0) return;
     const stopIndex = this.activeStoryStopIndex;
-    const { newStamp } = this.storage.completeStoryStop(stopIndex, score, stars);
+    const { newStamp, unlockedAccessory } = this.storage.completeStoryStop(stopIndex, score, stars);
     if (this.onStoryVictoryCallback) {
-      this.onStoryVictoryCallback(stopIndex, score, stars, Boolean(newStamp));
+      this.onStoryVictoryCallback(stopIndex, score, stars, Boolean(newStamp), unlockedAccessory);
     }
   }
 

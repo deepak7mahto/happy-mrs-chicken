@@ -54,7 +54,11 @@ A modular, high-performance HTML5 Canvas 2D game engine built with Pure Vanilla 
 | 40 | Heavy PWA Precache Pipeline | Build-time chunk scanning and multi-tier Service Worker caching in `dist/sw.js` | DONE |
 | 41 | Native Device & Screen Wake Lock | `PwaManager` keeping display awake during toddler play sessions | DONE |
 | 42 | Tactile In-App Install & iOS Guide | Kid-friendly install prompt, native prompt trigger, and Safari 3-step guide | DONE |
-| 43 | 102 Automated Tests Suite | 71 unit/integration tests (<0.05s) across 9 tiers + 31 Playwright browser E2E tests | DONE |
+| 43 | Dress-Up Wardrobe & Procedural Accessories | 10 vector accessories across head, face, back, and feet slots with normalized character anchors | DONE |
+| 44 | Interactive Mannequin & Reactive Gaze | Live animated mannequin with touch/pointer eye tracking, hop celebrations, and outfit clear | DONE |
+| 45 | Story Progression Accessory Unlocks | Automatic wardrobe unlocks on Story Stop victories (Wellies, Chef Hat, Goggles, Cape, Crown) | DONE |
+| 46 | Particle Auras & Signature Audio | Rainbow, stars, sparkle, hearts, and bubbles particle aura renderer + character voice reactions | DONE |
+| 47 | 107 Automated Tests Suite | 76 unit/integration tests (<0.05s) across 9 tiers + 31 Playwright browser E2E tests | DONE |
 
 ## Character Mapping
 

@@ -26,7 +26,8 @@ export class StoryVictoryModal {
       onNext?: () => void;
       onReplay?: () => void;
       onBackToMap?: () => void;
-    }
+    },
+    unlockedAccessory?: string
   ): void {
     if (this.el) return;
     this.onNextCallback = callbacks?.onNext;
@@ -60,6 +61,11 @@ export class StoryVictoryModal {
         <div style="font-size: 1rem; font-weight: 800; color: #37474F; margin-bottom: 8px;">
           ${stopDef.stampName}
         </div>
+        ${unlockedAccessory ? `
+          <div style="margin: 6px auto; padding: 6px 14px; background: #FFF3E0; border: 2px dashed #FF9800; border-radius: 12px; font-size: 0.95rem; font-weight: 800; color: #E65100; display: inline-block;">
+            👒 Wardrobe Unlock: ${unlockedAccessory}!
+          </div>
+        ` : ''}
 
         <div class="story-victory-stars" aria-label="${stars} stars">
           ${starString}

@@ -220,17 +220,21 @@ export function drawTrishu(
     ctx.ellipse(7, -11, 4.5, 5.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    const gaze = (options as any)?.pointerGaze || (options as any)?.gaze;
+    const gazeX = gaze ? Math.max(-1.8, Math.min(1.8, gaze.x * 1.8)) : 0;
+    const gazeY = gaze ? Math.max(-1.8, Math.min(1.8, gaze.y * 1.8)) : 0;
+
     ctx.fillStyle = PALETTE.BLACK;
     ctx.beginPath();
-    ctx.arc(-6, -11, 2.5, 0, Math.PI * 2);
-    ctx.arc(6, -11, 2.5, 0, Math.PI * 2);
+    ctx.arc(-6 + gazeX, -11 + gazeY, 2.5, 0, Math.PI * 2);
+    ctx.arc(6 + gazeX, -11 + gazeY, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     // Eye Sparkle
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.arc(-7, -12.5, 1, 0, Math.PI * 2);
-    ctx.arc(5, -12.5, 1, 0, Math.PI * 2);
+    ctx.arc(-7 + gazeX, -12.5 + gazeY, 1, 0, Math.PI * 2);
+    ctx.arc(5 + gazeX, -12.5 + gazeY, 1, 0, Math.PI * 2);
     ctx.fill();
   }
 

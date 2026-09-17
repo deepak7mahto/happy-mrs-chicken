@@ -1,8 +1,8 @@
 /**
- * Avatar Selection Modal Dialog
+ * Avatar Selection & Wardrobe Modal Dialog
  * Adventures of Trishu Mini-Game Suite
  * Pure Vanilla TypeScript - Zero React
- * Strictly under 500 lines
+ * Strictly under 500 lines (T4.02)
  */
 
 import { GameEngine } from '../engine/GameEngine';
@@ -11,6 +11,7 @@ import { soundEngine } from '../engine/SoundEngine';
 import { Haptics } from '../engine/Haptics';
 import { CharacterId, AvatarInfo, AvatarCategory, AVATAR_ROSTER } from '../types/characters';
 import { renderCharacter } from '../graphics/characters';
+import { WardrobeView } from './WardrobeView';
 
 const CATEGORY_TABS: Array<{ id: 'all' | AvatarCategory; label: string }> = [
   { id: 'all', label: 'All 🌟' },
@@ -22,7 +23,9 @@ const CATEGORY_TABS: Array<{ id: 'all' | AvatarCategory; label: string }> = [
 export class AvatarSelectModal {
   private el: HTMLElement | null = null;
   private engine: GameEngine | null;
+  private activeTab: 'heroes' | 'wardrobe' = 'heroes';
   private activeCategory: 'all' | AvatarCategory = 'all';
+  private wardrobeView: WardrobeView | null = null;
   private onCloseCallback?: () => void;
   private onAvatarChangeCallback?: (avatar: CharacterId) => void;
 
@@ -33,33 +36,47 @@ export class AvatarSelectModal {
   public open(
     parent: HTMLElement = document.body,
     onAvatarChange?: (avatar: CharacterId) => void,
-    onClose?: () => void
+    onClose?: () => void,
+    initialTab: 'heroes' | 'wardrobe' = 'heroes'
   ): void {
     if (this.el) return;
     this.onAvatarChangeCallback = onAvatarChange;
     this.onCloseCallback = onClose;
+    this.activeTab = initialTab;
 
     const backdrop = document.createElement('div');
     backdrop.className = 'modal-backdrop';
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
-    backdrop.setAttribute('aria-label', 'Choose Your Hero');
+    backdrop.setAttribute('aria-label', 'Choose Your Hero & Wardrobe');
 
     backdrop.innerHTML = `
       <div class="modal-card avatar-modal-card">
         <div class="avatar-modal-header">
           <div>
             <h2 class="avatar-modal-title">Choose Your Hero! 🌟</h2>
-            <p class="avatar-modal-subtitle">Pick who plays in all the games!</p>
+            <p class="avatar-modal-subtitle">Pick who plays and dress them up!</p>
           </div>
           <button type="button" class="avatar-close-btn modal-close-btn" aria-label="Close Avatar Selection">✕</button>
         </div>
 
-        <div class="avatar-category-pills" id="avatar-category-pills"></div>
-
-        <div class="avatar-grid-scroll">
-          <div class="avatar-grid" id="avatar-grid"></div>
+        <div class="avatar-main-tabs">
+          <button type="button" class="avatar-main-tab ${this.activeTab === 'heroes' ? 'active' : ''}" id="tab-heroes">
+            🎭 Heroes
+          </button>
+          <button type="button" class="avatar-main-tab ${this.activeTab === 'wardrobe' ? 'active' : ''}" id="tab-wardrobe">
+            👒 Wardrobe
+          </button>
         </div>
+
+        <div id="heroes-panel" style="${this.activeTab === 'heroes' ? '' : 'display: none;'}">
+          <div class="avatar-category-pills" id="avatar-category-pills"></div>
+          <div class="avatar-grid-scroll">
+            <div class="avatar-grid" id="avatar-grid"></div>
+          </div>
+        </div>
+
+        <div id="wardrobe-panel" style="${this.activeTab === 'wardrobe' ? '' : 'display: none;'}"></div>
 
         <div class="avatar-modal-footer">
           <button type="button" class="avatar-confirm-btn" id="avatar-confirm-btn">
@@ -77,11 +94,63 @@ export class AvatarSelectModal {
     const confirmBtn = backdrop.querySelector('#avatar-confirm-btn') as HTMLButtonElement;
     confirmBtn.onclick = () => this.close();
 
+    const tabHeroes = backdrop.querySelector('#tab-heroes') as HTMLButtonElement;
+    tabHeroes.onclick = () => this.switchTab('heroes');
+
+    const tabWardrobe = backdrop.querySelector('#tab-wardrobe') as HTMLButtonElement;
+    tabWardrobe.onclick = () => this.switchTab('wardrobe');
+
     parent.appendChild(backdrop);
     this.el = backdrop;
 
     this.renderCategoryPills();
     this.renderGrid();
+
+    if (this.activeTab === 'wardrobe') {
+      this.initWardrobeView();
+    }
+  }
+
+  public switchTab(tab: 'heroes' | 'wardrobe'): void {
+    if (this.activeTab === tab || !this.el) return;
+    this.activeTab = tab;
+
+    soundEngine.playSFX('click');
+    Haptics.tap();
+
+    const tabHeroes = this.el.querySelector('#tab-heroes') as HTMLElement;
+    const tabWardrobe = this.el.querySelector('#tab-wardrobe') as HTMLElement;
+    const heroesPanel = this.el.querySelector('#heroes-panel') as HTMLElement;
+    const wardrobePanel = this.el.querySelector('#wardrobe-panel') as HTMLElement;
+
+    if (tab === 'heroes') {
+      tabHeroes?.classList.add('active');
+      tabWardrobe?.classList.remove('active');
+      if (heroesPanel) heroesPanel.style.display = '';
+      if (wardrobePanel) wardrobePanel.style.display = 'none';
+      this.wardrobeView?.stopMannequinLoop();
+      this.renderGrid();
+    } else {
+      tabHeroes?.classList.remove('active');
+      tabWardrobe?.classList.add('active');
+      if (heroesPanel) heroesPanel.style.display = 'none';
+      if (wardrobePanel) wardrobePanel.style.display = '';
+      this.initWardrobeView();
+    }
+  }
+
+  private initWardrobeView(): void {
+    if (!this.el) return;
+    const wardrobePanel = this.el.querySelector('#wardrobe-panel') as HTMLElement;
+    if (!wardrobePanel) return;
+
+    if (!this.wardrobeView) {
+      this.wardrobeView = new WardrobeView(wardrobePanel, () => {
+        // Re-render hero grid when outfit changes so cards update
+        this.renderGrid();
+      });
+    }
+    this.wardrobeView.render();
   }
 
   private renderCategoryPills(): void {
@@ -193,7 +262,8 @@ export class AvatarSelectModal {
       renderCharacter(avatarId, ctx, offsetX, offsetY, scale, {
         expression: isSelected ? 'excited' : 'happy',
         muddyBoots: true,
-        holdingDino: avatarId === 'george' || avatarId === 'leo'
+        holdingDino: avatarId === 'george' || avatarId === 'leo',
+        showAccessories: true
       });
     } catch (_) {}
   }
@@ -220,6 +290,10 @@ export class AvatarSelectModal {
     if (!this.el) return;
     soundEngine.playSFX('click');
     Haptics.tap();
+    if (this.wardrobeView) {
+      this.wardrobeView.destroy();
+      this.wardrobeView = null;
+    }
     if (this.el.parentNode) {
       this.el.parentNode.removeChild(this.el);
     }

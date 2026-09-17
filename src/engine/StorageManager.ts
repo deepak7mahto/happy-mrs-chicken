@@ -7,6 +7,7 @@ import { StorageData, HighScores, IStorageManager, SettingsState } from '../type
 import { CharacterId } from '../types/characters';
 import { StoryProgress } from '../types/story';
 import { STORY_STOPS } from '../story/storyData';
+import { AccessoryId, AccessorySlot, ACCESSORIES_CATALOG, DEFAULT_UNLOCKED_ACCESSORIES } from '../types/accessories';
 
 const STORAGE_KEY = 'hmc_game_data_v1';
 
@@ -16,13 +17,15 @@ const VALID_AVATARS: Set<string> = new Set([
   'chicken', 'chick', 'duck'
 ]);
 
-const DEFAULT_STORY_PROGRESS: StoryProgress = {
-  currentStopIndex: 0,
-  completedStops: {},
-  passportStamps: [],
-  viewMode: 'grid',
-  hasCompletedGrandFinale: false
-};
+function createDefaultStoryProgress(): StoryProgress {
+  return {
+    currentStopIndex: 0,
+    completedStops: {},
+    passportStamps: [],
+    viewMode: 'grid',
+    hasCompletedGrandFinale: false
+  };
+}
 
 const DEFAULT_HIGH_SCORES: HighScores = {
   eggLaying: 0,
@@ -150,7 +153,13 @@ export class StorageManager implements IStorageManager {
               toddlerLock: Boolean(rawSettings.toddlerLock),
               selectedAvatar: (rawSettings.selectedAvatar && VALID_AVATARS.has(rawSettings.selectedAvatar))
                 ? (rawSettings.selectedAvatar as CharacterId)
-                : 'peppa'
+                : 'peppa',
+              equippedAccessories: rawSettings.equippedAccessories && typeof rawSettings.equippedAccessories === 'object'
+                ? { ...rawSettings.equippedAccessories }
+                : {},
+              unlockedAccessories: Array.isArray(rawSettings.unlockedAccessories)
+                ? Array.from(new Set([...DEFAULT_UNLOCKED_ACCESSORIES, ...rawSettings.unlockedAccessories]))
+                : [...DEFAULT_UNLOCKED_ACCESSORIES]
             };
 
             const rawStory = parsed.storyProgress || {};
@@ -186,9 +195,11 @@ export class StorageManager implements IStorageManager {
         sfxVolume: 0.9,
         hapticsEnabled: true,
         toddlerLock: false,
-        selectedAvatar: 'peppa'
+        selectedAvatar: 'peppa',
+        equippedAccessories: {},
+        unlockedAccessories: [...DEFAULT_UNLOCKED_ACCESSORIES]
       },
-      storyProgress: { ...DEFAULT_STORY_PROGRESS, completedStops: {} },
+      storyProgress: createDefaultStoryProgress(),
       version: 1,
       lastSaved: Date.now()
     };
@@ -304,7 +315,7 @@ export class StorageManager implements IStorageManager {
 
   getStoryProgress(): StoryProgress {
     if (!this.data.storyProgress) {
-      this.data.storyProgress = { ...DEFAULT_STORY_PROGRESS, completedStops: {} };
+      this.data.storyProgress = createDefaultStoryProgress();
     }
     return this.data.storyProgress;
   }
@@ -334,7 +345,7 @@ export class StorageManager implements IStorageManager {
     this.save();
   }
 
-  completeStoryStop(stopIndex: number, score: number, stars: number = 3): { unlockedNext: boolean; newStamp?: string } {
+  completeStoryStop(stopIndex: number, score: number, stars: number = 3): { unlockedNext: boolean; newStamp?: string; unlockedAccessory?: string } {
     const progress = this.getStoryProgress();
     const stop = STORY_STOPS[stopIndex];
     if (!stop) return { unlockedNext: false };
@@ -364,12 +375,76 @@ export class StorageManager implements IStorageManager {
       progress.hasCompletedGrandFinale = true;
     }
 
+    let unlockedAccessory: string | undefined;
+    for (const acc of ACCESSORIES_CATALOG) {
+      if (acc.unlockStoryStopIndex === stopIndex) {
+        if (this.unlockAccessory(acc.id)) {
+          unlockedAccessory = acc.name;
+        }
+      }
+    }
+
     this.save();
-    return { unlockedNext, newStamp };
+    return { unlockedNext, newStamp, unlockedAccessory };
   }
 
   hasPassportStamp(stampId: string): boolean {
     return this.getStoryProgress().passportStamps.includes(stampId);
+  }
+
+  getEquippedAccessories(): Partial<Record<AccessorySlot, AccessoryId>> {
+    if (!this.data.settings.equippedAccessories) {
+      this.data.settings.equippedAccessories = {};
+    }
+    return { ...this.data.settings.equippedAccessories };
+  }
+
+  getEquippedAccessory(slot: AccessorySlot): AccessoryId {
+    return this.data.settings.equippedAccessories?.[slot] || 'none';
+  }
+
+  equipAccessory(id: AccessoryId, slot?: AccessorySlot): void {
+    if (!this.data.settings.equippedAccessories) {
+      this.data.settings.equippedAccessories = {};
+    }
+    const resolvedSlot: AccessorySlot = slot || (ACCESSORIES_CATALOG.find(a => a.id === id)?.slot ?? 'head');
+    if (id === 'none') {
+      delete this.data.settings.equippedAccessories[resolvedSlot];
+    } else {
+      this.data.settings.equippedAccessories[resolvedSlot] = id;
+    }
+    this.save();
+  }
+
+  unequipAccessory(slot: AccessorySlot): void {
+    if (this.data.settings.equippedAccessories) {
+      delete this.data.settings.equippedAccessories[slot];
+      this.save();
+    }
+  }
+
+  getUnlockedAccessories(): AccessoryId[] {
+    if (!this.data.settings.unlockedAccessories) {
+      this.data.settings.unlockedAccessories = [...DEFAULT_UNLOCKED_ACCESSORIES];
+    }
+    return [...this.data.settings.unlockedAccessories];
+  }
+
+  isAccessoryUnlocked(id: AccessoryId): boolean {
+    if (id === 'none') return true;
+    return this.getUnlockedAccessories().includes(id);
+  }
+
+  unlockAccessory(id: AccessoryId): boolean {
+    if (id === 'none') return false;
+    const unlocked = this.getUnlockedAccessories();
+    if (!unlocked.includes(id)) {
+      unlocked.push(id);
+      this.data.settings.unlockedAccessories = unlocked;
+      this.save();
+      return true;
+    }
+    return false;
   }
 
   resetAll(): void {
@@ -383,9 +458,11 @@ export class StorageManager implements IStorageManager {
         sfxVolume: 0.9,
         hapticsEnabled: true,
         toddlerLock: false,
-        selectedAvatar: 'peppa'
+        selectedAvatar: 'peppa',
+        equippedAccessories: {},
+        unlockedAccessories: [...DEFAULT_UNLOCKED_ACCESSORIES]
       },
-      storyProgress: { ...DEFAULT_STORY_PROGRESS, completedStops: {} },
+      storyProgress: createDefaultStoryProgress(),
       version: 1,
       lastSaved: Date.now()
     };

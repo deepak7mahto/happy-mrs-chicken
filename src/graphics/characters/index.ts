@@ -98,9 +98,15 @@ export const CHARACTER_RENDERERS: Record<CharacterId, CharacterRenderFunc<any>> 
   duck: drawYellowDuck
 };
 
+import { renderBackAccessories, renderFrontAccessories, renderAccessoryIcon } from '../accessories/accessoryRenderer';
+import { renderAvatarAura, AuraType } from '../accessories/auraRenderer';
+import { storageManager } from '../../engine/StorageManager';
+import { AccessoryId, AccessorySlot } from '../../types/accessories';
+
 /**
  * Universal polymorphic character renderer dispatcher.
- * Delegates rendering to the corresponding procedural vector renderer for characterId.
+ * Delegates rendering to the corresponding procedural vector renderer for characterId,
+ * with accessory layering (back cape, front hats/glasses/boots) and optional particle auras.
  */
 export function renderCharacter(
   id: CharacterId,
@@ -111,11 +117,52 @@ export function renderCharacter(
   options?: CharacterRenderOptions
 ): void {
   const renderer = CHARACTER_RENDERERS[id];
-  if (renderer) {
-    renderer(ctx, x, y, scale, options);
+  if (!renderer) return;
+
+  const animState = options?.animState;
+  const jumpY = options?.jumpY ?? animState?.jumpY ?? 0;
+  const facingLeft = options?.facingLeft ?? animState?.facingLeft ?? false;
+  const time = options?.time ?? (Date.now() / 1000);
+
+  // Resolve equipped accessories
+  let equipped: Partial<Record<AccessorySlot, AccessoryId>> | undefined =
+    (options?.accessories as Partial<Record<AccessorySlot, AccessoryId>>) ||
+    (options?.equippedAccessories as Partial<Record<AccessorySlot, AccessoryId>>);
+
+  if (!equipped && options?.showAccessories !== false && typeof window !== 'undefined') {
+    equipped = storageManager.getEquippedAccessories();
+  }
+
+  // Aura effects (rainbow, stars, sparkle, hearts, bubbles)
+  if (options?.aura) {
+    renderAvatarAura(ctx, x, y + jumpY, 42 * scale, options.aura as AuraType, time);
+  }
+
+  // 1. Back Layer (Hero Cape, wings, etc.)
+  if (equipped) {
+    ctx.save();
+    ctx.translate(x, y + jumpY);
+    ctx.scale(facingLeft ? -scale : scale, scale);
+    renderBackAccessories(ctx, id, equipped, time);
+    ctx.restore();
+  }
+
+  // 2. Base Character
+  renderer(ctx, x, y, scale, options);
+
+  // 3. Front Layer (Hats, Glasses, Boots)
+  if (equipped) {
+    ctx.save();
+    ctx.translate(x, y + jumpY);
+    ctx.scale(facingLeft ? -scale : scale, scale);
+    renderFrontAccessories(ctx, id, equipped, time);
+    ctx.restore();
   }
 }
 
 // Re-export Character Types & Modular Body Parts
 export * from '../../types/characters';
 export * from './modularBodyParts';
+export { renderBackAccessories, renderFrontAccessories, renderAccessoryIcon };
+export { renderAvatarAura };
+

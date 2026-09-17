@@ -8,3 +8,4 @@ export * from './audio';
 export * from './storage';
 export * from './characters';
 export * from './particles';
+export * from './accessories';

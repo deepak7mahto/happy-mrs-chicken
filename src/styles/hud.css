@@ -273,6 +273,65 @@
 }
 .avatar-confirm-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1B5E20; }
 
+/* Avatar Main Segment Tabs */
+.avatar-main-tabs { display: flex; gap: 8px; margin-bottom: 8px; justify-content: center; }
+.avatar-main-tab {
+  flex: 1; max-width: 160px; padding: 7px 14px; border-radius: 9999px; border: 2.5px solid #FFB300;
+  background: #FFFFFF; color: #4E342E; font-size: 0.92rem; font-weight: 900; cursor: pointer;
+  box-shadow: 0 3px 0 #FFB300; transition: all 0.15s ease;
+}
+.avatar-main-tab.active {
+  background: #FF6F00; border-color: #E65100; color: #FFFFFF; box-shadow: 0 3px 0 #BF360C;
+}
+
+/* Wardrobe Panel & Interactive Mannequin */
+.wardrobe-container { display: flex; flex-direction: column; gap: 8px; }
+.wardrobe-mannequin-stage {
+  display: flex; align-items: center; justify-content: center; gap: 16px; padding: 6px 0;
+}
+.wardrobe-mannequin-bubble {
+  position: relative; width: 140px; height: 140px; border-radius: 24px;
+  background: radial-gradient(circle, #FFFFFF 40%, #FFF9C4 100%);
+  border: 3.5px solid #FFD54F; box-shadow: 0 4px 12px rgba(255, 179, 0, 0.25);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  user-select: none; touch-action: none;
+}
+.wardrobe-canvas { width: 140px; height: 140px; }
+.wardrobe-mannequin-hint {
+  position: absolute; bottom: 4px; font-size: 0.68rem; font-weight: 900; color: #F57F17;
+  background: rgba(255, 255, 255, 0.9); padding: 1px 8px; border-radius: 9999px;
+  border: 1px solid #FFE082; pointer-events: none;
+}
+.wardrobe-mannequin-info { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.wardrobe-avatar-name { font-size: 1.05rem; font-weight: 900; color: #3E2723; }
+.wardrobe-clear-btn {
+  padding: 6px 14px; border-radius: 9999px; border: 2px solid #B0BEC5; background: #ECEFF1;
+  color: #455A64; font-size: 0.78rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 #CFD8DC;
+}
+.wardrobe-clear-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #CFD8DC; }
+
+.wardrobe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; }
+.wardrobe-card {
+  display: flex; flex-direction: column; align-items: center; border-radius: 16px; border: 3px solid #CFD8DC;
+  background: #FFFFFF; padding: 6px; cursor: pointer; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+  position: relative; text-align: center; min-height: 96px; justify-content: center;
+}
+.wardrobe-card.equipped {
+  border-color: #4CAF50 !important; background: #F1F8E9 !important;
+  box-shadow: 0 0 0 2px #81C784, 0 4px 0 #2E7D32 !important;
+}
+.wardrobe-card.locked {
+  background: #ECEFF1 !important; border-color: #B0BEC5 !important; opacity: 0.72;
+}
+.wardrobe-card-emoji { font-size: 1.8rem; line-height: 1; margin-bottom: 3px; }
+.wardrobe-card-title { font-size: 0.78rem; font-weight: 800; color: #263238; line-height: 1.1; }
+.wardrobe-card-slot { font-size: 0.62rem; font-weight: 900; color: #78909C; margin-top: 2px; }
+.wardrobe-equipped-badge {
+  position: absolute; top: 3px; right: 3px; background: #4CAF50; color: #FFFFFF;
+  font-size: 0.62rem; font-weight: 900; border-radius: 9999px; padding: 1px 5px;
+}
+.wardrobe-lock-hint { font-size: 0.62rem; font-weight: 700; color: #D84315; margin-top: 2px; }
+
 /* Story Modals & Passport */
 .story-intro-card {
   max-width: 420px; background: linear-gradient(180deg, #FFFFFF 0%, #F1F8E9 100%); border: 4.5px solid #4CAF50;

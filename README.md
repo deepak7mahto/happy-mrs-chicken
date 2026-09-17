@@ -100,6 +100,10 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 * **🧸 3D Tactile "Toy Button" Cards**: Landing page cards feature a 3D extruded bottom bevel (+5px), subtle vertical surface gradient, top specular gloss sheen, and warm golden star achievement badges (`★ Best Score`).
 * **✨ Character Pedestal Spotlights**: Every character preview on the landing page is scaled up for mobile and framed within a soft, luminous circular spotlight disc.
 * **🔇 Background Audio Suspension Lifecycle**: Integrated Web Audio hardware lifecycle management (`AudioContext.suspend()` and `resume()`) wired to `visibilitychange` and `pagehide` to ensure zero sound leakage when switching apps or locking the phone.
+* **👒 Dress-Up Wardrobe & Vector Accessories**: Multi-slot styling across `head`, `face`, `back`, and `feet` (Party Cone, Flower Wreath, Sparkle Glasses, Chef Toque, Pirate Bicorne, Sun Hat, Royal Crown, Bubble Goggles, Hero Cape, Golden Wellies) with normalized anchor maps for all 15 characters.
+* **👀 Interactive Mannequin & Reactive Gaze**: Real-time touch/pointer eye-tracking where characters look at the child's touch, hop with delight, giggle with their signature voice, and celebrate new outfits.
+* **🏆 Story Mode Wardrobe Progression**: Beating story milestones automatically unlocks special accessories (Golden Wellies at Puddle Splash, Chef Toque at Pancake Flip, Bubble Goggles at Car Wash, Hero Cape at Windy Castle, Royal Crown at Grand Finale).
+* **✨ Particle Auras & Magic Effects**: Procedural ambient particle auras (`rainbow`, `stars`, `sparkle`, `hearts`, `bubbles`) framing the avatar during preview and victory celebrations.
 * **🗺️ Continuous Story Journey Mode**: The 16 mini-games are woven together into a continuous 5-chapter narrative adventure from morning to sunset. Features an interactive procedural winding canvas map, milestone nodes, active avatar position beacons, and bite-sized toddler goals.
 * **📖 16-Stamp Adventure Passport Album**: Complete each story stop to earn a collectible gold stamp and star ratings. Collecting all 16 stamps awards the Grand Master Explorer Trophy (🏆).
 * **🐷 Universal 15-Character Avatar Selector**: Choose from 15 vector-rendered characters (Peppa Pig & friends, Trishu family, and farmyard animals) that seamlessly propagate across all 16 mini-games.
@@ -126,7 +130,7 @@ npm install
 # Start local development server
 npm run dev
 
-# Run unit & integration test suite (71 tests)
+# Run automated tests (76 tests in <0.05s)
 npm test
 
 # Run Playwright mobile & desktop browser E2E tests (31 tests)
@@ -146,9 +150,9 @@ npm run deploy
 
 ## 🧪 Testing & Quality Gates
 
-The codebase is protected by **102 automated tests**:
+The codebase is protected by **107 automated tests**:
 
-### 1. Automated Test Runner (`npm test` — 71 tests in <0.05s)
+### 1. Automated Test Runner (`npm test` — 76 tests in <0.05s)
 - **Tier 1**: Smoke & Initialization (Engine, Display, Storage, Particle pool, Menu navigation)
 - **Tier 2**: 16 Mini-Game Simulations & Mechanics
 - **Tier 3**: Audio Engine (20 SFX recipes, BGM sequencer, background suspension/resumption) & Character Renderers
@@ -156,7 +160,7 @@ The codebase is protected by **102 automated tests**:
 - **Tier 5**: Heavy PWA & Native Capabilities (Service Worker precache, Wake Lock, Installability)
 - **Tier 6**: Frontend Architecture, Deep Linking Router & Controls
 - **Tier 7**: Menu 2-Column Portrait, Gamepad API, BGM Moods & Snapshots
-- **Tier 8**: Universal 15-Character Avatar Selector System
+- **Tier 8**: Universal 15-Character Avatar Selector & Dress-Up Wardrobe System
 - **Tier 10**: Story Journey Narrative & Adventure Map Engine
 
 ### 2. Playwright Headless Browser E2E (`tests/browser_e2e.py` — 31 tests)

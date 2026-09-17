@@ -239,11 +239,15 @@ export function drawPeppaPig(
       ctx.stroke();
     }
 
-    // Pupils
+    // Pupils (Reactive Gaze Tracking)
+    const gaze = (options as any)?.pointerGaze || (options as any)?.gaze;
+    const gazeX = gaze ? Math.max(-2, Math.min(2, gaze.x * 2)) : 0;
+    const gazeY = gaze ? Math.max(-2, Math.min(2, gaze.y * 2)) : 0;
+
     ctx.fillStyle = PALETTE.BLACK;
     ctx.beginPath();
-    ctx.arc(5.5, -38, 2.6, 0, Math.PI * 2);
-    ctx.arc(19.5, -36, 2.6, 0, Math.PI * 2);
+    ctx.arc(5.5 + gazeX, -38 + gazeY, 2.6, 0, Math.PI * 2);
+    ctx.arc(19.5 + gazeX, -36 + gazeY, 2.6, 0, Math.PI * 2);
     ctx.fill();
   }
 

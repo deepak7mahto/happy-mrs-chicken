@@ -111,6 +111,7 @@ describe('Tier 10: Story Journey Narrative & Adventure Map', () => {
     localStorage.clear();
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
+    engine.storage.resetAll();
 
     let introStopIndex: number | null = null;
     let victoryStopIndex: number | null = null;
