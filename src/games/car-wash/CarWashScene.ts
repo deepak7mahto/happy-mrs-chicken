@@ -79,19 +79,37 @@ export class CarWashScene extends BaseScene {
       this.logic.spawnMud(cx, cy);
     }
 
-    const checkCoords = (x: number, y: number) => {
+    const cx = this.game.display.vWidth / 2;
+    const cy = this.game.display.vHeight / 2 + 30;
+
+    const checkCoords = (x: number, y: number, isJustPressed: boolean) => {
+      // Tap on avatar to switch vehicle
+      if (isJustPressed && Math.hypot(x - 70, y - (cy + 20)) <= 42) {
+        this.logic.nextVehicle();
+        soundEngine.playSFX('whoosh');
+        Haptics.medium();
+        this.game.particles.spawnSparkles(cx, cy, 16);
+        return;
+      }
+
       const hit = this.logic.findSpotAt(x, y);
       if (hit) {
         this.cleanSpot(hit);
+      } else if (Math.hypot(x - cx, y - cy) <= 180) {
+        // Spray hose onto vehicle
+        this.logic.sprayHose(x, y);
+        if (Math.random() < 0.15) {
+          soundEngine.playSFX('waterHoseSpray');
+        }
       }
     };
 
     if (input.isActionDown() || input.actionJustReleased) {
-      checkCoords(input.primaryPointer.x, input.primaryPointer.y);
+      checkCoords(input.primaryPointer.x, input.primaryPointer.y, input.actionJustReleased);
     }
     for (const ptr of input.pointers.values()) {
       if (ptr.isDown || ptr.justPressed) {
-        checkCoords(ptr.x, ptr.y);
+        checkCoords(ptr.x, ptr.y, ptr.justPressed);
       }
     }
   }

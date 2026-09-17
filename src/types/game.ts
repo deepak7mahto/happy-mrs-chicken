@@ -238,7 +238,7 @@ export interface BalloonEntity {
   vy: number;
   radius: number;
   color: string;
-  shape: 'DINO' | 'ROUND';
+  shape: 'DINO' | 'ROUND' | 'STAR' | 'HEART';
   popped: boolean;
   wobblePhase: number;
 }

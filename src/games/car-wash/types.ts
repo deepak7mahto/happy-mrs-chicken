@@ -1,6 +1,13 @@
-/**
- * Types for Mode 13: Muddy Car Wash
- */
+export type VehicleType = 'CAR' | 'BOAT' | 'COPTER';
+
+export interface WaterDroplet {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  radius: number;
+}
 
 export interface MudSpot {
   x: number;

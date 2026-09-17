@@ -3,7 +3,7 @@
  * Adventures of Trishu Mini-Game Suite
  */
 
-import { MudSpot, CarWashBubble } from './types';
+import { MudSpot, CarWashBubble, VehicleType, WaterDroplet } from './types';
 
 export class CarWashLogic {
   public time: number = 0;
@@ -11,6 +11,8 @@ export class CarWashLogic {
   public cleanCarsCount: number = 0;
   public celebrationTimer: number = 0;
   public bubbles: CarWashBubble[] = [];
+  public waterDrops: WaterDroplet[] = [];
+  public vehicleType: VehicleType = 'CAR';
   public score: number = 0;
 
   public reset(cx: number, cy: number): void {
@@ -18,8 +20,30 @@ export class CarWashLogic {
     this.cleanCarsCount = 0;
     this.celebrationTimer = 0;
     this.bubbles = [];
+    this.waterDrops = [];
+    this.vehicleType = 'CAR';
     this.time = 0;
     this.spawnMud(cx, cy);
+  }
+
+  public nextVehicle(): VehicleType {
+    if (this.vehicleType === 'CAR') this.vehicleType = 'BOAT';
+    else if (this.vehicleType === 'BOAT') this.vehicleType = 'COPTER';
+    else this.vehicleType = 'CAR';
+    return this.vehicleType;
+  }
+
+  public sprayHose(x: number, y: number): void {
+    for (let i = 0; i < 4; i++) {
+      this.waterDrops.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y + (Math.random() - 0.5) * 20,
+        vx: (Math.random() - 0.5) * 90,
+        vy: -45 - Math.random() * 65,
+        life: 0.65,
+        radius: 3 + Math.random() * 4
+      });
+    }
   }
 
   public spawnMud(cx: number, cy: number): void {
@@ -43,6 +67,7 @@ export class CarWashLogic {
     }
 
     spot.sudsLevel += 0.55;
+    this.sprayHose(spot.x, spot.y);
     const colors = ['#E1F5FE', '#B3E5FC', '#FFF9C4', '#F8BBD0'];
     const newBubbles: CarWashBubble[] = [];
 
@@ -73,6 +98,7 @@ export class CarWashLogic {
         this.score += 100;
         this.celebrationTimer = 2.0;
         allCleaned = true;
+        this.nextVehicle();
       }
     }
 
@@ -105,6 +131,17 @@ export class CarWashLogic {
       b.life -= dt * 0.9;
       if (b.life <= 0) {
         this.bubbles.splice(i, 1);
+      }
+    }
+
+    for (let i = this.waterDrops.length - 1; i >= 0; i--) {
+      const d = this.waterDrops[i];
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.vy += 120 * dt; // gentle gravity
+      d.life -= dt * 1.5;
+      if (d.life <= 0) {
+        this.waterDrops.splice(i, 1);
       }
     }
 

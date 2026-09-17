@@ -51,7 +51,7 @@ export class LittleTrainScene extends BaseScene {
     this.logic.blowWhistle(vHeight);
     this.syncFromLogic();
 
-    soundEngine.playSFX('trainWhistle' as any);
+    soundEngine.playSFX('trainWhistle');
     soundEngine.playSFX('whoosh');
     soundEngine.playSFX('toddlerGiggle');
     Haptics.medium();
@@ -59,10 +59,33 @@ export class LittleTrainScene extends BaseScene {
     this.game.storage.saveHighScore('littleTrain', this.score);
   }
 
-  update(dt: number, input: InputManager): void {
-    const vHeight = this.game.display.vHeight;
-    const { pickedUpPassenger } = this.logic.update(dt, vHeight);
+  public cycleThrottle(): void {
+    const level = this.logic.cycleThrottle();
     this.syncFromLogic();
+
+    soundEngine.playTone(280 + level * 70, 0.14, 'sine', 0.22);
+    soundEngine.playSFX('click');
+    Haptics.tap();
+
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    const throttleLabels = ['🐢 Slow Chug!', '🚂 Cruising!', '⚡ Full Steam!'];
+    this.game.particles.spawnScorePopup(vWidth - 85, vHeight - 75, throttleLabels[level - 1]);
+  }
+
+  update(dt: number, input: InputManager): void {
+    const vWidth = this.game.display.vWidth;
+    const vHeight = this.game.display.vHeight;
+    const { pickedUpPassenger, enteredTunnel } = this.logic.update(dt, vHeight);
+    this.syncFromLogic();
+
+    if (enteredTunnel) {
+      soundEngine.playSFX('trainWhistle');
+      soundEngine.playSFX('toddlerGiggle');
+      Haptics.medium();
+      this.game.particles.spawnScorePopup(vWidth / 2, vHeight * 0.4, '⛰️ Tunnel Echo! +30');
+      this.game.storage.saveHighScore('littleTrain', this.score);
+    }
 
     if (pickedUpPassenger) {
       this.checkStoryGoal(this.logic.passengers.length);
@@ -74,7 +97,14 @@ export class LittleTrainScene extends BaseScene {
     }
 
     if (input.actionJustReleased) {
-      this.blowWhistle();
+      const ptr = input.primaryPointer;
+      const throttleX = vWidth - 65;
+      const throttleY = vHeight - 48;
+      if (Math.hypot(ptr.x - throttleX, ptr.y - throttleY) <= 55) {
+        this.cycleThrottle();
+      } else {
+        this.blowWhistle();
+      }
     }
   }
 

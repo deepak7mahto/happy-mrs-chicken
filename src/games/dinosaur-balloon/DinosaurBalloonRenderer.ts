@@ -107,6 +107,34 @@ export class DinosaurBalloonRenderer {
       ctx.beginPath();
       ctx.arc(r * 0.62, -r * 0.45, 2.8, 0, Math.PI * 2);
       ctx.fill();
+    } else if (b.shape === 'STAR') {
+      ctx.beginPath();
+      const points = 5;
+      const outerR = r * 1.18;
+      const innerR = r * 0.58;
+      for (let p = 0; p < points * 2; p++) {
+        const rad = (p * Math.PI) / points - Math.PI / 2;
+        const currentR = p % 2 === 0 ? outerR : innerR;
+        const px = Math.cos(rad) * currentR;
+        const py = Math.sin(rad) * currentR;
+        if (p === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (b.shape === 'HEART') {
+      const s = r * 0.06;
+      ctx.save();
+      ctx.translate(0, -r * 0.1);
+      ctx.beginPath();
+      ctx.moveTo(0, 4 * s);
+      ctx.bezierCurveTo(-14 * s, -14 * s, -26 * s, 6 * s, 0, 24 * s);
+      ctx.bezierCurveTo(26 * s, 6 * s, 14 * s, -14 * s, 0, 4 * s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
     } else {
       ctx.beginPath();
       ctx.ellipse(0, 0, r * 0.88, r * 1.12, 0, 0, Math.PI * 2);

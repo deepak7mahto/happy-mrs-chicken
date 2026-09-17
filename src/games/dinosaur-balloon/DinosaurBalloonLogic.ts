@@ -34,7 +34,13 @@ export class DinosaurBalloonLogic {
 
   public spawnBalloon(vWidth: number, vHeight: number, customY?: number): BalloonEntity {
     const isGolden = Math.random() < 0.15;
-    const shape: 'DINO' | 'ROUND' = Math.random() < 0.65 ? 'DINO' : 'ROUND';
+    const randShape = Math.random();
+    let shape: 'DINO' | 'ROUND' | 'STAR' | 'HEART' = 'ROUND';
+    if (randShape < 0.4) shape = 'DINO';
+    else if (randShape < 0.65) shape = 'ROUND';
+    else if (randShape < 0.82) shape = 'STAR';
+    else shape = 'HEART';
+
     const color = isGolden
       ? '#FFD700'
       : BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];

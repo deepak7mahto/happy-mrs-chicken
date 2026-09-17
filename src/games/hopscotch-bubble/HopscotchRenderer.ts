@@ -42,6 +42,28 @@ export class HopscotchRenderer {
     // Picnic Blanket
     const picnicX = isPortrait ? vWidth * 0.5 : vWidth - 110;
     const picnicY = isPortrait ? vHeight * 0.18 : vHeight * 0.7;
+
+    // Celebration Rainbow Arc Slide
+    if (logic.isCelebrating && logic.tiles.length > 0) {
+      ctx.save();
+      const lastTile = logic.tiles[logic.tiles.length - 1];
+      const rColors = ['#FF1744', '#FF9100', '#FFEA00', '#00E676', '#00E5FF', '#D500F9'];
+      for (let i = 0; i < rColors.length; i++) {
+        ctx.strokeStyle = rColors[i];
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(lastTile.x - 15, lastTile.y - 12 + i * 3);
+        ctx.quadraticCurveTo(
+          (lastTile.x + picnicX) / 2,
+          Math.min(lastTile.y, picnicY) - 45 + i * 3,
+          picnicX,
+          picnicY - 10 + i * 3
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     drawPicnicBlanket(ctx, picnicX, picnicY);
 
     // Trishu Character on picnic blanket

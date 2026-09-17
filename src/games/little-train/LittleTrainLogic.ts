@@ -14,16 +14,27 @@ export class LittleTrainLogic {
   public stations: PassengerStation[] = [];
   public steamPuffs: SteamPuff[] = [];
   public score: number = 0;
+  public throttleLevel: 1 | 2 | 3 = 2;
+  public isInTunnel: boolean = false;
+  public tunnelBonusGiven: boolean = false;
 
   public reset(): void {
     this.score = 0;
     this.trainX = 0;
     this.trainSpeed = 110;
+    this.throttleLevel = 2;
+    this.isInTunnel = false;
+    this.tunnelBonusGiven = false;
     this.whistleTimer = 0;
     this.passengers = ['trishu'];
     this.steamPuffs = [];
     this.time = 0;
     this.initStations();
+  }
+
+  public cycleThrottle(): number {
+    this.throttleLevel = ((this.throttleLevel % 3) + 1) as 1 | 2 | 3;
+    return this.throttleLevel;
   }
 
   public initStations(): void {
@@ -58,24 +69,36 @@ export class LittleTrainLogic {
     return newPuffs;
   }
 
-  public update(dt: number, vHeight: number): { pickedUpPassenger?: PassengerType } {
+  public update(dt: number, vHeight: number): { pickedUpPassenger?: PassengerType; enteredTunnel?: boolean } {
     this.time += dt;
 
+    const baseSpeed = this.throttleLevel === 1 ? 75 : this.throttleLevel === 2 ? 115 : 190;
     if (this.whistleTimer > 0) {
       this.whistleTimer -= dt;
-      if (this.whistleTimer <= 0) {
-        this.trainSpeed = 110;
-      }
+      this.trainSpeed = 220;
+    } else {
+      this.trainSpeed = baseSpeed;
     }
 
     this.trainX += this.trainSpeed * dt;
 
-    // Periodic gentle steam puff
-    if (Math.random() < dt * 4) {
+    // Mountain tunnel detection (between 1600 and 1920)
+    const wasInTunnel = this.isInTunnel;
+    this.isInTunnel = (this.trainX >= 1600 && this.trainX <= 1920);
+    let enteredTunnel = false;
+    if (this.isInTunnel && !wasInTunnel && !this.tunnelBonusGiven) {
+      this.tunnelBonusGiven = true;
+      this.score += 30;
+      enteredTunnel = true;
+    }
+
+    // Periodic steam puffs scaled by speed
+    const puffChance = dt * (this.throttleLevel === 3 ? 8 : 4);
+    if (Math.random() < puffChance) {
       this.steamPuffs.push({
         x: 170,
         y: vHeight - 165,
-        radius: 14,
+        radius: this.throttleLevel === 3 ? 18 : 14,
         life: 1.0
       });
     }
@@ -83,7 +106,7 @@ export class LittleTrainLogic {
     // Update steam puffs
     for (let i = this.steamPuffs.length - 1; i >= 0; i--) {
       const p = this.steamPuffs[i];
-      p.x -= 80 * dt;
+      p.x -= (this.trainSpeed * 0.6) * dt;
       p.y -= 35 * dt;
       p.radius += 18 * dt;
       p.life -= dt * 1.1;
@@ -107,11 +130,12 @@ export class LittleTrainLogic {
     // Loop stations when train travels far
     if (this.trainX > 2800) {
       this.trainX = 0;
+      this.tunnelBonusGiven = false;
       for (const st of this.stations) {
         st.pickedUp = false;
       }
     }
 
-    return { pickedUpPassenger };
+    return { pickedUpPassenger, enteredTunnel };
   }
 }

@@ -44,65 +44,160 @@ export class CarWashRenderer {
     });
     ctx.restore();
 
-    // Family Car Shadow
+    // Vehicle Shadow
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
     ctx.beginPath();
     ctx.ellipse(cx, cy + 80, 160, 22, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Car Body
-    ctx.fillStyle = '#E53935';
-    ctx.strokeStyle = '#B71C1C';
-    ctx.lineWidth = 4;
+    // Render Vehicle based on logic.vehicleType
+    if (logic.vehicleType === 'BOAT') {
+      // Grandpa's Green Boat on Wheels
+      ctx.fillStyle = '#43A047';
+      ctx.strokeStyle = '#2E7D32';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx - 150, cy + 10);
+      ctx.lineTo(cx + 140, cy + 10);
+      ctx.lineTo(cx + 110, cy + 68);
+      ctx.lineTo(cx - 120, cy + 68);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-    ctx.beginPath();
-    ctx.roundRect(cx - 145, cy - 10, 290, 75, 18);
-    ctx.fill();
-    ctx.stroke();
+      // Cabin
+      ctx.fillStyle = '#FFF9C4';
+      ctx.strokeStyle = '#FBC02D';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(cx - 45, cy - 50, 90, 60, 8);
+      ctx.fill();
+      ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(cx - 95, cy - 10);
-    ctx.lineTo(cx - 65, cy - 85);
-    ctx.lineTo(cx + 65, cy - 85);
-    ctx.lineTo(cx + 105, cy - 10);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+      // Porthole window
+      ctx.fillStyle = '#81D4FA';
+      ctx.strokeStyle = '#0288D1';
+      ctx.beginPath();
+      ctx.arc(cx, cy - 20, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
 
-    // Windows
-    ctx.fillStyle = '#E1F5FE';
-    ctx.strokeStyle = '#0288D1';
-    ctx.lineWidth = 2.5;
+      // Mast and little pennant flag
+      ctx.strokeStyle = '#795548';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx + 60, cy + 10);
+      ctx.lineTo(cx + 60, cy - 70);
+      ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(cx - 85, cy - 12);
-    ctx.lineTo(cx - 60, cy - 78);
-    ctx.lineTo(cx - 5, cy - 78);
-    ctx.lineTo(cx - 5, cy - 12);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+      ctx.fillStyle = '#E91E63';
+      ctx.beginPath();
+      ctx.moveTo(cx + 60, cy - 70);
+      ctx.lineTo(cx + 95, cy - 58);
+      ctx.lineTo(cx + 60, cy - 46);
+      ctx.closePath();
+      ctx.fill();
+    } else if (logic.vehicleType === 'COPTER') {
+      // Miss Rabbit's Rescue Helicopter
+      ctx.fillStyle = '#FFB300';
+      ctx.strokeStyle = '#FF8F00';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(cx - 20, cy + 15, 110, 52, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(cx + 5, cy - 12);
-    ctx.lineTo(cx + 5, cy - 78);
-    ctx.lineTo(cx + 58, cy - 78);
-    ctx.lineTo(cx + 92, cy - 12);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+      // Tail Boom
+      ctx.beginPath();
+      ctx.moveTo(cx + 70, cy + 15);
+      ctx.lineTo(cx + 160, cy);
+      ctx.lineTo(cx + 160, cy - 20);
+      ctx.stroke();
 
-    // Headlights
-    ctx.fillStyle = '#FFEE58';
-    ctx.strokeStyle = '#FBC02D';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.arc(cx - 142, cy + 12, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+      // Tail mini rotor
+      ctx.strokeStyle = '#424242';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx + 160, cy - 35);
+      ctx.lineTo(cx + 160, cy - 5);
+      ctx.stroke();
 
-    // Wheels
+      // Large bubble windshield
+      ctx.fillStyle = '#B3E5FC';
+      ctx.strokeStyle = '#0288D1';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(cx - 75, cy + 5, 42, 36, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Top Spinning Rotor Blade
+      const bladeW = Math.abs(Math.sin(logic.time * 18)) * 140;
+      ctx.strokeStyle = '#212121';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(cx - 20, cy - 40);
+      ctx.lineTo(cx - 20, cy - 52);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - 20 - bladeW, cy - 52);
+      ctx.lineTo(cx - 20 + bladeW, cy - 52);
+      ctx.stroke();
+    } else {
+      // Standard Family Car Body
+      ctx.fillStyle = '#E53935';
+      ctx.strokeStyle = '#B71C1C';
+      ctx.lineWidth = 4;
+
+      ctx.beginPath();
+      ctx.roundRect(cx - 145, cy - 10, 290, 75, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx - 95, cy - 10);
+      ctx.lineTo(cx - 65, cy - 85);
+      ctx.lineTo(cx + 65, cy - 85);
+      ctx.lineTo(cx + 105, cy - 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Windows
+      ctx.fillStyle = '#E1F5FE';
+      ctx.strokeStyle = '#0288D1';
+      ctx.lineWidth = 2.5;
+
+      ctx.beginPath();
+      ctx.moveTo(cx - 85, cy - 12);
+      ctx.lineTo(cx - 60, cy - 78);
+      ctx.lineTo(cx - 5, cy - 78);
+      ctx.lineTo(cx - 5, cy - 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx + 5, cy - 12);
+      ctx.lineTo(cx + 5, cy - 78);
+      ctx.lineTo(cx + 58, cy - 78);
+      ctx.lineTo(cx + 92, cy - 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Headlights
+      ctx.fillStyle = '#FFEE58';
+      ctx.strokeStyle = '#FBC02D';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(cx - 142, cy + 12, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Wheels / Landing skids
     const drawWheel = (wx: number, wy: number) => {
       ctx.fillStyle = '#212121';
       ctx.strokeStyle = '#BDBDBD';
@@ -160,6 +255,20 @@ export class CarWashRenderer {
       ctx.restore();
     }
 
+    // Water Droplets Spray
+    for (const d of logic.waterDrops) {
+      ctx.save();
+      ctx.fillStyle = `rgba(3, 169, 244, ${Math.min(1, d.life * 1.5)})`;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, d.life * 2.0)})`;
+      ctx.beginPath();
+      ctx.arc(d.x - d.radius * 0.3, d.y - d.radius * 0.3, d.radius * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     // Celebration
     if (logic.celebrationTimer > 0) {
       ctx.save();
@@ -173,12 +282,13 @@ export class CarWashRenderer {
       ctx.restore();
     }
 
-    // Instruction Pill
+    // Instruction Pill with Active Vehicle Name
+    const vNames = { CAR: 'Red Car 🚗', BOAT: "Grandpa's Boat ⛵", COPTER: 'Rescue Copter 🚁' };
     ctx.save();
     ctx.font = 'bold 15px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
-    ctx.fillText('🧽 Tap & scrub the mud away!', cx, vHeight - 30);
+    ctx.fillText(`🧽 Wash the ${vNames[logic.vehicleType]}!`, cx, vHeight - 30);
     ctx.restore();
 
     // Top HUD Pill Badge

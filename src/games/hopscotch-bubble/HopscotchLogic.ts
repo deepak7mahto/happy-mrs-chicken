@@ -159,28 +159,46 @@ export class HopscotchLogic {
     return { bubble: b, points, pitch, comboText };
   }
 
+  public findHitTile(x: number, y: number): number {
+    for (const t of this.tiles) {
+      if (Math.abs(x - t.x) <= t.w / 2 + 10 && Math.abs(y - t.y) <= t.h / 2 + 10) {
+        return t.index;
+      }
+    }
+    return -1;
+  }
+
+  public hopToSquare(targetSquare: number): { advanced: boolean; celebrated: boolean } {
+    if (this.mimi.isHopping || this.isCelebrating) return { advanced: false, celebrated: false };
+    if (targetSquare < 1 || targetSquare > this.tiles.length || targetSquare === this.mimi.currentSquare) {
+      return { advanced: false, celebrated: false };
+    }
+
+    const targetTile = this.tiles[targetSquare - 1];
+    this.mimi.isHopping = true;
+    this.mimi.hopTimer = 0;
+    this.mimi.targetSquare = targetSquare;
+    this.mimi.startX = this.mimi.x;
+    this.mimi.startY = this.mimi.y;
+    this.mimi.targetX = targetTile.x;
+    this.mimi.targetY = targetTile.y - 12;
+
+    let celebrated = false;
+    if (targetSquare === this.tiles.length) {
+      this.isCelebrating = true;
+      this.celebrationTimer = 3.8;
+      this.score += 500;
+      celebrated = true;
+    }
+    return { advanced: true, celebrated };
+  }
+
   public advanceMimi(): { advanced: boolean; celebrated: boolean } {
     if (this.mimi.isHopping || this.isCelebrating) return { advanced: false, celebrated: false };
     const nextSquare = this.mimi.currentSquare + 1;
 
     if (nextSquare <= this.tiles.length) {
-      const targetTile = this.tiles[nextSquare - 1];
-      this.mimi.isHopping = true;
-      this.mimi.hopTimer = 0;
-      this.mimi.targetSquare = nextSquare;
-      this.mimi.startX = this.mimi.x;
-      this.mimi.startY = this.mimi.y;
-      this.mimi.targetX = targetTile.x;
-      this.mimi.targetY = targetTile.y - 12;
-
-      let celebrated = false;
-      if (nextSquare === this.tiles.length) {
-        this.isCelebrating = true;
-        this.celebrationTimer = 3.8;
-        this.score += 500;
-        celebrated = true;
-      }
-      return { advanced: true, celebrated };
+      return this.hopToSquare(nextSquare);
     } else {
       this.resetMimiPosition();
       return { advanced: false, celebrated: false };

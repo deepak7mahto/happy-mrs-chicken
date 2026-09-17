@@ -81,8 +81,13 @@ export class DinosaurBalloonScene extends BaseScene {
 
     const { isGolden, pts, balloon: b } = res;
 
-    soundEngine.playSFX('dinoBite' as any);
     soundEngine.playSFX('balloonPop');
+    soundEngine.playTone(320 + Math.min(8, this.combo) * 55, 0.12, 'sine', 0.18);
+
+    if (b.shape === 'DINO') {
+      soundEngine.playSFX('dinoBite');
+    }
+
     if (isGolden) {
       soundEngine.playSFX('dinosaurRoar');
       Haptics.heavy();
@@ -90,15 +95,16 @@ export class DinosaurBalloonScene extends BaseScene {
       soundEngine.playSFX('toddlerGiggle');
       Haptics.medium();
     } else {
-      if (Math.random() < 0.3) soundEngine.playSFX('dinosaurRoar');
+      if (Math.random() < 0.25) soundEngine.playSFX('dinosaurRoar');
       Haptics.tap();
     }
 
     this.particles.spawnConfetti(b.x, b.y, isGolden ? 25 : 20);
     this.particles.spawnSparkles(b.x, b.y, isGolden ? 15 : 8);
+    const shapeEmoji = b.shape === 'DINO' ? '🦖' : b.shape === 'STAR' ? '⭐' : b.shape === 'HEART' ? '💖' : '🎈';
     const popupText = isGolden
-      ? `+${pts} GOLDEN! 🦖`
-      : (this.combo > 2 ? `+${pts} (${this.combo - 1}x)!` : `+${pts}`);
+      ? `+${pts} GOLDEN ${shapeEmoji}!`
+      : (this.combo > 2 ? `+${pts} (${this.combo - 1}x ${shapeEmoji})!` : `+${pts}`);
     this.particles.spawnScorePopup(b.x, b.y - 25, popupText);
 
     this.game.storage.saveHighScore('dinosaurBalloon', this.score);

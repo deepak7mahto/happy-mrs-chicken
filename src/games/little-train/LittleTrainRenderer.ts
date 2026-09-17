@@ -193,6 +193,66 @@ export class LittleTrainRenderer {
       ctx.restore();
     }
 
+    // Mountain Tunnel Darkness & Glowing Headlight
+    if (logic.isInTunnel) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(18, 22, 36, 0.72)';
+      ctx.fillRect(0, 0, vWidth, vHeight);
+
+      // Tunnel Stone Arch Ribs
+      ctx.strokeStyle = '#5D4037';
+      ctx.lineWidth = 12;
+      for (let x = -(logic.trainX % 130); x < vWidth + 130; x += 130) {
+        ctx.beginPath();
+        ctx.arc(x, trackY + 10, 180, Math.PI, 0);
+        ctx.stroke();
+      }
+
+      // Conical Headlight Beam cutting through dark
+      const hLightX = trainBaseX + 95;
+      const hLightY = trainBaseY - 25;
+      const grad = ctx.createRadialGradient(hLightX, hLightY, 6, hLightX + 180, hLightY, 200);
+      grad.addColorStop(0, 'rgba(255, 238, 88, 0.9)');
+      grad.addColorStop(0.5, 'rgba(255, 238, 88, 0.4)');
+      grad.addColorStop(1, 'rgba(255, 238, 88, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(hLightX, hLightY - 8);
+      ctx.lineTo(hLightX + 220, hLightY - 55);
+      ctx.lineTo(hLightX + 220, hLightY + 55);
+      ctx.lineTo(hLightX, hLightY + 8);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.font = 'bold 22px "Fredoka", "Quicksand", sans-serif';
+      ctx.fillStyle = '#FFEE58';
+      ctx.textAlign = 'center';
+      ctx.fillText('⛰️ MOUNTAIN TUNNEL! 🔦', vWidth / 2, isPortrait ? 150 : 80);
+      ctx.restore();
+    }
+
+    // Throttle Lever Badge (Bottom Right)
+    const throttleX = vWidth - 65;
+    const throttleY = vHeight - 48;
+    const throttleLabels = ['🐢 SLOW', '🚂 CRUISING', '⚡ FAST!'];
+    const throttleColors = ['#4CAF50', '#2196F3', '#FF9800'];
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.strokeStyle = throttleColors[logic.throttleLevel - 1];
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(throttleX - 55, throttleY - 22, 110, 44, 22);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 13px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(throttleLabels[logic.throttleLevel - 1], throttleX, throttleY);
+    ctx.restore();
+
     // Top HUD Pill Badge
     const isPortrait = display.isPortrait;
     const scoreX = vWidth / 2;

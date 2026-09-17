@@ -147,13 +147,15 @@ export class HopscotchBubbleScene extends BaseScene {
     this.game.storage.saveHighScore('hopscotchBubble', this.score);
   }
 
-  public advanceMimi(): void {
-    const { advanced, celebrated } = this.logic.advanceMimi();
+  public hopToSquare(targetSquare: number): void {
+    const { advanced, celebrated } = this.logic.hopToSquare(targetSquare);
     this.syncFromLogic();
 
     if (advanced) {
+      soundEngine.playTone(220 + targetSquare * 35, 0.14, 'triangle', 0.22);
       soundEngine.playSFX('click');
       Haptics.medium();
+      this.particles.spawnSparkles(this.mimi.targetX, this.mimi.targetY, 8);
     }
     if (celebrated) {
       soundEngine.playSFX('fanfare');
@@ -166,6 +168,15 @@ export class HopscotchBubbleScene extends BaseScene {
       this.particles.spawnScorePopup(vWidth / 2, vHeight * 0.4, '🧺 Picnic Party! 🎉 +500');
       this.game.storage.saveHighScore('hopscotchBubble', this.score);
       this.checkStoryGoal(1, 1);
+    }
+  }
+
+  public advanceMimi(): void {
+    const nextSquare = this.mimi.currentSquare + 1;
+    if (nextSquare <= this.tiles.length) {
+      this.hopToSquare(nextSquare);
+    } else {
+      this.resetMimiPosition();
     }
   }
 
@@ -236,7 +247,12 @@ export class HopscotchBubbleScene extends BaseScene {
       }
 
       if (!hitBubble && pt.isJustPressed && !this.mimi.isHopping) {
-        this.advanceMimi();
+        const hitTile = this.logic.findHitTile(pt.x, pt.y);
+        if (hitTile > 0 && hitTile !== this.mimi.currentSquare) {
+          this.hopToSquare(hitTile);
+        } else {
+          this.advanceMimi();
+        }
       }
     }
 
