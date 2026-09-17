@@ -10,68 +10,91 @@ A joyful, interactive, zero-dependency browser mini-game suite featuring **Trish
 
 1. **Happy Mrs Clucky (Classic Egg-Laying Mode)**
    * Tap screen or press **Spacebar** to make Mrs. Clucky lay eggs with squash-and-stretch animation.
-   * Eggs bounce with restitution physics and stack in the nest.
-   * Reaching capacity triggers multi-stage egg-cracking and spawns chirping baby chicks that scamper off-screen.
+   * Eggs bounce with restitution physics and stack in the nest; clustering 5+ eggs activates glowing **Brood Mode**!
+   * Direct Chick Flutter: Tap scampering chicks to trigger a playful upward hop, chirp, and sparkle burst.
+   * Reaching capacity triggers multi-stage egg-cracking and spawns chirping baby chicks that scamper off-screen with sparkling multi-hatch celebrations.
 
 2. **Puddle Splash Adventure**
-   * Jump into randomly spawning puddles (Small, Medium, Mega, and Golden bonus puddles) with Trishu's vector avatar.
+   * Jump into randomly spawning puddles (Small, Medium, **Mega $1.4\times$**, and Golden bonus puddles) with Trishu's vector avatar.
    * Center-accuracy splash scoring multipliers (*"Perfect Splash!"*), mud particle bursts, and a 60s countdown timer.
+   * Foreground Screen Mud Splatter: Splashes spray comic mud drops directly onto the screen glass with a cute squeegee wipe!
 
 3. **Fluffy Chick Trail**
    * Top-down garden trail featuring Reynolds Boids flocking AI for wandering baby chicks.
    * Place corn seed trails and use whistle alerts to lure chicks safely back to the coop.
+   * Acoustic Coop Call: Tap the coop to sound a loud mother cluck, herding all roaming chicks into a synchronized conga line.
+   * Peeking Window Chick: A curious baby chick peeks out of the coop window, cheering on every rescue.
 
 4. **Dad's Kitchen Dash**
    * Rapid-fire reaction mode with combo fever meters and multiplier bonuses.
-   * 4-stage escalating panic animations leading up to the funny *"Kitchen Sizzle Crash"* cutscene!
+   * Absurd Falling Surprises: Rubber ducks (`🦆`), toy dinosaurs (`🦖`), and golden crowns (`👑`) rain down among tasty food items.
+   * 4-stage escalating panic animations, culminating in an animated 3-bite feast celebration or the funny *"Kitchen Sizzle Crash"* cutscene!
 
 5. **Trishu & Leo's Balloon Pop**
-   * Float through colorful balloons with sinusoidal wobble physics.
-   * Tap to pop balloons, trigger confetti explosions, and hear playful sound effects with Leo and his green plush dinosaur!
+   * Float through colorful balloons with sinusoidal wobble physics, featuring procedural **Star (`⭐`)** and **Heart (`💖`)** shaped balloons.
+   * Multi-Touch Swipe Cascade: Drag across clusters to pop multiple balloons in a swift, sparkling burst.
+   * Musical Scales: Consecutive pops play a rising 8-note xylophone scale with confetti explosions and sound effects with Leo and his green plush dinosaur!
 
 6. **Golden Pancake Flipper**
    * Master pan flipping rhythm, airborne parabolic trajectory, and cook detection (*Raw, Golden, Overcooked*).
-   * Stack delicious golden pancakes on the plate with butter and maple syrup particle drips.
+   * Stack delicious golden pancakes on the plate with butter and sweet golden maple syrup drizzle (+50 pts).
+   * Ceiling Stick Humor: Over-enthusiastic flips occasionally stick pancakes to the ceiling with comedic sound effects!
 
 7. **Grandpa's Veggie Harvest**
    * Pull carrots, cabbages, and giant boss pumpkins from garden soil mounds with elastic spring tension.
-   * Collect bountiful harvests into Grandpa's wheelbarrow with rich mud bursting effects.
+   * Double-Tap Breakout Assist: Rapid tapping relieves pull tension by $35\%$, empowering toddlers to harvest giant veggies effortlessly.
+   * Collect bountiful harvests into Grandpa's wheelbarrow with rich mud bursting effects and a rolling departure celebration.
 
 8. **Rainbow Bubble Hopscotch**
    * Tap shimmering soap bubbles with glockenspiel chimes to guide Mimi the Bunny along the 10-step hopscotch path.
-   * Reach the picnic blanket with Trishu for victory fanfare and celebration!
+   * Direct Tile Leap: Tap any numbered square directly to make Mimi hop with crystal triangle chimes.
+   * Rainbow Slide Finale: Completing the 10th square triggers a glowing rainbow arc slide into the picnic celebration!
 
 9. **Trishu's Mix & Match Funny Studio**
    * Shuffle and randomize character heads, torsos, and legs across all 7 characters.
-   * Big bouncy **"🎲 SHUFFLE"** button, interactive character wiggle & dance reactions, and **"📸 SNAP PHOTO"** photo booth album!
+   * Direct Touch Cycling: Tap head, torso, or feet directly on the character model to cycle individual parts.
+   * Interactive Stage Dance: Tap the podium to trigger custom character victory dances with signature sounds (dino roar, hen cluck, pig oink, bunny squeak).
+   * Big bouncy **"🎲 SHUFFLE"** button and **"📸 SNAP PHOTO"** photo booth album!
 
 10. **Peek-a-Boo Barnyard (Sensory Toddler Mode)**
     * 4 large, tactile hiding spots: Barn Door, Garden Bush, Hay Bale, and Apple Barrel.
     * Wiggling hints (feathers, bunny ears, dino tail, red bows). Tap any spot to trigger joyful popups with Mrs. Clucky, Mimi, Leo, and Trishu with animal sounds, giggles, and celebration confetti!
+    * Direct Friend Tickle: Tap friends when popped out of hiding spots to trigger joyful giggles and signature animal calls (+20 pts).
 
 11. **Miss Bunny's Ice Cream Van**
     * Stack delicious scoops of ice cream (strawberry, mint chocolate, blueberry, mango, cherry) into towering waffle cones with Miss Bunny.
+    * Customer Flavor Requests: Speech bubbles display desired scoop flavors with bonus points for matching.
+    * Interactive Rainbow Sprinkle Shaker: Tap the condiment shaker on the counter to shower rainbow sprinkles over the cone.
     * Feast on your giant ice cream creations with satisfying munching sound effects!
 
 12. **Grandpa's Little Train**
     * Drive Grandpa's cheerful steam locomotive along rolling hills.
+    * 3-Speed Interactive Throttle: Tap the lever to switch speeds (`🐢 SLOW`, `🚂 CRUISING`, `⚡ FAST!`) with matching chug rhythms.
+    * Dark Mountain Tunnel: Enter a shadowy tunnel sequence where the train's golden conical headlight illuminates the tracks.
     * Pull into stations, toot the loud train whistle with steam puffs, and pick up happy animal and family passengers!
 
 13. **Muddy Car Wash**
-    * Scrub away mud splats on the family car using sudsy soap bubbles and a tactile sponge.
-    * Reveal a sparkling, squeaky-clean car finish with gleaming star sparkles!
+    * Scrub away mud splats on the vehicle using sudsy soap bubbles and a tactile sponge.
+    * Directable Water Hose: Tap & drag to spray a high-pressure hose jet that blasts suds and mud away.
+    * Multi-Vehicle Fleet: Clean Daddy Pig's Red Car (`🚗`), Grandpa's Fishing Boat (`⛵`), and the Sky Rescue Copter (`🚁`).
+    * Reveal a sparkling, squeaky-clean finish with gleaming star sparkles!
 
 14. **Windy Castle Kite**
-    * Fly a vibrant diamond kite across windy skies with dynamic wind swaying and fluttering tail bows.
+    * Fly a vibrant diamond kite across windy skies with dynamic wind swaying, spiral rainbow ribbons, and fluttering tail bows.
     * Real-time finger/mouse drag tracking to swoop and collect floating rainbow stars.
+    * Fluffy Sheep Clouds: Tap puffy clouds drifting by to make them puff up with soft baa chimes and wool sparkles (+20 pts).
 
 15. **Rainbow Flower Garden**
     * Water thirsty garden mounds with Grandpa's watering can.
+    * Interactive Smiling Sun: Tap the sun to trigger radiant sunbeams, cheerful winks, and a garden growth spurt.
+    * Musical Petal Marimba: Tap bloomed flower petals to play melodic C-major marimba notes (C4, E4, G4, C5).
     * Watch seeds sprout and bloom into giant smiling rainbow flowers with fluttery butterflies.
 
 16. **Picnic Ducks (Feed the Ducks & Celebration Dance)**
     * Inspired by classic countryside picnics with Mama Ducky, Pip, and Baby Squeak.
     * Toss bread crumbs on the grass or tap the picnic basket to fling golden crusts, strawberries, and cake slices!
+    * Direct Duck Tickle: Tap any duck to hear cute pitch-adjusted quacks and see a happy tail waggle (+15 pts).
+    * Lily Pad Frog Tongue Snap: A friendly frog on the lily pad snaps its sticky tongue to catch stray bread crumbs (+25 pts).
     * Ducks feature anti-stacking Boids separation, distinct wandering sectors, belly wiggles, cute quacks, and a synchronized 360° pirouette celebration dance when full.
 
 ---
