@@ -55,7 +55,18 @@ export function renderMenuCharacterPreview(
   cardW: number,
   time: number
 ): void {
-  const charScale = Math.min(0.48, Math.max(0.36, cardW / 520));
+  const charScale = Math.min(0.66, Math.max(0.54, (cardW / 100) * 0.55));
+
+  // Soft luminous pedestal spotlight disc behind preview character
+  ctx.save();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+  ctx.beginPath();
+  ctx.arc(cx, cy + 2, 44, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.restore();
 
   if (modeId === 'EGG_LAYING') {
     ctx.fillStyle = '#D7CCC8';

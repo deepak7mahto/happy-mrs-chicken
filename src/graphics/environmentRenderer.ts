@@ -213,6 +213,12 @@ export function drawLandscapeSkyHills(
   const sunRadius = Math.min(width, height) * 0.07 + 6;
   const pulse = Math.sin(time * 3) * 4;
 
+  // Sun Warm Aura Glow
+  ctx.fillStyle = 'rgba(255, 238, 88, 0.22)';
+  ctx.beginPath();
+  ctx.arc(sunX, sunY, sunRadius + 22 + pulse, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.fillStyle = PALETTE.SUN_RAY;
   ctx.strokeStyle = PALETTE.SUN_FACE;
   ctx.lineWidth = 3;
@@ -296,11 +302,12 @@ export function drawLandscapeSkyHills(
     { rx: 0.33, ry: 0.95, c: 5 }
   ];
 
-  for (const fp of flowerPositions) {
+  for (let idx = 0; idx < flowerPositions.length; idx++) {
+    const fp = flowerPositions[idx];
     const fx = width * fp.rx;
-    const fy = height * fp.ry;
+    const fy = height * fp.ry + Math.sin(time * 2.5 + idx) * 1.5;
     if (fy > lawnBase) {
-      drawFlower(ctx, fx, fy, flowerCols[fp.c], 1.1);
+      drawFlower(ctx, fx, fy, flowerCols[fp.c], 1.15);
     }
   }
 

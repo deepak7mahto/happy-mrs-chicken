@@ -74,13 +74,35 @@ function initApp(): void {
   window.addEventListener('pointerdown', unlockAudio, { passive: true });
   window.addEventListener('keydown', unlockAudio, { passive: true });
 
-  // 6. Request Screen Wake Lock during toddler play
+  // 6. Request Screen Wake Lock & manage audio on visibility changes / app switching
   pwaManager.requestWakeLock();
+
+  const handleAppHidden = () => {
+    soundEngine.pauseAll();
+  };
+
+  const handleAppVisible = () => {
+    pwaManager.requestWakeLock();
+    soundEngine.resumeAll();
+  };
+
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      pwaManager.requestWakeLock();
+    if (document.visibilityState === 'hidden') {
+      handleAppHidden();
+    } else if (document.visibilityState === 'visible') {
+      handleAppVisible();
     }
   });
+
+  window.addEventListener('pagehide', handleAppHidden);
+  window.addEventListener('pageshow', handleAppVisible);
+
+  // Ensure canvas updates when custom fonts are ready
+  if (typeof document !== 'undefined' && 'fonts' in document) {
+    document.fonts.ready.then(() => {
+      engine.display.syncResize();
+    }).catch(() => {});
+  }
 
   // Expose global for debugging & tests
   (window as unknown as { __GAME_ENGINE__?: GameEngine }).__GAME_ENGINE__ = engine;

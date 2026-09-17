@@ -508,6 +508,23 @@ describe('Tier 3: Audio Engine & Procedural Character Renderers', () => {
     expect(sound.sequencer.isRunning).toBe(false);
   });
 
+  test('T3.07: SoundEngine pauseAll and resumeAll properly manage AudioContext and BGM state', async () => {
+    const sound = new SoundEngine();
+    await sound.init();
+    await sound.unlock();
+    sound.startBGM();
+
+    await sound.pauseAll();
+    expect(sound.sequencer.isRunning).toBe(false);
+    expect(sound.holder.ctx?.state).toBe('suspended');
+
+    await sound.resumeAll();
+    expect(sound.holder.ctx?.state).toBe('running');
+    expect(sound.sequencer.isRunning).toBe(true);
+
+    sound.stopBGM();
+  });
+
   test('T3.03: CHARACTER_RENDERERS contains all 15 character entries', () => {
     const expectedKeys = [
       'peppa', 'george', 'daddyPig', 'mummyPig', 'grandpaPig', 'suzySheep',

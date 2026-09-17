@@ -56,11 +56,12 @@ export class SoundEngine implements ISoundEngine {
   }
 
   private wantsBGM: boolean = false;
+  private isSuspended: boolean = false;
 
   public startBGM(): void {
     this.wantsBGM = true;
     this.unlock().then(() => {
-      if (this.wantsBGM) {
+      if (this.wantsBGM && !this.isSuspended) {
         this.sequencer.start();
         this.spy.record('bgm_start');
       }
@@ -72,6 +73,20 @@ export class SoundEngine implements ISoundEngine {
     this.spy.record('bgm_stop');
   }
   public setBGMTempo(bpm: number): void { this.sequencer.setTempo(bpm); this.spy.record('bgm_tempo', { bpm }); }
+
+  public async pauseAll(): Promise<void> {
+    this.isSuspended = true;
+    this.sequencer.stop();
+    await this.holder.suspend();
+  }
+
+  public async resumeAll(): Promise<void> {
+    this.isSuspended = false;
+    await this.holder.resume();
+    if (this.wantsBGM && !this.holder.isMuted) {
+      this.sequencer.start();
+    }
+  }
 }
 
 export const soundEngine = new SoundEngine();
@@ -88,7 +103,9 @@ if (typeof window !== 'undefined') {
     stopBGM: () => soundEngine.stopBGM(),
     setBGMTempo: (bpm: number) => soundEngine.setBGMTempo(bpm),
     setTrack: (track: BGMMoodTrack) => soundEngine.setTrack(track),
-    duckBGM: (durationSec?: number) => soundEngine.duckBGM(durationSec)
+    duckBGM: (durationSec?: number) => soundEngine.duckBGM(durationSec),
+    pauseAll: async () => soundEngine.pauseAll(),
+    resumeAll: async () => soundEngine.resumeAll()
   };
 }
 

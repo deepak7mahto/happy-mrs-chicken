@@ -99,4 +99,21 @@ export class AudioContextHolder {
       this.sfxGain.gain.setValueAtTime(v, this.ctx.currentTime);
     }
   }
+
+  public async suspend(): Promise<void> {
+    if (this.ctx && this.ctx.state === 'running') {
+      try {
+        await this.ctx.suspend();
+      } catch (_) {}
+    }
+  }
+
+  public async resume(): Promise<void> {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      try {
+        await this.ctx.resume();
+      } catch (_) {}
+    }
+  }
 }
+

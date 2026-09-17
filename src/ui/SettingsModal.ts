@@ -54,14 +54,14 @@ export class SettingsModal {
           <input type="range" id="setting-sfx" class="volume-slider" min="0" max="1" step="0.05" value="${sfxVal}">
         </div>
 
-        <div class="settings-toggle-row">
+        <div class="settings-row settings-toggle-row">
           <span class="settings-toggle-label">📳 Vibration / Haptics</span>
           <button type="button" class="settings-toggle-btn ${haptics ? 'active' : ''}" id="toggle-haptics">
             ${haptics ? 'ON ✅' : 'OFF ❌'}
           </button>
         </div>
 
-        <div class="settings-toggle-row">
+        <div class="settings-row settings-toggle-row">
           <span class="settings-toggle-label">🔒 Toddler Lock (Hold Home 3s)</span>
           <button type="button" class="settings-toggle-btn ${toddlerLock ? 'active' : ''}" id="toggle-toddler-lock">
             ${toddlerLock ? 'ON ✅' : 'OFF ❌'}
