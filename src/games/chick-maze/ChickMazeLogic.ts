@@ -18,6 +18,8 @@ export class ChickMazeLogic {
   public score: number = 0;
   public coopSavedCount: number = 0;
   public roundManager: RoundManager;
+  public cluckCallTimer: number = 0;
+  public cluckCallOrigin: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor() {
     this.roundManager = new RoundManager({
@@ -60,6 +62,11 @@ export class ChickMazeLogic {
     this.seeds.push({ x, y, remaining: 1 });
   }
 
+  public triggerCluckCall(x: number, y: number): void {
+    this.cluckCallTimer = 3.2;
+    this.cluckCallOrigin = { x, y };
+  }
+
   public getFences(vWidth: number, vHeight: number, isPortrait: boolean): PastureFence[] {
     if (isPortrait) {
       return [
@@ -98,6 +105,10 @@ export class ChickMazeLogic {
 
     const coopDoor = this.getCoopDoor(vWidth, isPortrait);
     const fences = this.getFences(vWidth, vHeight, isPortrait);
+
+    if (this.cluckCallTimer > 0) {
+      this.cluckCallTimer -= dt;
+    }
 
     // Update Chicks
     for (let i = this.chicks.length - 1; i >= 0; i--) {
@@ -164,6 +175,17 @@ export class ChickMazeLogic {
       if (distToCoop < 160 && distToCoop > 2 && !targetSeed) {
         chick.vx += (toCoopDx / distToCoop) * 60 * dt;
         chick.vy += (toCoopDy / distToCoop) * 60 * dt;
+      }
+
+      // 4. Cluck call conga line attraction
+      if (this.cluckCallTimer > 0 && !targetSeed) {
+        const cdx = this.cluckCallOrigin.x - chick.x;
+        const cdy = this.cluckCallOrigin.y - chick.y;
+        const cDist = Math.sqrt(cdx * cdx + cdy * cdy);
+        if (cDist > 20) {
+          chick.vx += (cdx / cDist) * 110 * dt;
+          chick.vy += (cdy / cDist) * 110 * dt;
+        }
       }
 
       // Speed clamp

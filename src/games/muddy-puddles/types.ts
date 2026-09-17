@@ -23,4 +23,13 @@ export interface MuddyFootprint {
   rotation: number;
 }
 
+export interface ScreenMudSplat {
+  x: number;
+  y: number;
+  r: number;
+  life: number;
+  maxLife: number;
+}
+
 export type { PuddleEntity };
+

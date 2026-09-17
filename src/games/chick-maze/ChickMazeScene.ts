@@ -60,11 +60,22 @@ export class ChickMazeScene extends BaseScene {
   update(dt: number, input: InputManager): void {
     this.time += dt;
 
-    // Tap to drop seed
+    // Tap to drop seed or trigger cluck call when tapping near coop
     if (input.isActionJustPressed()) {
       const p = input.primaryPointer;
       if (p.inside && p.y > 60) {
-        this.dropSeed(p.x, p.y);
+        const coopDoor = this.logic.getCoopDoor(this.game.display.vWidth, this.game.display.isPortrait);
+        const cdx = p.x - coopDoor.x;
+        const cdy = p.y - coopDoor.y;
+        if (cdx * cdx + cdy * cdy < 4900) {
+          this.logic.triggerCluckCall(coopDoor.x, coopDoor.y);
+          soundEngine.playSFX('cluck');
+          soundEngine.playSFX('bunnySqueak');
+          this.particles.spawnSparkles(coopDoor.x, coopDoor.y - 30, 14);
+          Haptics.heavy();
+        } else {
+          this.dropSeed(p.x, p.y);
+        }
       }
     }
 
@@ -126,7 +137,9 @@ export class ChickMazeScene extends BaseScene {
       coopDoor,
       this.score,
       this.logic.round,
-      this.logic.coopSavedCount
+      this.logic.coopSavedCount,
+      this.logic.cluckCallTimer,
+      this.logic.cluckCallOrigin
     );
 
     this.particles.render(ctx);

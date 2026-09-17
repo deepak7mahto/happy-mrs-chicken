@@ -22,7 +22,8 @@ export class VegetableHarvestRenderer {
     wheelbarrowBounce: number,
     animState: CharacterAnimState,
     selectedAvatar: CharacterId,
-    score: number
+    score: number,
+    wheelbarrowRollOffset: number = 0
   ): void {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
@@ -59,9 +60,10 @@ export class VegetableHarvestRenderer {
     }
 
     // 4. Wheelbarrow & Grandpa
-    const wbX = isPortrait ? vWidth * 0.22 : 120;
+    const rollX = wheelbarrowRollOffset;
+    const wbX = (isPortrait ? vWidth * 0.22 : 120) + rollX;
     const wbY = isPortrait ? vHeight * 0.38 : vHeight * 0.72;
-    const grandpaX = isPortrait ? vWidth * 0.52 : 95;
+    const grandpaX = (isPortrait ? vWidth * 0.52 : 95) + rollX;
     const grandpaY = isPortrait ? vHeight * 0.38 : vHeight * 0.62;
 
     this.drawWheelbarrow(ctx, wbX, wbY, harvestedCount, wheelbarrowBounce);
@@ -73,7 +75,7 @@ export class VegetableHarvestRenderer {
       welliesMuddy: true,
       eyeBlink: animState.isBlinking,
       animState,
-      expression: 'straining'
+      expression: rollX > 0 ? 'excited' : activePullMoundIdx >= 0 ? 'straining' : 'happy'
     });
 
     // 5. Flying Vegetables

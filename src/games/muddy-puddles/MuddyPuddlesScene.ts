@@ -136,6 +136,11 @@ export class MuddyPuddlesScene extends BaseScene {
         this.score = this.logic.score;
         this.game.storage.saveHighScore('MUDDY_PUDDLES', this.score);
       },
+      onScreenSplat: () => {
+        soundEngine.playSFX('eggPop');
+        soundEngine.playSFX('toddlerGiggle');
+        Haptics.medium();
+      },
       onGroundStomp: (gx, gy) => {
         this.particles.spawnMudSplash(gx, gy, 8, false);
         soundEngine.playSFX('splash');
@@ -161,7 +166,8 @@ export class MuddyPuddlesScene extends BaseScene {
       this.logic.muddyBootsTimer,
       this.game.selectedAvatar,
       this.score,
-      this.logic.multiplier
+      this.logic.multiplier,
+      this.logic.screenSplats
     );
 
     this.particles.render(ctx);

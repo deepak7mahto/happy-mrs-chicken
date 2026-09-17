@@ -104,14 +104,23 @@ export class EggLayingScene extends BaseScene {
     const isPortrait = this.game.display.isPortrait;
     const groundY = isPortrait ? this.game.display.vHeight - 140 : this.game.display.vHeight - 80;
 
-    // Toddler Tap to fly & lay eggs wherever touched
+    // Toddler Tap: Check if tapping an active baby chick first!
     if (input.isActionJustPressed()) {
       const ptr = input.primaryPointer;
       if (ptr && ptr.inside && ptr.y > 60) {
-        const tx = Math.max(50, Math.min(this.game.display.vWidth - 50, ptr.x));
-        const ty = Math.max(80, Math.min(groundY - 80, ptr.y - 20));
-        this.logic.registerUserTap(tx, ty);
-        this.layEggAt(tx, ty);
+        const hitChick = this.logic.tapChick(ptr.x, ptr.y, {
+          onChickHopped: (chick) => {
+            soundEngine.playSFX('bunnySqueak');
+            this.particles.spawnSparkles(chick.x, chick.y - 10, 8);
+            Haptics.light();
+          }
+        });
+        if (!hitChick) {
+          const tx = Math.max(50, Math.min(this.game.display.vWidth - 50, ptr.x));
+          const ty = Math.max(80, Math.min(groundY - 80, ptr.y - 20));
+          this.logic.registerUserTap(tx, ty);
+          this.layEggAt(tx, ty);
+        }
       } else {
         this.layEggAt(this.chicken.x, this.chicken.y);
       }
@@ -121,6 +130,12 @@ export class EggLayingScene extends BaseScene {
     this.logic.update(dt, this.time, groundY, this.game.display.vWidth, this.game.display.vHeight, {
       onEggCrack: () => {
         soundEngine.playSFX('crack');
+      },
+      onBroodStart: (bx, by) => {
+        soundEngine.playSFX('cluck');
+        soundEngine.playSFX('toddlerGiggle');
+        this.particles.spawnConfetti(bx, by - 20, 16);
+        Haptics.heavy();
       },
       onEggHatch: (hx, hy) => {
         this.particles.spawnEggCrack(hx, hy, 8);

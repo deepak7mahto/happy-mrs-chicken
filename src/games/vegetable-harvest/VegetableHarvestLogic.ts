@@ -9,6 +9,7 @@ export interface VeggieHarvestEvents {
   onVeggiePop?: (x: number, y: number) => void;
   onPumpkinTug?: (x: number, y: number) => void;
   onVeggieLanded?: (veg: ActiveVeggie, earned: number) => void;
+  onWheelbarrowDepart?: () => void;
 }
 
 export class VegetableHarvestLogic {
@@ -20,6 +21,8 @@ export class VegetableHarvestLogic {
   public score: number = 0;
   public activePullMoundIdx: number = -1;
   public wheelbarrowBounce: number = 0;
+  public wheelbarrowRolling: boolean = false;
+  public wheelbarrowRollOffset: number = 0;
 
   private pullStartY: number = 0;
 
@@ -31,6 +34,8 @@ export class VegetableHarvestLogic {
     this.currentPullProgress = 0;
     this.activePullMoundIdx = -1;
     this.wheelbarrowBounce = 0;
+    this.wheelbarrowRolling = false;
+    this.wheelbarrowRollOffset = 0;
     this.initMounds(vWidth, vHeight, isPortrait);
   }
 
@@ -99,7 +104,7 @@ export class VegetableHarvestLogic {
       const m = this.mounds[i];
       if (m.vegetable && !m.vegetable.isHarvested && !m.vegetable.isFlying) {
         if (Math.hypot(ptrX - m.x, ptrY - m.y) <= 75) {
-          m.vegetable.pullOffsetY += m.vegetable.breakoutThreshold * 0.6;
+          m.vegetable.pullOffsetY += m.vegetable.breakoutThreshold * 0.65;
           m.vegetable.pullProgress = Math.min(1.0, m.vegetable.pullOffsetY / m.vegetable.breakoutThreshold);
 
           if (events?.onVeggiePop) events.onVeggiePop(m.x, m.y);
@@ -166,6 +171,14 @@ export class VegetableHarvestLogic {
       this.wheelbarrowBounce = Math.max(0, this.wheelbarrowBounce - dt * 4);
     }
 
+    if (this.wheelbarrowRolling) {
+      this.wheelbarrowRollOffset += dt * 320;
+      if (this.wheelbarrowRollOffset >= 500) {
+        this.wheelbarrowRolling = false;
+        this.wheelbarrowRollOffset = 0;
+      }
+    }
+
     // Vegetable Flight & Respawn
     for (let i = 0; i < this.mounds.length; i++) {
       const m = this.mounds[i];
@@ -181,6 +194,14 @@ export class VegetableHarvestLogic {
           this.score += veg.points;
           this.wheelbarrowBounce = 1.0;
           m.respawnTimer = 1.8;
+
+          if (this.harvestedCount % 5 === 0) {
+            this.wheelbarrowRolling = true;
+            this.wheelbarrowRollOffset = 0;
+            if (events?.onWheelbarrowDepart) {
+              events.onWheelbarrowDepart();
+            }
+          }
 
           if (events?.onVeggieLanded) {
             events.onVeggieLanded(veg, veg.points);

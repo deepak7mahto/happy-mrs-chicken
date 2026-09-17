@@ -52,6 +52,11 @@ export class EggLayingRenderer {
         ctx.scale(-1, 1);
       }
       drawBabyChick(ctx, 0, 0, 1.15, { walkCycle: chick.walkCycle });
+      if (chick.isTapped || chick.state === 'HOPPING') {
+        ctx.fillStyle = '#FFD700';
+        ctx.font = '700 14px "Fredoka", sans-serif';
+        ctx.fillText('✨', 0, -18);
+      }
       ctx.restore();
     }
 
@@ -67,8 +72,13 @@ export class EggLayingRenderer {
       armWave: chicken.flap,
       eyeBlink: animState.isBlinking,
       animState,
-      expression: chicken.squawk > 0.1 ? 'excited' : 'happy'
+      expression: chicken.isBrooding ? 'sleepy' : chicken.squawk > 0.1 ? 'excited' : 'happy'
     });
+    if (chicken.isBrooding) {
+      ctx.fillStyle = '#FF4081';
+      ctx.font = '700 18px "Fredoka", sans-serif';
+      ctx.fillText('💖', 0, -50);
+    }
     ctx.restore();
 
     // 6. Tactile Score Pill in Top Corner

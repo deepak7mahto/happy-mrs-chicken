@@ -14,6 +14,8 @@ export interface ChickenState {
   squash: number;
   squawk: number;
   flap: number;
+  isBrooding?: boolean;
+  broodTimer?: number;
 }
 
 export interface EggStackInfo {

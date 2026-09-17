@@ -111,6 +111,12 @@ export class VegetableHarvestScene extends BaseScene {
 
     // Step physics & flying vegetables
     this.logic.update(dt, wbX, wbY, {
+      onWheelbarrowDepart: () => {
+        soundEngine.playSFX('trainWhistle');
+        soundEngine.playSFX('toddlerGiggle');
+        this.particles.spawnConfetti(wbX, wbY - 30, 24);
+        Haptics.heavy();
+      },
       onVeggieLanded: (veg, earned) => {
         this.checkStoryGoal(this.logic.harvestedCount);
         this.score = this.logic.score;
@@ -141,7 +147,8 @@ export class VegetableHarvestScene extends BaseScene {
       this.logic.wheelbarrowBounce,
       this.animState,
       this.game.selectedAvatar,
-      this.score
+      this.score,
+      this.logic.wheelbarrowRollOffset
     );
 
     this.particles.render(ctx);

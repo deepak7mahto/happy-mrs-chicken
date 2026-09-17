@@ -7,7 +7,7 @@ import { DisplayManager } from '../../engine/DisplayManager';
 import { CharacterAnimState, CharacterId } from '../../types/characters';
 import { drawLandscapeSkyHills, drawMuddyPuddle } from '../../graphics/environmentRenderer';
 import { renderCharacter } from '../../graphics/characters';
-import { PuddleEntity, TrishuJumpState, MuddyFootprint } from './types';
+import { PuddleEntity, TrishuJumpState, MuddyFootprint, ScreenMudSplat } from './types';
 
 export class MuddyPuddlesRenderer {
   public static renderScene(
@@ -21,7 +21,8 @@ export class MuddyPuddlesRenderer {
     muddyBootsTimer: number,
     selectedAvatar: CharacterId,
     score: number,
-    multiplier: number
+    multiplier: number,
+    screenSplats: ScreenMudSplat[] = []
   ): void {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
@@ -49,6 +50,19 @@ export class MuddyPuddlesRenderer {
         type: pud.type,
         ripplePhase: pud.ripplePhase
       });
+      if (pud.isMega) {
+        ctx.save();
+        ctx.strokeStyle = '#FFE082';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.ellipse(pud.x, pud.y, pud.rx + 4, pud.ry + 2, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.font = '700 12px "Fredoka", sans-serif';
+        ctx.fillStyle = '#FFE082';
+        ctx.textAlign = 'center';
+        ctx.fillText('⭐ MEGA ⭐', pud.x, pud.y - pud.ry - 5);
+        ctx.restore();
+      }
     }
 
     // 4. Trishu Character
@@ -63,6 +77,31 @@ export class MuddyPuddlesRenderer {
 
     // 5. Score & Combo Multiplier Pill
     this.renderHUD(ctx, score, multiplier, vWidth);
+
+    // 6. Camera Screen Mud Splats (on foreground glass)
+    for (const splat of screenSplats) {
+      const alpha = Math.min(1.0, splat.life / 0.8);
+      ctx.save();
+      ctx.fillStyle = `rgba(93, 64, 55, ${alpha * 0.88})`;
+      ctx.beginPath();
+      ctx.arc(splat.x, splat.y, splat.r, 0, Math.PI * 2);
+      ctx.arc(splat.x - splat.r * 0.7, splat.y + splat.r * 0.4, splat.r * 0.45, 0, Math.PI * 2);
+      ctx.arc(splat.x + splat.r * 0.6, splat.y - splat.r * 0.5, splat.r * 0.35, 0, Math.PI * 2);
+      ctx.arc(splat.x + splat.r * 0.8, splat.y + splat.r * 0.6, splat.r * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Squeegee wipe trail if fading
+      if (splat.life < 1.0) {
+        const wipeProgress = 1.0 - splat.life;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(splat.x - splat.r * 1.2, splat.y - splat.r + wipeProgress * splat.r * 2);
+        ctx.lineTo(splat.x + splat.r * 1.2, splat.y - splat.r + wipeProgress * splat.r * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   private static renderHUD(

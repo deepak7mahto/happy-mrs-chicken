@@ -9,6 +9,8 @@ export interface EggLayingEvents {
   onEggLaid?: (x: number, y: number, isGolden: boolean) => void;
   onEggCrack?: (x: number, y: number) => void;
   onEggHatch?: (x: number, y: number, newChick: ChickEntity) => void;
+  onChickHopped?: (chick: ChickEntity) => void;
+  onBroodStart?: (x: number, y: number) => void;
 }
 
 export class EggLayingLogic {
@@ -92,7 +94,44 @@ export class EggLayingLogic {
       events.onEggLaid(x, y, isGolden);
     }
 
+    // Brood Mode Trigger: 5+ eggs in cluster
+    let clusterCount = 0;
+    for (const other of this.eggs) {
+      if (other.state === 'INCUBATING' && Math.abs(other.x - x) < 36) {
+        clusterCount++;
+      }
+    }
+    if (clusterCount >= 5 && !this.chicken.isBrooding) {
+      this.chicken.isBrooding = true;
+      this.chicken.broodTimer = 2.2;
+      this.chicken.targetX = x;
+      this.chicken.targetY = y - 10;
+      if (events?.onBroodStart) {
+        events.onBroodStart(x, y);
+      }
+    }
+
     return isGolden;
+  }
+
+  public tapChick(x: number, y: number, events?: EggLayingEvents): boolean {
+    for (const chick of this.chicks) {
+      const dx = chick.x - x;
+      const dy = chick.y - y;
+      if (dx * dx + dy * dy < 1600) {
+        chick.state = 'HOPPING';
+        chick.vy = -220;
+        chick.vx = (Math.random() - 0.5) * 130;
+        chick.flutterTimer = 0.65;
+        chick.isTapped = true;
+        chick.walkCycle += 6;
+        if (events?.onChickHopped) {
+          events.onChickHopped(chick);
+        }
+        return true;
+      }
+    }
+    return false;
   }
 
   public registerUserTap(targetX: number, targetY: number): void {
@@ -112,27 +151,60 @@ export class EggLayingLogic {
   ): void {
     this.roamTimer += dt;
 
-    // Autonomous roaming when idle
-    const dx = this.chicken.targetX - this.chicken.x;
-    const dy = this.chicken.targetY - this.chicken.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    const timeSinceTap = (performance.now() - this.lastUserTapTime) / 1000;
-    if (timeSinceTap > 1.2 && (dist < 25 || this.roamTimer >= 3.5)) {
-      this.roamTimer = 0;
-      this.chicken.targetX = 70 + Math.random() * (vWidth - 140);
-      this.chicken.targetY = 80 + Math.random() * (groundY - 170);
-    }
-
-    if (dist > 6) {
-      const speed = Math.min(550, dist * 6 + 140);
-      this.chicken.x += (dx / dist) * speed * dt;
-      this.chicken.y += (dy / dist) * speed * dt;
-      this.chicken.flap = Math.sin(time * 18) * 0.4;
-      this.chicken.facingLeft = dx < 0;
+    if (this.chicken.isBrooding) {
+      this.chicken.broodTimer = (this.chicken.broodTimer ?? 2.2) - dt;
+      this.chicken.squash = 0.64;
+      this.chicken.flap = 0;
+      if (this.chicken.broodTimer <= 0) {
+        this.chicken.isBrooding = false;
+        this.chicken.squawk = 1.0;
+        this.chicken.squash = 1.35;
+        // Multi-hatch all eggs in cluster
+        for (const egg of this.eggs) {
+          if (Math.abs(egg.x - this.chicken.x) < 48 && egg.state !== 'HATCH_BURST') {
+            egg.state = 'HATCH_BURST';
+            this.totalChicksHatched++;
+            this.score += 25;
+            const chick: ChickEntity = {
+              x: egg.x,
+              y: egg.y - 10,
+              vx: (Math.random() > 0.5 ? 1 : -1) * (70 + Math.random() * 90),
+              vy: -170 - Math.random() * 70,
+              walkCycle: Math.random() * 10,
+              facingLeft: Math.random() > 0.5,
+              state: 'HOPPING',
+              flutterTimer: 0.6
+            };
+            this.chicks.push(chick);
+            if (events?.onEggHatch) {
+              events.onEggHatch(egg.x, egg.y, chick);
+            }
+          }
+        }
+      }
     } else {
-      this.chicken.flap = Math.sin(time * 6) * 0.15;
-      this.chicken.y += Math.sin(time * 3.2) * 0.6;
+      // Autonomous roaming when idle
+      const dx = this.chicken.targetX - this.chicken.x;
+      const dy = this.chicken.targetY - this.chicken.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const timeSinceTap = (performance.now() - this.lastUserTapTime) / 1000;
+      if (timeSinceTap > 1.2 && (dist < 25 || this.roamTimer >= 3.5)) {
+        this.roamTimer = 0;
+        this.chicken.targetX = 70 + Math.random() * (vWidth - 140);
+        this.chicken.targetY = 80 + Math.random() * (groundY - 170);
+      }
+
+      if (dist > 6) {
+        const speed = Math.min(550, dist * 6 + 140);
+        this.chicken.x += (dx / dist) * speed * dt;
+        this.chicken.y += (dy / dist) * speed * dt;
+        this.chicken.flap = Math.sin(time * 18) * 0.4;
+        this.chicken.facingLeft = dx < 0;
+      } else {
+        this.chicken.flap = Math.sin(time * 6) * 0.15;
+        this.chicken.y += Math.sin(time * 3.2) * 0.6;
+      }
     }
 
     this.chicken.squash += (1.0 - this.chicken.squash) * (dt * 15);
@@ -211,6 +283,15 @@ export class EggLayingLogic {
 
     for (let i = 0; i < this.chicks.length; i++) {
       const chick = this.chicks[i];
+      if (chick.flutterTimer && chick.flutterTimer > 0) {
+        chick.flutterTimer -= dt;
+        chick.vy += 440 * dt;
+        chick.walkCycle += dt * 25;
+        if (chick.flutterTimer <= 0) {
+          chick.state = 'WANDERING';
+          chick.isTapped = false;
+        }
+      }
       chick.x += chick.vx * dt;
       chick.y += chick.vy * dt;
       chick.walkCycle += dt * 12;

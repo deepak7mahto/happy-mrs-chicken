@@ -19,7 +19,9 @@ export class ChickMazeRenderer {
     coopDoor: CoopDoor,
     score: number,
     round: number,
-    coopSavedCount: number
+    coopSavedCount: number,
+    cluckCallTimer: number = 0,
+    cluckCallOrigin?: { x: number; y: number }
   ): void {
     const isPortrait = display.isPortrait;
     const vWidth = display.vWidth;
@@ -75,6 +77,22 @@ export class ChickMazeRenderer {
     ctx.closePath();
     ctx.fill();
 
+    // Peeking saved chick in coop roof window
+    if (coopSavedCount > 0) {
+      ctx.fillStyle = '#37474F';
+      ctx.beginPath();
+      ctx.arc(0, -56, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      drawBabyChick(ctx, 0, -53, 0.82, { walkCycle: time * 8 });
+      ctx.fillStyle = '#FFD700';
+      ctx.font = '700 12px "Fredoka", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('⭐', 0, -73);
+    }
+
     // Cozy coop entrance
     ctx.fillStyle = '#212121';
     ctx.beginPath();
@@ -116,7 +134,19 @@ export class ChickMazeRenderer {
       ctx.restore();
     }
 
-    // 6. HUD Pills
+    // 6. Cluck Call Acoustic Waves
+    if (cluckCallTimer > 0 && cluckCallOrigin) {
+      ctx.save();
+      const ringR = (3.2 - cluckCallTimer) * 75;
+      ctx.strokeStyle = `rgba(255, 215, 0, ${Math.max(0, cluckCallTimer / 3.2)})`;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(cluckCallOrigin.x, cluckCallOrigin.y, ringR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 7. HUD Pills
     this.renderHUD(ctx, score, round, coopSavedCount, vWidth);
   }
 

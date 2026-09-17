@@ -3,17 +3,19 @@
  * Pure Game Simulation Logic (Headless & Testable)
  */
 
-import { PuddleEntity, TrishuJumpState, MuddyFootprint } from './types';
+import { PuddleEntity, TrishuJumpState, MuddyFootprint, ScreenMudSplat } from './types';
 import { ScoreComboTracker } from '../common/ScoreComboTracker';
 
 export interface MuddyPuddlesEvents {
   onPuddleHit?: (puddle: PuddleEntity, totalEarned: number, multiplier: number) => void;
   onGroundStomp?: (x: number, y: number) => void;
+  onScreenSplat?: (splat: ScreenMudSplat) => void;
 }
 
 export class MuddyPuddlesLogic {
   public puddles: PuddleEntity[] = [];
   public footprints: MuddyFootprint[] = [];
+  public screenSplats: ScreenMudSplat[] = [];
   public trishu: TrishuJumpState = {
     x: 270,
     y: 410,
@@ -132,6 +134,14 @@ export class MuddyPuddlesLogic {
       }
     }
 
+    // Screen splats decay
+    for (let i = this.screenSplats.length - 1; i >= 0; i--) {
+      this.screenSplats[i].life -= dt;
+      if (this.screenSplats[i].life <= 0) {
+        this.screenSplats.splice(i, 1);
+      }
+    }
+
     // Horizontal position update
     const minTrishuX = 50;
     const maxTrishuX = vWidth - 50;
@@ -171,14 +181,38 @@ export class MuddyPuddlesLogic {
             this.muddyBootsTimer = 4.0;
             pud.ripplePhase = 0.01;
 
-            const basePts = pud.type === 'GOLDEN' ? 100 : 30;
+            const isMega = !!pud.isMega;
+            const basePts = (pud.type === 'GOLDEN' ? 100 : 30) * (isMega ? 2 : 1);
             const earned = this.scoreTracker.addPoints(basePts, true);
 
             if (events?.onPuddleHit) {
               events.onPuddleHit(pud, earned, this.multiplier);
             }
 
-            this.puddles.splice(i, 1);
+            // Mega puddle progression: first stomp enlarges it into a Mega Puddle, second stomp clears it
+            if (!pud.isMega) {
+              pud.isMega = true;
+              pud.rx = Math.min(80, pud.rx * 1.4);
+              pud.ry = Math.min(42, pud.ry * 1.3);
+              pud.lifetime = 10.0;
+            } else {
+              this.puddles.splice(i, 1);
+            }
+
+            // Screen mud splat chance
+            if (Math.random() < 0.22 && this.screenSplats.length < 3) {
+              const splat: ScreenMudSplat = {
+                x: 80 + Math.random() * (vWidth - 160),
+                y: 80 + Math.random() * (groundY - 140),
+                r: 22 + Math.random() * 18,
+                life: 2.6,
+                maxLife: 2.6
+              };
+              this.screenSplats.push(splat);
+              if (events?.onScreenSplat) {
+                events.onScreenSplat(splat);
+              }
+            }
             break;
           }
         }

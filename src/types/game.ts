@@ -207,7 +207,10 @@ export interface ChickEntity {
   vy: number;
   walkCycle: number;
   facingLeft?: boolean;
-  state?: 'WANDERING' | 'SCAMPERING';
+  state?: 'WANDERING' | 'SCAMPERING' | 'HOPPING';
+  hopY?: number;
+  flutterTimer?: number;
+  isTapped?: boolean;
 }
 
 export interface PuddleEntity {
@@ -218,6 +221,8 @@ export interface PuddleEntity {
   type: 'STANDARD' | 'GOLDEN';
   lifetime: number;
   ripplePhase: number;
+  stompCount?: number;
+  isMega?: boolean;
 }
 
 export interface SeedEntity {
