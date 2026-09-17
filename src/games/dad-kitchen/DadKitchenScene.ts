@@ -132,22 +132,22 @@ export class DadKitchenScene extends BaseScene {
       ctx.stroke();
 
       ctx.fillStyle = '#BF360C';
-      ctx.font = `bold ${isPortrait ? '26px' : '32px'} "Comic Sans MS", sans-serif`;
+      ctx.font = `bold ${isPortrait ? '26px' : '32px'} "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif`;
       ctx.textAlign = 'center';
       ctx.fillText('🥞 PANCAKE TOWER FEAST! 🥞', vWidth / 2, vHeight * 0.26);
 
-      ctx.font = 'bold 22px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.fillStyle = '#1B5E20';
       ctx.fillText(`Yummy! +250 Bonus! Score: ${this.score}`, vWidth / 2, vHeight * 0.35);
 
       ctx.fillStyle = '#3E2723';
-      ctx.font = '18px "Comic Sans MS", sans-serif';
+      ctx.font = '18px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.fillText('Dad loved the pancakes! 😋', vWidth / 2, vHeight * 0.43);
 
       this.particles.render(ctx);
 
       ctx.fillStyle = '#FFE600';
-      ctx.font = '900 22px "Comic Sans MS", sans-serif';
+      ctx.font = '900 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('👉 TAP TO STACK MORE! 👈', vWidth / 2, vHeight * 0.72);
       return;
@@ -230,7 +230,7 @@ export class DadKitchenScene extends BaseScene {
     ctx.fill();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 14px "Comic Sans MS", sans-serif';
+    ctx.font = 'bold 14px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`⚡ FRENZY: ${this.multiplier}x MULTIPLIER ⚡`, barX + barW / 2, barY + barH / 2);
@@ -239,7 +239,7 @@ export class DadKitchenScene extends BaseScene {
     // Tap Prompt for Toddlers
     if (isPortrait) {
       ctx.fillStyle = '#FFE600';
-      ctx.font = '900 22px "Comic Sans MS", sans-serif';
+      ctx.font = '900 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('👉 TAP RAPIDLY! 👈', vWidth / 2, Math.min(vHeight - 45, barY + 68));
     }
@@ -260,7 +260,7 @@ export class DadKitchenScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFD54F';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🥞 Stacked: ${this.itemsStacked}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);

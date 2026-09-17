@@ -163,7 +163,7 @@ export class WindyKiteScene extends BaseScene {
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = 'bold 13px "Comic Sans MS", sans-serif';
+        ctx.font = 'bold 13px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
         ctx.fillStyle = '#FFFFFF';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -270,7 +270,7 @@ export class WindyKiteScene extends BaseScene {
 
     // Tap Prompt
     ctx.save();
-    ctx.font = 'bold 15px "Comic Sans MS", sans-serif';
+    ctx.font = 'bold 15px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
     ctx.fillText('🪁 Tap anywhere to swoop the kite!', vWidth / 2, vHeight - 30);
@@ -293,7 +293,7 @@ export class WindyKiteScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`✨ Stars: ${this.collectedCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);

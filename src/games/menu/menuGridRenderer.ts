@@ -1,6 +1,7 @@
 /**
  * Menu Card Grid Renderer
  * Adventures of Trishu Mini-Game Suite
+ * Modernized with Fredoka Typography & Responsive Mobile Pill Badges
  * Strictly under 500 Lines of Code
  */
 
@@ -8,6 +9,7 @@ import { DisplayManager } from '../../engine/DisplayManager';
 import { GameEngine } from '../../engine/GameEngine';
 import { ModeCardDef } from '../../types/game';
 import { MENU_CARDS, renderMenuCharacterPreview } from './menuData';
+import { FONTS } from '../../graphics/typography';
 
 export function renderMenuCardGrid(
   ctx: CanvasRenderingContext2D,
@@ -21,7 +23,7 @@ export function renderMenuCardGrid(
   const isPortrait = display.isPortrait;
   const vWidth = display.vWidth;
   const vHeight = display.vHeight;
-  const topPad = isPortrait ? 60 : 54;
+  const topPad = isPortrait ? 62 : 54;
 
   ctx.save();
   ctx.beginPath();
@@ -45,9 +47,9 @@ export function renderMenuCardGrid(
     ctx.save();
     ctx.translate(card.x, card.y);
 
-    // Card background drop shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-    ctx.shadowBlur = 8;
+    // Modern card background soft drop shadow
+    ctx.shadowColor = 'rgba(26, 35, 126, 0.12)';
+    ctx.shadowBlur = 10;
     ctx.shadowOffsetY = 4;
 
     ctx.fillStyle = card.color;
@@ -55,122 +57,139 @@ export function renderMenuCardGrid(
     ctx.lineWidth = 3.5;
 
     ctx.beginPath();
-    ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 16);
+    ctx.roundRect(-card.w / 2, -card.h / 2, card.w, card.h, 20);
     ctx.fill();
     ctx.shadowColor = 'transparent';
     ctx.stroke();
 
     if (isPortrait) {
-      // --- 2-COLUMN PORTRAIT LAYOUT ---
-      // Left Center: Character Vector Preview
-      renderMenuCharacterPreview(ctx, card.id, -card.w * 0.26, 4, card.w * 0.46, time);
+      // --- 2-COLUMN PORTRAIT (MOBILE) LAYOUT ---
+      // Left Center: Character Vector Preview (scale and centered vertically)
+      const previewX = -card.w * 0.28;
+      const previewSize = Math.min(card.w * 0.44, card.h * 0.72);
+      renderMenuCharacterPreview(ctx, card.id, previewX, 2, previewSize, time);
 
-      // Right Top: Category Badge
+      // Dynamic right side bounds
+      const rightStartX = -card.w * 0.05;
+      const rightEndX = card.w / 2 - 12;
+      const rightWidth = rightEndX - rightStartX;
+
+      // Right Top: Category Badge & Best Score Badge
+      const badgeY = -card.h / 2 + 18;
+
+      // Category Pill
       ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2 + 108, -card.h / 2 + 10, 50, 18, 9);
+      ctx.roundRect(rightStartX, badgeY - 9, 54, 18, 9);
       ctx.fill();
-      ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
+
+      ctx.font = FONTS.BADGE;
       ctx.fillStyle = '#37474F';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, -card.w / 2 + 133, -card.h / 2 + 19);
+      ctx.fillText(card.badge, rightStartX + 27, badgeY);
 
-      // Right Top: Best Score Badge
+      // Best Score Pill
+      const scorePillW = 56;
+      const scorePillX = rightEndX - scorePillW;
       ctx.fillStyle = '#E53935';
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 62, -card.h / 2 + 10, 52, 18, 9);
+      ctx.roundRect(scorePillX, badgeY - 9, scorePillW, 18, 9);
       ctx.fill();
       ctx.stroke();
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+
+      ctx.font = FONTS.SCORE_BADGE;
       ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 36, -card.h / 2 + 19);
+      ctx.fillText(`★ ${bestScore}`, scorePillX + scorePillW / 2, badgeY);
 
-      // Right Center: Title
-      ctx.font = 'bold 15px "Comic Sans MS", cursive, sans-serif';
+      // Right Center: Title (modern crisp Fredoka)
+      ctx.font = FONTS.TITLE_CARD;
       ctx.fillStyle = '#212121';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(card.title, -4, -6, card.w / 2 - 4);
+      ctx.fillText(card.title, rightStartX, -4, rightWidth);
 
       // Right Bottom: Subtitle
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#455A64';
+      ctx.font = FONTS.SUBTITLE;
+      ctx.fillStyle = '#546E7A';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      const rightWidth = card.w / 2 - 6;
+
       if (ctx.measureText(card.sub).width <= rightWidth) {
-        ctx.fillText(card.sub, -4, 22);
+        ctx.fillText(card.sub, rightStartX, 22);
       } else {
         const words = card.sub.split(' ');
         let line1 = '';
         let line2 = '';
         for (const w of words) {
-          if (!line2 && (line1 ? line1 + ' ' + w : w).length <= 13) {
+          if (!line2 && (line1 ? line1 + ' ' + w : w).length <= 14) {
             line1 = line1 ? line1 + ' ' + w : w;
           } else {
             line2 = line2 ? line2 + ' ' + w : w;
           }
         }
-        ctx.fillText(line1, -4, 16, rightWidth);
+        ctx.fillText(line1, rightStartX, 16, rightWidth);
         if (line2) {
-          ctx.fillText(line2, -4, 30, rightWidth);
+          ctx.fillText(line2, rightStartX, 30, rightWidth);
         }
       }
     } else {
       // --- 4-COLUMN LANDSCAPE LAYOUT ---
       renderMenuCharacterPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, time);
 
+      // Badges
+      const badgeY = -card.h / 2 + 15;
+      
       // Category Badge
       ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 115, -card.h / 2 + 5, 52, 17, 8);
+      ctx.roundRect(card.w / 2 - 122, badgeY - 9, 56, 18, 9);
       ctx.fill();
-      ctx.font = 'bold 9.5px "Comic Sans MS", sans-serif';
+      ctx.font = FONTS.BADGE;
       ctx.fillStyle = '#37474F';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(card.badge, card.w / 2 - 89, -card.h / 2 + 13.5);
+      ctx.fillText(card.badge, card.w / 2 - 94, badgeY);
 
       // Best Score Badge
       ctx.fillStyle = '#E53935';
       ctx.strokeStyle = '#B71C1C';
       ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.roundRect(card.w / 2 - 58, -card.h / 2 + 5, 52, 17, 8);
+      ctx.roundRect(card.w / 2 - 60, badgeY - 9, 54, 18, 9);
       ctx.fill();
       ctx.stroke();
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
+      ctx.font = FONTS.SCORE_BADGE;
       ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 32, -card.h / 2 + 13.5);
+      ctx.fillText(`★ ${bestScore}`, card.w / 2 - 33, badgeY);
 
       // Title & Subtitle
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = 'bold 13.5px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = FONTS.TITLE_CARD_LANDSCAPE;
       ctx.fillStyle = '#212121';
-      ctx.fillText(card.title, card.w * 0.16, 0);
+      ctx.fillText(card.title, card.w * 0.16, -2, card.w * 0.6);
 
-      ctx.font = 'bold 10px "Comic Sans MS", sans-serif';
-      ctx.fillStyle = '#455A64';
-      ctx.fillText(card.sub, card.w * 0.16, 20);
+      ctx.font = FONTS.SUBTITLE_SMALL;
+      ctx.fillStyle = '#546E7A';
+      ctx.fillText(card.sub, card.w * 0.16, 20, card.w * 0.6);
     }
 
-    // Focus Ring
+    // Focus Ring (Keyboard / Gamepad)
     if (i === focusedCardIndex) {
       ctx.save();
       ctx.strokeStyle = '#FFD54F';
       ctx.lineWidth = 4;
       ctx.shadowColor = 'rgba(255, 213, 79, 0.8)';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.beginPath();
-      ctx.roundRect(-card.w / 2 - 2, -card.h / 2 - 2, card.w + 4, card.h + 4, 16);
+      ctx.roundRect(-card.w / 2 - 2, -card.h / 2 - 2, card.w + 4, card.h + 4, 20);
       ctx.stroke();
       ctx.restore();
     }

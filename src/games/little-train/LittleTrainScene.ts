@@ -195,7 +195,7 @@ export class LittleTrainScene extends BaseScene {
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = 'bold 11px "Comic Sans MS", sans-serif';
+        ctx.font = 'bold 11px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
         ctx.fillStyle = '#F57F17';
         ctx.textAlign = 'center';
         ctx.fillText('STATION', screenX, trackY - 30);
@@ -324,7 +324,7 @@ export class LittleTrainScene extends BaseScene {
     // Whistle Callout
     if (this.whistleTimer > 0) {
       ctx.save();
-      ctx.font = '900 32px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = '900 32px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#FF6F00';
       ctx.fillText('TOOT! TOOT! 🚂💨', trainBaseX + 75, trainBaseY - 105);
@@ -348,7 +348,7 @@ export class LittleTrainScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🚂 Passengers: ${this.passengers.length}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);

@@ -258,7 +258,7 @@ export class MuddyPuddlesScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(

@@ -458,7 +458,7 @@ export class DuckPicnicScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🦆 Round: ${this.round}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
@@ -469,7 +469,7 @@ export class DuckPicnicScene extends BaseScene {
       ctx.roundRect(scoreX - 150, scoreY + 54, 300, 44, 22);
       ctx.fill();
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.fillText('🎶 DUCK PICNIC DANCE! 🎶', scoreX, scoreY + 76);
     }
     ctx.restore();

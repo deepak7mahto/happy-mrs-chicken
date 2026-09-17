@@ -226,7 +226,7 @@ export class ParticleEngine implements IParticleSystem {
         ctx.beginPath(); ctx.moveTo(-p.size * 0.5, -p.size * 0.5); ctx.lineTo(p.size * 0.6, -p.size * 0.2);
         ctx.lineTo(p.size * 0.2, p.size * 0.6); ctx.lineTo(-p.size * 0.4, p.size * 0.3); ctx.closePath(); ctx.fill(); ctx.stroke();
       } else if (p.type === 'text' && p.text) {
-        ctx.font = `bold ${p.size}px "Comic Sans MS", cursive, sans-serif`;
+        ctx.font = `800 ${p.size}px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif`;
         ctx.fillStyle = p.color; ctx.strokeStyle = PALETTE.MUD_OUTLINE; ctx.lineWidth = 3;
         ctx.textAlign = 'center'; ctx.strokeText(p.text, 0, 0); ctx.fillText(p.text, 0, 0);
       } else {

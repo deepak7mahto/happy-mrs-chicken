@@ -155,7 +155,7 @@ export class MixMatchScene extends BaseScene {
       sctx.strokeRect(5, 5, 350, 350);
 
       sctx.fillStyle = '#FF7043';
-      sctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+      sctx.font = 'bold 18px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       sctx.textAlign = 'center';
       sctx.textBaseline = 'middle';
       sctx.fillText(this.currentTitle, 180, 42, 320);
@@ -163,7 +163,7 @@ export class MixMatchScene extends BaseScene {
       drawCompositeCharacter(sctx, this.headIdx, this.torsoIdx, this.legsIdx, 180, 195, 1.35, this.animState);
 
       sctx.fillStyle = '#8D6E63';
-      sctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+      sctx.font = 'bold 12px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       sctx.fillText('Adventures of Trishu', 180, 335);
 
       const dataUrl = typeof snapCanvas.toDataURL === 'function'
@@ -430,7 +430,7 @@ export class MixMatchScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 18px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, 0, 1);
@@ -452,7 +452,7 @@ export class MixMatchScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`✨ ${this.currentTitle}`, cx, hudY + 24);

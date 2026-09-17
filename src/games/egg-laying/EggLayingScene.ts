@@ -357,7 +357,7 @@ export class EggLayingScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText(`Eggs: ${this.score}`, scoreX - badgeW / 2 + 50, scoreY + badgeH / 2 + 1);

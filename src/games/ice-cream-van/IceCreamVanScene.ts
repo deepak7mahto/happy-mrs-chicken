@@ -183,7 +183,7 @@ export class IceCreamVanScene extends BaseScene {
     }
 
     // Van Signboard
-    ctx.font = '900 22px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = '900 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#C2185B';
     ctx.fillText("🍦 Miss Bunny's Ice Cream 🍦", vWidth / 2, awningY + 54);
@@ -305,7 +305,7 @@ export class IceCreamVanScene extends BaseScene {
     // Munching Effect Callout
     if (this.munchTimer > 0) {
       ctx.save();
-      ctx.font = '900 36px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = '900 36px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#E91E63';
       ctx.fillText('YUM YUM! 😋', vWidth / 2, coneY - 90);
@@ -341,7 +341,7 @@ export class IceCreamVanScene extends BaseScene {
       ctx.stroke();
 
       // Label
-      ctx.font = 'bold 12px "Comic Sans MS", sans-serif';
+      ctx.font = 'bold 12px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#37474F';
@@ -365,7 +365,7 @@ export class IceCreamVanScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🍨 Scoops: ${this.totalScooped}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);

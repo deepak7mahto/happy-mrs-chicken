@@ -296,7 +296,7 @@ export class CarWashScene extends BaseScene {
     // Celebration Sparkling Finish
     if (this.celebrationTimer > 0) {
       ctx.save();
-      ctx.font = '900 36px "Comic Sans MS", cursive, sans-serif';
+      ctx.font = '900 36px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#FFD600';
       ctx.strokeStyle = '#E65100';
@@ -308,7 +308,7 @@ export class CarWashScene extends BaseScene {
 
     // Interactive Instruction Pill
     ctx.save();
-    ctx.font = 'bold 15px "Comic Sans MS", sans-serif';
+    ctx.font = 'bold 15px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#37474F';
     ctx.fillText('🧽 Tap & scrub the mud away!', cx, vHeight - 30);
@@ -331,7 +331,7 @@ export class CarWashScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🚗 Cleaned: ${this.cleanCarsCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);

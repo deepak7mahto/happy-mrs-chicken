@@ -1,0 +1,28 @@
+/**
+ * Adventures of Trishu - Main Global Stylesheet
+ * Preloads local Fredoka font weights & tactile HUD styling
+ * Zero external CDN calls
+ */
+
+@import '@fontsource/fredoka/400.css';
+@import '@fontsource/fredoka/500.css';
+@import '@fontsource/fredoka/600.css';
+@import '@fontsource/fredoka/700.css';
+@import './hud.css';
+
+:root {
+  --font-kids: 'Fredoka', 'Quicksand', 'Arial Rounded MT Bold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-kids);
+  background-color: #81D4FA;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+
+button, input, select {
+  font-family: var(--font-kids);
+}

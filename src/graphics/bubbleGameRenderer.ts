@@ -72,7 +72,7 @@ export function drawChalkSquare(ctx: CanvasRenderingContext2D, tile: HopscotchTi
   ctx.stroke();
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
+  ctx.font = 'bold 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(`${tile.index}`, 0, 1);
@@ -156,7 +156,7 @@ export function drawBubbleEntity(ctx: CanvasRenderingContext2D, b: BubbleEntity)
     drawBabyChick(ctx, 0, 2, 0.48, { hopY: 0, isPeeping: false });
   } else if (b.type === 'STAR') {
     ctx.fillStyle = '#FFEE58';
-    ctx.font = `bold ${Math.floor(b.radius * 0.9)}px "Comic Sans MS", sans-serif`;
+    ctx.font = `bold ${Math.floor(b.radius * 0.9)}px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('⭐', 0, 0);
@@ -210,7 +210,7 @@ export function drawBubbleGameHUD(
   ctx.stroke();
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 19px "Comic Sans MS", cursive, sans-serif';
+  ctx.font = 'bold 19px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(`🫧 Popped: ${bubblesPoppedCount}  |  Score: ${score}`, scoreX, scoreY + badgeH / 2);
@@ -221,7 +221,7 @@ export function drawBubbleGameHUD(
     ctx.roundRect(scoreX - 140, scoreY + 54, 280, 44, 22);
     ctx.fill();
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 22px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 22px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.fillText('🧺 Picnic Party! 🎉', scoreX, scoreY + 76);
   }
   ctx.restore();

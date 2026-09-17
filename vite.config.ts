@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [],
   base: './',
   build: {
     outDir: 'dist',
@@ -10,8 +9,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-            return 'vendor-react';
+          if (id.includes('node_modules/pixi.js')) {
+            return 'vendor-pixi';
           }
           if (id.includes('src/graphics/')) {
             return 'graphics-engine';
@@ -28,3 +27,4 @@ export default defineConfig({
     open: true
   }
 });
+

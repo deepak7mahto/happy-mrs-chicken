@@ -291,7 +291,7 @@ export class PeekABooScene extends BaseScene {
     ctx.stroke();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`🙈 Friends Found: ${this.peekFoundCount}  |  ★ ${this.score}`, scoreX, scoreY + badgeH / 2);
@@ -301,7 +301,7 @@ export class PeekABooScene extends BaseScene {
     ctx.save();
     const promptBob = Math.sin(this.time * 4) * 3;
     ctx.fillStyle = '#FFE600';
-    ctx.font = `900 ${isPortrait ? '21px' : '23px'} "Comic Sans MS", cursive, sans-serif`;
+    ctx.font = `900 ${isPortrait ? '21px' : '23px'} "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.strokeStyle = '#3E2723';

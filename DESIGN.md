@@ -23,22 +23,22 @@ colors:
   chick-yellow: "#FFEE58"
 typography:
   heading-xl:
-    fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive, sans-serif'
+    fontFamily: '"Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif'
     fontSize: 28px
     fontWeight: 700
     lineHeight: 1.2
   heading-md:
-    fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive, sans-serif'
+    fontFamily: '"Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif'
     fontSize: 20px
     fontWeight: 700
     lineHeight: 1.25
   label-btn:
-    fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive, sans-serif'
+    fontFamily: '"Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif'
     fontSize: 18px
     fontWeight: 700
     lineHeight: 1.2
   caption:
-    fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive, sans-serif'
+    fontFamily: '"Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif'
     fontSize: 13px
     fontWeight: 600
     lineHeight: 1.3

@@ -355,7 +355,7 @@ export class DinosaurBalloonScene extends BaseScene {
     ctx.fill();
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px "Comic Sans MS", cursive, sans-serif';
+    ctx.font = 'bold 20px "Fredoka", "Quicksand", "Arial Rounded MT Bold", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const comboText = this.combo > 1 ? ` (${this.combo}x)` : '';
