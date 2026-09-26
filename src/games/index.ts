@@ -21,3 +21,7 @@ export * from './car-wash';
 export * from './windy-kite';
 export * from './rainbow-garden';
 export * from './duck-picnic';
+export * from './animal-feeding';
+export * from './animal-band';
+export * from './finger-paint';
+export * from './bedtime-barn';

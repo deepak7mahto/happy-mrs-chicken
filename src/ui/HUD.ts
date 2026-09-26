@@ -28,6 +28,7 @@ export class HUD {
   private el: HTMLElement;
   private engine: GameEngine;
   private callbacks: HUDCallbacks;
+  private currentModeId: GameModeId = 'MENU';
 
   private holdTimer: number | null = null;
   private holdStartTime: number = 0;
@@ -37,6 +38,7 @@ export class HUD {
   constructor(engine: GameEngine, callbacks: HUDCallbacks, parent: HTMLElement = document.body) {
     this.engine = engine;
     this.callbacks = callbacks;
+    this.currentModeId = engine.currentSceneId || 'MENU';
 
     this.el = document.createElement('header');
     this.el.className = 'hud-layer hud-menu-layer';
@@ -46,13 +48,14 @@ export class HUD {
   }
 
   public updateMode(modeId: GameModeId): void {
+    this.currentModeId = modeId;
     const isMenu = modeId === 'MENU';
     this.el.className = `hud-layer ${isMenu ? 'hud-menu-layer' : 'hud-game-layer'}`;
     this.render();
   }
 
   public render(): void {
-    const isMenu = this.engine.currentSceneId === 'MENU';
+    const isMenu = this.currentModeId === 'MENU';
     const viewMode = this.engine.storyViewMode;
     const selectedAvatarId = this.engine.selectedAvatar;
     const avatarInfo = AVATAR_ROSTER.find(a => a.id === selectedAvatarId);
@@ -101,19 +104,19 @@ export class HUD {
             <button type="button" aria-label="Open Adventure Passport" class="hud-btn-icon hud-btn-passport" id="hud-btn-passport">
               📖
             </button>
+            <button type="button" aria-label="Select Avatar Hero" class="hud-btn-icon hud-btn-avatar" id="hud-btn-avatar">
+              ${avatarEmoji}
+            </button>
+            <button type="button" aria-label="Open Settings" class="hud-btn-icon hud-btn-settings" id="hud-btn-settings">
+              ⚙️
+            </button>
+            <button type="button" aria-label="Toggle Fullscreen" class="hud-btn-icon hud-btn-fs" id="hud-btn-fs">
+              ⛶
+            </button>
+            <button type="button" aria-label="Toggle Audio" class="hud-btn-icon hud-btn-audio" id="hud-btn-audio">
+              ${isMuted ? '🔇' : '🔊'}
+            </button>
           ` : ''}
-          <button type="button" aria-label="Select Avatar Hero" class="hud-btn-icon hud-btn-avatar" id="hud-btn-avatar">
-            ${avatarEmoji}
-          </button>
-          <button type="button" aria-label="Open Settings" class="hud-btn-icon hud-btn-settings" id="hud-btn-settings">
-            ⚙️
-          </button>
-          <button type="button" aria-label="Toggle Fullscreen" class="hud-btn-icon hud-btn-fs" id="hud-btn-fs">
-            ⛶
-          </button>
-          <button type="button" aria-label="Toggle Audio" class="hud-btn-icon hud-btn-audio" id="hud-btn-audio">
-            ${isMuted ? '🔇' : '🔊'}
-          </button>
         </div>
       </div>
 

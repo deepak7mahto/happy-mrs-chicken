@@ -162,7 +162,7 @@ export class BGMSequencer {
   public setTrack(track: BGMMoodTrack): void {
     if (this.currentTrack === track) return;
     this.currentTrack = track;
-    const config = MOOD_TRACKS[track];
+    const config = MOOD_TRACKS[track] || MOOD_TRACKS.classic;
     this.tempo = config.tempo;
     this.currentStep = 0;
 

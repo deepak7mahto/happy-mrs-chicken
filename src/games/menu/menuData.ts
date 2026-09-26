@@ -44,7 +44,11 @@ export const MENU_CARDS: MenuCardInfo[] = [
   { id: 'CAR_WASH', title: 'Car Wash', sub: 'Scrub bubbles clean!', badge: 'Bubbles', color: '#E0F7FA', borderColor: '#26C6DA', scoreKey: 'carWash' },
   { id: 'WINDY_KITE', title: 'Windy Kite', sub: 'Swoop through clouds!', badge: 'Breeze', color: '#FFF8E1', borderColor: '#FFA726', scoreKey: 'windyKite' },
   { id: 'RAINBOW_GARDEN', title: 'Rainbow Garden', sub: 'Water giant flowers!', badge: 'Nature', color: '#F1F8E9', borderColor: '#7CB342', scoreKey: 'rainbowGarden' },
-  { id: 'DUCK_PICNIC', title: 'Picnic Ducks', sub: 'Feed & dance with ducks!', badge: 'Picnic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'duckPicnic' }
+  { id: 'DUCK_PICNIC', title: 'Picnic Ducks', sub: 'Feed & dance with ducks!', badge: 'Picnic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'duckPicnic' },
+  { id: 'ANIMAL_FEEDING', title: 'Hungry Friends', sub: 'Feed tasty treats!', badge: 'Yum', color: '#FFE0B2', borderColor: '#FF9800', scoreKey: 'animalFeeding' },
+  { id: 'ANIMAL_BAND', title: 'Animal Band', sub: 'Make joyful music!', badge: 'Music', color: '#E1BEE7', borderColor: '#AB47BC', scoreKey: 'animalBand' },
+  { id: 'FINGER_PAINT', title: 'Splat & Stamp', sub: 'Finger-paint & stamp!', badge: 'Art', color: '#FFCDD2', borderColor: '#EF5350', scoreKey: 'fingerPaint' },
+  { id: 'BEDTIME_BARN', title: 'Sleepy Barn', sub: 'Tuck friends into bed!', badge: 'Bedtime', color: '#C5CAE9', borderColor: '#5C6BC0', scoreKey: 'bedtimeBarn' }
 ];
 
 export function renderMenuCharacterPreview(
@@ -303,6 +307,44 @@ export function renderMenuCharacterPreview(
     ctx.beginPath();
     ctx.roundRect(cx + 18, cy + Math.sin(time * 4) * 4, 8, 7, 2);
     ctx.fill();
+    ctx.restore();
+  } else if (modeId === 'ANIMAL_FEEDING') {
+    ctx.save();
+    drawLeo(ctx, cx, cy, charScale * 0.9, {
+      armWave: Math.sin(time * 6) * 0.2
+    });
+    ctx.font = '22px sans-serif';
+    ctx.fillText('🍪', cx + 18, cy - 12);
+    ctx.restore();
+  } else if (modeId === 'ANIMAL_BAND') {
+    ctx.save();
+    drawMrsClucky(ctx, cx, cy, charScale * 0.9, {
+      flap: Math.sin(time * 8) * 0.3
+    });
+    ctx.font = '22px sans-serif';
+    ctx.fillText('🎶', cx + 18, cy - 14);
+    ctx.restore();
+  } else if (modeId === 'FINGER_PAINT') {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.fillStyle = '#FF1744';
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2979FF';
+    ctx.beginPath();
+    ctx.arc(14, 10, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '20px sans-serif';
+    ctx.fillText('🎨', -4, 4);
+    ctx.restore();
+  } else if (modeId === 'BEDTIME_BARN') {
+    ctx.save();
+    drawMimi(ctx, cx - 6, cy + 4, charScale * 0.9, {
+      eyeBlink: true
+    });
+    ctx.font = '20px sans-serif';
+    ctx.fillText('⭐', cx + 16, cy - 16);
     ctx.restore();
   }
 }

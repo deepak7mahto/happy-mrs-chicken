@@ -4,7 +4,7 @@ import { StorageManager, storageManager } from './StorageManager';
 import { GameLoop } from './GameLoop';
 import { soundEngine } from './SoundEngine';
 import { ParticleEngine } from './ParticleEngine';
-import { GameModeId } from '../types/game';
+import { GameModeId, GAME_MODES_LIST } from '../types/game';
 import { CharacterId } from '../types/characters';
 import { StoryProgress } from '../types/story';
 import { STORY_STOPS } from '../story/storyData';
@@ -26,7 +26,11 @@ import {
   CarWashScene,
   WindyKiteScene,
   RainbowGardenScene,
-  DuckPicnicScene
+  DuckPicnicScene,
+  AnimalFeedingScene,
+  AnimalBandScene,
+  FingerPaintScene,
+  BedtimeBarnScene
 } from '../games';
 
 export class GameEngine {
@@ -65,6 +69,10 @@ export class GameEngine {
     this.scenes.set('WINDY_KITE', new WindyKiteScene(this));
     this.scenes.set('RAINBOW_GARDEN', new RainbowGardenScene(this));
     this.scenes.set('DUCK_PICNIC', new DuckPicnicScene(this));
+    this.scenes.set('ANIMAL_FEEDING', new AnimalFeedingScene(this));
+    this.scenes.set('ANIMAL_BAND', new AnimalBandScene(this));
+    this.scenes.set('FINGER_PAINT', new FingerPaintScene(this));
+    this.scenes.set('BEDTIME_BARN', new BedtimeBarnScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),
@@ -217,24 +225,7 @@ export class GameEngine {
       get scene() { return self.currentSceneId; },
       set scene(v: GameModeId) { self.changeScene(v); },
       get modesAvailable() {
-        return [
-          'EGG_LAYING',
-          'MUDDY_PUDDLES',
-          'CHICK_MAZE',
-          'DADDY_PIG',
-          'DINOSAUR_BALLOON',
-          'PANCAKE_FLIPPER',
-          'VEGETABLE_HARVEST',
-          'HOPSCOTCH_BUBBLE',
-          'MIX_MATCH',
-          'PEEK_A_BOO',
-          'ICE_CREAM_VAN',
-          'LITTLE_TRAIN',
-          'CAR_WASH',
-          'WINDY_KITE',
-          'RAINBOW_GARDEN',
-          'DUCK_PICNIC'
-        ];
+        return [...GAME_MODES_LIST];
       },
       get subState() {
         if (!self.activeScene) return 'IDLE';

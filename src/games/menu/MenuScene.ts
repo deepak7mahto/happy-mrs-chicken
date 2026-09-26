@@ -70,12 +70,10 @@ export class MenuScene extends BaseScene {
     if (this.viewMode === 'journey') {
       return this.storyMap.getTotalContentHeight(display);
     }
-    if (display.isPortrait) {
-      const cards = this.getModeCards(display);
-      if (cards.length > 0) {
-        const last = cards[cards.length - 1];
-        return last.y + last.h / 2 + 30;
-      }
+    const cards = this.getModeCards(display);
+    if (cards.length > 0) {
+      const last = cards[cards.length - 1];
+      return Math.max(display.vHeight + 10, last.y + last.h / 2 + 30);
     }
     return display.vHeight + 40;
   }

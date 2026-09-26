@@ -56,6 +56,38 @@ export class ParticleEngine implements IParticleSystem {
     return p;
   }
 
+  emit(opt: {
+    x: number;
+    y: number;
+    count?: number;
+    color?: string;
+    speedMin?: number;
+    speedMax?: number;
+    sizeMin?: number;
+    sizeMax?: number;
+    lifetime?: number;
+  }): void {
+    const count = opt.count ?? 8;
+    const speedMin = opt.speedMin ?? 40;
+    const speedMax = opt.speedMax ?? 120;
+    const sizeMin = opt.sizeMin ?? 3;
+    const sizeMax = opt.sizeMax ?? 6;
+    const lifetime = opt.lifetime ?? 0.6;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = speedMin + Math.random() * (speedMax - speedMin);
+      this.spawn({
+        x: opt.x,
+        y: opt.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: opt.color || '#FFD54F',
+        size: sizeMin + Math.random() * (sizeMax - sizeMin),
+        maxLife: lifetime
+      });
+    }
+  }
+
   spawnFeathers(x: number, y: number, count = 3): void {
     for (let i = 0; i < count; i++) {
       this.spawn({

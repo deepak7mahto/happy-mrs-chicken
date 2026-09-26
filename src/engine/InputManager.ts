@@ -100,6 +100,17 @@ export class InputManager {
     if (typeof e.clientX !== 'number' || !isFinite(e.clientX) || typeof e.clientY !== 'number' || !isFinite(e.clientY)) {
       return;
     }
+    const isBezelContact = (
+      typeof window !== 'undefined' && (
+        e.clientX < 18 ||
+        e.clientX > (window.innerWidth || 960) - 18 ||
+        e.clientY < 18 ||
+        e.clientY > (window.innerHeight || 540) - 18
+      )
+    );
+    if (isBezelContact && !e.isPrimary) {
+      return;
+    }
     if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
     this._unlockAudio();
 
@@ -220,8 +231,20 @@ export class InputManager {
     return this.actionJustPressed;
   }
 
+  wasJustPressed(): boolean {
+    return this.actionJustPressed;
+  }
+
   isActionDown(): boolean {
     return this.actionIsDown;
+  }
+
+  isPointerDown(): boolean {
+    return this.actionIsDown;
+  }
+
+  getPointerPos(): { x: number; y: number } {
+    return { x: this.primaryPointer.x, y: this.primaryPointer.y };
   }
 
   on(eventName: string, callback: (data: unknown) => void): void {

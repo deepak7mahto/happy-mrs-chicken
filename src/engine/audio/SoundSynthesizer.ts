@@ -5,12 +5,15 @@
 
 import { AudioContextHolder } from './AudioContextHolder';
 import { SFXName, SFXOptions } from '../../types/audio';
+import { PreschoolSFX } from './PreschoolSFX';
 
 export class SoundSynthesizer {
   private holder: AudioContextHolder;
+  private preschool: PreschoolSFX;
 
   constructor(holder: AudioContextHolder) {
     this.holder = holder;
+    this.preschool = new PreschoolSFX(holder);
   }
 
   private get ctx(): AudioContext | null { return this.holder.ctx; }
@@ -394,6 +397,15 @@ export class SoundSynthesizer {
     this.makeNoise(0.08, 'lowpass', 1500, 1.5, 0.25);
   }
 
+  public playFoodChomp(): void { this.preschool.playFoodChomp(); }
+  public playTummyRub(): void { this.preschool.playTummyRub(); }
+  public playXylophoneChime(freq: number = 523.25): void { this.preschool.playXylophoneChime(freq); }
+  public playDrumThump(): void { this.preschool.playDrumThump(); }
+  public playMaracaShake(): void { this.preschool.playMaracaShake(); }
+  public playPaintSplat(): void { this.preschool.playPaintSplat(); }
+  public playMusicBoxStar(pitchIndex: number = 0): void { this.preschool.playMusicBoxStar(pitchIndex); }
+  public playSleepyYawn(): void { this.preschool.playSleepyYawn(); }
+
   public playSFX(name: SFXName, options: SFXOptions = {}): void {
     switch (name) {
       case 'cluck': this.playCluck(options.type); break;
@@ -421,6 +433,14 @@ export class SoundSynthesizer {
       case 'waterHoseSpray': this.playWaterHoseSpray(); break;
       case 'coneMunch': this.playConeMunch(); break;
       case 'dinoBite': this.playDinoBite(); break;
+      case 'foodChomp': this.playFoodChomp(); break;
+      case 'tummyRub': this.playTummyRub(); break;
+      case 'xylophoneChime': this.playXylophoneChime(options.pitch ?? 523.25); break;
+      case 'drumThump': this.playDrumThump(); break;
+      case 'maracaShake': this.playMaracaShake(); break;
+      case 'paintSplat': this.playPaintSplat(); break;
+      case 'musicBoxStar': this.playMusicBoxStar(Math.round(options.pitch ?? 0)); break;
+      case 'sleepyYawn': this.playSleepyYawn(); break;
     }
   }
 }
