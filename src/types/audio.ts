@@ -28,7 +28,15 @@ export type SFXName =
   | 'trainWhistle'
   | 'waterHoseSpray'
   | 'coneMunch'
-  | 'dinoBite';
+  | 'dinoBite'
+  | 'foodChomp'
+  | 'tummyRub'
+  | 'xylophoneChime'
+  | 'drumThump'
+  | 'maracaShake'
+  | 'paintSplat'
+  | 'musicBoxStar'
+  | 'sleepyYawn';
 
 export interface SFXOptions {
   playbackRate?: number;

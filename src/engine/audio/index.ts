@@ -113,3 +113,5 @@ export * from './AudioContextHolder';
 export * from './SoundSynthesizer';
 export * from './BGMSequencer';
 export * from './AudioSpy';
+export * from './VoiceNarrator';
+export * from './PreschoolSFX';

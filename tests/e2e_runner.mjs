@@ -359,12 +359,37 @@ export class MockMouseEvent extends MockEvent {
   }
 }
 
+export class MockSpeechSynthesisUtterance {
+  constructor(text = '') {
+    this.text = text;
+    this.pitch = 1.0;
+    this.rate = 1.0;
+    this.volume = 1.0;
+    this.onend = null;
+    this.onerror = null;
+  }
+}
+
+export const mockSpeechSynthesis = {
+  speak(u) {
+    if (typeof u?.onend === 'function') {
+      setTimeout(() => u.onend?.(), 0);
+    }
+  },
+  cancel() {},
+  getVoices() {
+    return [];
+  }
+};
+
 export function setupMockEnvironment() {
   const windowListeners = new Map();
   const mockWindow = {
     innerWidth: 960,
     innerHeight: 540,
     devicePixelRatio: 1.0,
+    speechSynthesis: mockSpeechSynthesis,
+    SpeechSynthesisUtterance: MockSpeechSynthesisUtterance,
     localStorage: new MockLocalStorage(),
     AudioContext: MockAudioContext,
     webkitAudioContext: MockAudioContext,
@@ -463,6 +488,8 @@ export function setupMockEnvironment() {
   defineGlobal('requestAnimationFrame', mockWindow.requestAnimationFrame);
   defineGlobal('cancelAnimationFrame', mockWindow.cancelAnimationFrame);
   defineGlobal('performance', mockWindow.performance);
+  defineGlobal('speechSynthesis', mockWindow.speechSynthesis);
+  defineGlobal('SpeechSynthesisUtterance', MockSpeechSynthesisUtterance);
 }
 
 setupMockEnvironment();
