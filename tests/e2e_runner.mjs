@@ -430,16 +430,49 @@ export function setupMockEnvironment() {
     clearInterval
   };
 
+  class MockHTMLElement {
+    constructor(tag) {
+      this.tagName = String(tag).toUpperCase();
+      this.style = {};
+      this._innerHTML = '';
+      this.children = [];
+      this.className = '';
+    }
+    set innerHTML(html) {
+      this._innerHTML = html;
+    }
+    get innerHTML() {
+      return this._innerHTML;
+    }
+    querySelector(sel) {
+      if (typeof sel === 'string' && sel.startsWith('#')) {
+        const id = sel.slice(1);
+        if (this._innerHTML.includes(`id="${id}"`) || this._innerHTML.includes(`id='${id}'`)) {
+          return new MockHTMLElement('div');
+        }
+      }
+      if (typeof sel === 'string' && sel.startsWith('.')) {
+        const cls = sel.slice(1);
+        if (this._innerHTML.includes(`class="${cls}`) || this._innerHTML.includes(`class='${cls}`) || this.className.includes(cls)) {
+          return new MockHTMLElement('div');
+        }
+      }
+      return null;
+    }
+    querySelectorAll() { return []; }
+    addEventListener() {}
+    removeEventListener() {}
+    setAttribute() {}
+    getAttribute() { return null; }
+    appendChild(el) { return el; }
+    removeChild(el) { return el; }
+  }
+
   const mockDocument = {
+    body: new MockHTMLElement('body'),
     createElement(tag) {
       if (tag === 'canvas') return new MockHTMLCanvasElement();
-      return {
-        style: {},
-        addEventListener() {},
-        removeEventListener() {},
-        setAttribute() {},
-        getAttribute() { return null; }
-      };
+      return new MockHTMLElement(tag);
     },
     getElementById() {
       return new MockHTMLCanvasElement();
