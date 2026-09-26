@@ -125,7 +125,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     }
   });
 
-  test('T6.04: GameEngine modesAvailable returns all 16 mode IDs', () => {
+  test('T6.04: GameEngine modesAvailable returns all 20 mode IDs', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
     engine.setupIntrospectionHooks();
@@ -133,7 +133,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     const gameState = (window as any).__GAME_STATE__;
     expect(gameState).toBeDefined();
     const modes = gameState.modesAvailable;
-    expect(modes.length).toBe(16);
+    expect(modes.length).toBe(20);
 
     const expectedModes = [
       'EGG_LAYING',
@@ -151,7 +151,11 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
       'CAR_WASH',
       'WINDY_KITE',
       'RAINBOW_GARDEN',
-      'DUCK_PICNIC'
+      'DUCK_PICNIC',
+      'ANIMAL_FEEDING',
+      'ANIMAL_BAND',
+      'FINGER_PAINT',
+      'BEDTIME_BARN'
     ];
 
     for (const m of expectedModes) {
@@ -159,11 +163,11 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     }
   });
 
-  test('T6.05: manifest.json contains 16-game description and valid shortcut hashes', () => {
+  test('T6.05: manifest.json contains 20-game description and valid shortcut hashes', () => {
     const manifestPath = resolve(root, 'public/manifest.json');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
-    expect(manifest.description).toContain('16-game');
+    expect(manifest.description).toContain('20-game');
     expect(manifest.shortcuts.length).toBeGreaterThanOrEqual(4);
 
     const shortcutUrls = manifest.shortcuts.map((s: any) => s.url);

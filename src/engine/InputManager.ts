@@ -231,8 +231,20 @@ export class InputManager {
     return this.actionJustPressed;
   }
 
+  wasJustPressed(): boolean {
+    return this.actionJustPressed;
+  }
+
   isActionDown(): boolean {
     return this.actionIsDown;
+  }
+
+  isPointerDown(): boolean {
+    return this.actionIsDown;
+  }
+
+  getPointerPos(): { x: number; y: number } {
+    return { x: this.primaryPointer.x, y: this.primaryPointer.y };
   }
 
   on(eventName: string, callback: (data: unknown) => void): void {

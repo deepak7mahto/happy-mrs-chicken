@@ -31,7 +31,7 @@ export class BedtimeBarnScene extends BaseScene {
 
   public enter(): void {
     super.enter();
-    soundEngine.setTrack('lullaby');
+    soundEngine.setTrack('gentle');
     this.particles.clear();
     const w = this.game.canvas ? this.game.canvas.width : 960;
     const h = this.game.canvas ? this.game.canvas.height : 540;

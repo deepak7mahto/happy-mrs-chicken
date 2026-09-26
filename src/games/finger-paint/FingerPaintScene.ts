@@ -29,7 +29,7 @@ export class FingerPaintScene extends BaseScene {
 
   public enter(): void {
     super.enter();
-    soundEngine.setTrack('calm');
+    soundEngine.setTrack('waltz');
     this.particles.clear();
     const w = this.game.canvas ? this.game.canvas.width : 960;
     const h = this.game.canvas ? this.game.canvas.height : 540;

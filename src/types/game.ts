@@ -28,7 +28,11 @@ export type ActiveGameModeId =
   | 'CAR_WASH'
   | 'WINDY_KITE'
   | 'RAINBOW_GARDEN'
-  | 'DUCK_PICNIC';
+  | 'DUCK_PICNIC'
+  | 'ANIMAL_FEEDING'
+  | 'ANIMAL_BAND'
+  | 'FINGER_PAINT'
+  | 'BEDTIME_BARN';
 
 // Full Scene ID Union (including MENU and slug aliases)
 export type GameModeId =
@@ -49,7 +53,11 @@ export type GameModeId =
   | 'car-wash'
   | 'windy-kite'
   | 'rainbow-garden'
-  | 'duck-picnic';
+  | 'duck-picnic'
+  | 'hungry-friends'
+  | 'animal-band'
+  | 'splat-stamp'
+  | 'sleepy-barn';
 
 export type GameModeSlug =
   | 'classic'
@@ -67,7 +75,11 @@ export type GameModeSlug =
   | 'car-wash'
   | 'windy-kite'
   | 'rainbow-garden'
-  | 'duck-picnic';
+  | 'duck-picnic'
+  | 'hungry-friends'
+  | 'animal-band'
+  | 'splat-stamp'
+  | 'sleepy-barn';
 
 export interface GameModeMetadata {
   id: ActiveGameModeId;
@@ -99,7 +111,11 @@ export const GAME_MODES_LIST: readonly ActiveGameModeId[] = [
   'CAR_WASH',
   'WINDY_KITE',
   'RAINBOW_GARDEN',
-  'DUCK_PICNIC'
+  'DUCK_PICNIC',
+  'ANIMAL_FEEDING',
+  'ANIMAL_BAND',
+  'FINGER_PAINT',
+  'BEDTIME_BARN'
 ] as const;
 
 export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
@@ -118,7 +134,11 @@ export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
   CAR_WASH: 'car-wash',
   WINDY_KITE: 'windy-kite',
   RAINBOW_GARDEN: 'rainbow-garden',
-  DUCK_PICNIC: 'duck-picnic'
+  DUCK_PICNIC: 'duck-picnic',
+  ANIMAL_FEEDING: 'hungry-friends',
+  ANIMAL_BAND: 'animal-band',
+  FINGER_PAINT: 'splat-stamp',
+  BEDTIME_BARN: 'sleepy-barn'
 };
 
 export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
@@ -137,7 +157,11 @@ export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
   'car-wash': 'CAR_WASH',
   'windy-kite': 'WINDY_KITE',
   'rainbow-garden': 'RAINBOW_GARDEN',
-  'duck-picnic': 'DUCK_PICNIC'
+  'duck-picnic': 'DUCK_PICNIC',
+  'hungry-friends': 'ANIMAL_FEEDING',
+  'animal-band': 'ANIMAL_BAND',
+  'splat-stamp': 'FINGER_PAINT',
+  'sleepy-barn': 'BEDTIME_BARN'
 };
 
 export interface MiniGame {

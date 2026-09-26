@@ -28,22 +28,11 @@ function createDefaultStoryProgress(): StoryProgress {
 }
 
 const DEFAULT_HIGH_SCORES: HighScores = {
-  eggLaying: 0,
-  muddyPuddles: 0,
-  chickMaze: 0,
-  daddyPig: 0,
-  dinosaurBalloon: 0,
-  pancakeFlipper: 0,
-  vegetableHarvest: 0,
-  hopscotchBubble: 0,
-  mixMatch: 0,
-  peekABoo: 0,
-  iceCreamVan: 0,
-  littleTrain: 0,
-  carWash: 0,
-  windyKite: 0,
-  rainbowGarden: 0,
-  duckPicnic: 0
+  eggLaying: 0, muddyPuddles: 0, chickMaze: 0, daddyPig: 0,
+  dinosaurBalloon: 0, pancakeFlipper: 0, vegetableHarvest: 0, hopscotchBubble: 0,
+  mixMatch: 0, peekABoo: 0, iceCreamVan: 0, littleTrain: 0,
+  carWash: 0, windyKite: 0, rainbowGarden: 0, duckPicnic: 0,
+  animalFeeding: 0, animalBand: 0, fingerPaint: 0, bedtimeBarn: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -64,6 +53,10 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   WINDY_KITE: 'windyKite',
   RAINBOW_GARDEN: 'rainbowGarden',
   DUCK_PICNIC: 'duckPicnic',
+  ANIMAL_FEEDING: 'animalFeeding',
+  ANIMAL_BAND: 'animalBand',
+  FINGER_PAINT: 'fingerPaint',
+  BEDTIME_BARN: 'bedtimeBarn',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -82,6 +75,10 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'windy-kite': 'windyKite',
   'rainbow-garden': 'rainbowGarden',
   'duck-picnic': 'duckPicnic',
+  'hungry-friends': 'animalFeeding',
+  'animal-band': 'animalBand',
+  'splat-stamp': 'fingerPaint',
+  'sleepy-barn': 'bedtimeBarn',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -99,7 +96,11 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   carWash: 'carWash',
   windyKite: 'windyKite',
   rainbowGarden: 'rainbowGarden',
-  duckPicnic: 'duckPicnic'
+  duckPicnic: 'duckPicnic',
+  animalFeeding: 'animalFeeding',
+  animalBand: 'animalBand',
+  fingerPaint: 'fingerPaint',
+  bedtimeBarn: 'bedtimeBarn'
 };
 
 export class StorageManager implements IStorageManager {

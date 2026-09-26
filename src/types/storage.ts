@@ -20,6 +20,10 @@ export interface HighScores {
   windyKite: number;        // Mode 14: Windy Castle Kite
   rainbowGarden: number;    // Mode 15: Rainbow Flower Garden
   duckPicnic: number;       // Mode 16: Picnic Ducks
+  animalFeeding: number;    // Mode 17: Hungry Farmyard Friends
+  animalBand: number;       // Mode 18: Farmyard Animal Band
+  fingerPaint: number;      // Mode 19: Rainbow Splat & Stamp Studio
+  bedtimeBarn: number;      // Mode 20: Sleepy Bedtime Barn
   [key: string]: number;
 }
 
