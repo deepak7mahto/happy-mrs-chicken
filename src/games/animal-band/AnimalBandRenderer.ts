@@ -141,7 +141,7 @@ export class AnimalBandRenderer {
     const charH = member.height;
 
     // Draw character body
-    renderCharacter(ctx, member.characterId, -charW / 2, -charH / 2, charW, charH);
+    renderCharacter(member.characterId, ctx, 0, 0, 0.9);
 
     // Draw instrument in front of character
     this.renderInstrument(ctx, member);

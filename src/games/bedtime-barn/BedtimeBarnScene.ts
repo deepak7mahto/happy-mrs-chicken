@@ -33,15 +33,15 @@ export class BedtimeBarnScene extends BaseScene {
     super.enter();
     soundEngine.setTrack('gentle');
     this.particles.clear();
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     this.logic.reset(w, h);
     voiceNarrator.speak('Sleepy Bedtime Barn. Time to tuck in our friends!');
   }
 
   public update(dt: number, input: InputManager): void {
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     if (this.logic.width !== w || this.logic.height !== h) {
       this.logic.layout(w, h);
     }
@@ -53,7 +53,7 @@ export class BedtimeBarnScene extends BaseScene {
       if (this.logic.isMoonAt(pos.x, pos.y)) {
         this.logic.winkMoon();
         soundEngine.playSFX('musicBoxStar');
-        Haptics.light();
+        Haptics.tap();
         voiceNarrator.speak('Goodnight, smiling moon!');
       } else {
         // Check star tap
@@ -84,7 +84,7 @@ export class BedtimeBarnScene extends BaseScene {
     const freq = this.musicBoxPitches[this.pitchIndex % this.musicBoxPitches.length];
     this.pitchIndex++;
     soundEngine.playSFX('musicBoxStar', { pitch: freq });
-    Haptics.light();
+    Haptics.tap();
 
     this.particles.emit({
       x,
@@ -130,7 +130,7 @@ export class BedtimeBarnScene extends BaseScene {
   }
 
   public render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    this.renderer.render(ctx, this.logic, display.width, display.height);
+    this.renderer.render(ctx, this.logic, display.vWidth, display.vHeight);
     this.particles.render(ctx);
   }
 

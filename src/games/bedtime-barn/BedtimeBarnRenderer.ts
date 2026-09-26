@@ -183,7 +183,7 @@ export class BedtimeBarnRenderer {
       ctx.fillRect(-sw / 2, -sh / 2 + 10, sw, sh);
 
       // Animal in stall
-      renderCharacter(ctx, stall.characterId, -sw / 2 + 10, -sh / 2 - 10, sw - 20, sh - 10);
+      renderCharacter(stall.characterId, ctx, 0, -8, 0.85);
 
       // Hanging lantern above stall
       this.renderLantern(ctx, 0, -sh / 2 - 32, stall.lanternLit);

@@ -311,7 +311,7 @@ export function renderMenuCharacterPreview(
   } else if (modeId === 'ANIMAL_FEEDING') {
     ctx.save();
     drawLeo(ctx, cx, cy, charScale * 0.9, {
-      cheerTimer: time * 4
+      armWave: Math.sin(time * 6) * 0.2
     });
     ctx.font = '22px sans-serif';
     ctx.fillText('🍪', cx + 18, cy - 12);
@@ -341,7 +341,7 @@ export function renderMenuCharacterPreview(
   } else if (modeId === 'BEDTIME_BARN') {
     ctx.save();
     drawMimi(ctx, cx - 6, cy + 4, charScale * 0.9, {
-      blinkTimer: 1.0
+      eyeBlink: true
     });
     ctx.font = '20px sans-serif';
     ctx.fillText('⭐', cx + 16, cy - 16);

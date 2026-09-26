@@ -32,15 +32,15 @@ export class AnimalFeedingScene extends BaseScene {
     super.enter();
     soundEngine.setTrack('waltz');
     this.particles.clear();
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     this.logic.reset(w, h);
     voiceNarrator.speak("Let's feed our hungry friends!");
   }
 
   public update(dt: number, input: InputManager): void {
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     if (this.logic.width !== w || this.logic.height !== h) {
       this.logic.layout(w, h);
     }
@@ -53,7 +53,7 @@ export class AnimalFeedingScene extends BaseScene {
         // Toddler stroked animal tummy!
         this.logic.rubTummy(animalIdx);
         soundEngine.playSFX('tummyRub');
-        Haptics.light();
+        Haptics.tap();
         const animal = this.logic.animals[animalIdx];
         voiceNarrator.speak(`${animal.name} is giggling!`);
       } else {
@@ -104,13 +104,13 @@ export class AnimalFeedingScene extends BaseScene {
   }
 
   private launchFood(snackIndex: number): void {
-    soundEngine.playSFX('swoosh');
-    Haptics.light();
+    soundEngine.playSFX('whoosh');
+    Haptics.tap();
     this.logic.launchSnack(snackIndex);
   }
 
   public render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    this.renderer.render(ctx, this.logic, display.width, display.height);
+    this.renderer.render(ctx, this.logic, display.vWidth, display.vHeight);
     this.particles.render(ctx);
   }
 

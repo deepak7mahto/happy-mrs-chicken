@@ -51,7 +51,7 @@ export class VoiceNarrator {
       const utterance = new SpeechCtor(phrase);
       utterance.pitch = options.pitch ?? 1.15;
       utterance.rate = options.rate ?? 0.92;
-      utterance.volume = options.volume ?? (soundEngine.holder ? soundEngine.holder.sfxVolume : 1.0);
+      utterance.volume = options.volume ?? (soundEngine.holder ? soundEngine.holder.volume : 1.0);
 
       // Duck BGM while speaking
       soundEngine.duckBGM(0.4);

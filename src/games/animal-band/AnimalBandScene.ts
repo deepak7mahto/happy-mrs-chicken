@@ -31,15 +31,15 @@ export class AnimalBandScene extends BaseScene {
     super.enter();
     soundEngine.setTrack('frenzy');
     this.particles.clear();
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     this.logic.reset(w, h);
     voiceNarrator.speak('Welcome to the Farmyard Band! Tap to play music!');
   }
 
   public update(dt: number, input: InputManager): void {
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     if (this.logic.width !== w || this.logic.height !== h) {
       this.logic.layout(w, h);
     }
@@ -73,7 +73,7 @@ export class AnimalBandScene extends BaseScene {
     const res = this.logic.playMember(index);
     if (!res.played) return;
 
-    Haptics.light();
+    Haptics.tap();
     const m = res.member;
 
     switch (m.instrument) {
@@ -90,7 +90,7 @@ export class AnimalBandScene extends BaseScene {
         soundEngine.playSFX('duckQuack');
         break;
       case 'bass':
-        soundEngine.playSFX('hornHonk');
+        soundEngine.playSFX('fanfare');
         break;
     }
 
@@ -114,8 +114,8 @@ export class AnimalBandScene extends BaseScene {
     Haptics.success();
     soundEngine.playSFX('fanfare');
 
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
 
     // Burst confetti particles across stage
     this.particles.emit({
@@ -148,7 +148,7 @@ export class AnimalBandScene extends BaseScene {
   }
 
   public render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    this.renderer.render(ctx, this.logic, display.width, display.height);
+    this.renderer.render(ctx, this.logic, display.vWidth, display.vHeight);
     this.particles.render(ctx);
   }
 

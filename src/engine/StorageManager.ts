@@ -140,7 +140,11 @@ export class StorageManager implements IStorageManager {
               carWash: Number(rawScores.carWash) || 0,
               windyKite: Number(rawScores.windyKite) || 0,
               rainbowGarden: Number(rawScores.rainbowGarden) || 0,
-              duckPicnic: Number(rawScores.duckPicnic) || 0
+              duckPicnic: Number(rawScores.duckPicnic) || 0,
+              animalFeeding: Number(rawScores.animalFeeding) || 0,
+              animalBand: Number(rawScores.animalBand) || 0,
+              fingerPaint: Number(rawScores.fingerPaint) || 0,
+              bedtimeBarn: Number(rawScores.bedtimeBarn) || 0
             };
 
             const rawSettings = parsed.settings || {};

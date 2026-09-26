@@ -31,15 +31,15 @@ export class FingerPaintScene extends BaseScene {
     super.enter();
     soundEngine.setTrack('waltz');
     this.particles.clear();
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     this.logic.reset(w, h);
     voiceNarrator.speak('Rainbow Splat & Stamp Studio! Tap to paint!');
   }
 
   public update(dt: number, input: InputManager): void {
-    const w = this.game.canvas ? this.game.canvas.width : 960;
-    const h = this.game.canvas ? this.game.canvas.height : 540;
+    const w = this.game.display ? this.game.display.vWidth : 960;
+    const h = this.game.display ? this.game.display.vHeight : 540;
     if (this.logic.width !== w || this.logic.height !== h) {
       this.logic.layout(w, h);
     }
@@ -62,7 +62,7 @@ export class FingerPaintScene extends BaseScene {
           if (potIdx >= 0) {
             this.logic.setColor(potIdx);
             soundEngine.playSFX('click');
-            Haptics.light();
+            Haptics.tap();
           }
         }
       } else if (pos.y < h * 0.76) {
@@ -70,7 +70,7 @@ export class FingerPaintScene extends BaseScene {
         if (input.wasJustPressed()) {
           const splat = this.logic.addSplat(pos.x, pos.y);
           soundEngine.playSFX('paintSplat');
-          Haptics.light();
+          Haptics.tap();
 
           this.particles.emit({
             x: pos.x,
@@ -95,7 +95,7 @@ export class FingerPaintScene extends BaseScene {
   }
 
   public render(ctx: CanvasRenderingContext2D, _alpha: number, display: DisplayManager): void {
-    this.renderer.render(ctx, this.logic, display.width, display.height);
+    this.renderer.render(ctx, this.logic, display.vWidth, display.vHeight);
     this.particles.render(ctx);
   }
 

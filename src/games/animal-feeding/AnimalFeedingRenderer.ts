@@ -122,10 +122,9 @@ export class AnimalFeedingRenderer {
       ctx.translate(0, chewBounce);
     }
 
-    // Render character body
-    const charW = animal.width;
     const charH = animal.height;
-    renderCharacter(ctx, animal.id, -charW / 2, -charH / 2, charW, charH, {
+    // Render character body
+    renderCharacter(animal.id, ctx, 0, 0, 0.95, {
       facingLeft: index === 2
     });
 
