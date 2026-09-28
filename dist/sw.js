@@ -1,9 +1,9 @@
 /**
  * Adventures of Trishu - High Performance Offline Service Worker
- * Generated at build time. Version: adventures-of-trishu-v3.1.0-muknbn17
+ * Generated at build time. Version: adventures-of-trishu-v3.1.0-muknd1o4
  */
 
-const CACHE_NAME = 'adventures-of-trishu-v3.1.0-muknbn17';
+const CACHE_NAME = 'adventures-of-trishu-v3.1.0-muknd1o4';
 const PRECACHE_ASSETS = [
   "./",
   "./assets/audio-engine-C0p_yiHv.js",
