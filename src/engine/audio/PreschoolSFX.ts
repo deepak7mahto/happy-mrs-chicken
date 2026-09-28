@@ -152,4 +152,44 @@ export class PreschoolSFX {
     osc.start(now); osc.stop(now + 0.62);
     osc.onended = () => { osc.disconnect(); gain.disconnect(); };
   }
+
+  public playStickerPop(): void {
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(240, now);
+    osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(gain); gain.connect(this.sfxGain);
+    osc.start(now); osc.stop(now + 0.09);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+  }
+
+  public playCrayonScribble(): void {
+    this.makeNoise(0.06, 'bandpass', 1400, 2.5, 0.16);
+  }
+
+  public playMagicChime(): void {
+    const freqs = [523.25, 659.25, 783.99, 1046.5];
+    freqs.forEach((f, idx) => {
+      setTimeout(() => this.playTone(f, 0.22, 'sine', 0.18), idx * 45);
+    });
+  }
+
+  public playCameraShutter(): void {
+    this.makeNoise(0.03, 'highpass', 4000, 3.0, 0.35);
+    if (!this.canPlay || !this.ctx || !this.sfxGain) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(480, now);
+    osc.frequency.exponentialRampToValueAtTime(160, now + 0.07);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+    osc.connect(gain); gain.connect(this.sfxGain);
+    osc.start(now); osc.stop(now + 0.07);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+  }
 }

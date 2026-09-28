@@ -405,6 +405,10 @@ export class SoundSynthesizer {
   public playPaintSplat(): void { this.preschool.playPaintSplat(); }
   public playMusicBoxStar(pitchIndex: number = 0): void { this.preschool.playMusicBoxStar(pitchIndex); }
   public playSleepyYawn(): void { this.preschool.playSleepyYawn(); }
+  public playStickerPop(): void { this.preschool.playStickerPop(); }
+  public playCrayonScribble(): void { this.preschool.playCrayonScribble(); }
+  public playMagicChime(): void { this.preschool.playMagicChime(); }
+  public playCameraShutter(): void { this.preschool.playCameraShutter(); }
 
   public playSFX(name: SFXName, options: SFXOptions = {}): void {
     switch (name) {
@@ -441,6 +445,10 @@ export class SoundSynthesizer {
       case 'paintSplat': this.playPaintSplat(); break;
       case 'musicBoxStar': this.playMusicBoxStar(Math.round(options.pitch ?? 0)); break;
       case 'sleepyYawn': this.playSleepyYawn(); break;
+      case 'stickerPop': this.playStickerPop(); break;
+      case 'crayonScribble': this.playCrayonScribble(); break;
+      case 'magicChime': this.playMagicChime(); break;
+      case 'cameraShutter': this.playCameraShutter(); break;
     }
   }
 }
