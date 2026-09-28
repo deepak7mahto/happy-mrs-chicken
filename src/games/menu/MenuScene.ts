@@ -136,6 +136,22 @@ export class MenuScene extends BaseScene {
     if (this.scrollY < -maxScroll) this.scrollY = -maxScroll;
   }
 
+  private handleArtStudioTap(x: number, y: number, display: DisplayManager): boolean {
+    const isPortrait = display.isPortrait;
+    const btnW = isPortrait ? 150 : 170;
+    const btnH = 34;
+    const btnX = isPortrait ? display.vWidth / 2 - btnW / 2 : display.vWidth - btnW - 20;
+    const btnY = isPortrait ? 8 : 14;
+
+    if (x >= btnX && x <= btnX + btnW && y >= btnY && y <= btnY + btnH) {
+      soundEngine.playSFX('click');
+      Haptics.tap();
+      this.game.changeScene('STUDIO');
+      return true;
+    }
+    return false;
+  }
+
   private handleModeToggleTap(x: number, y: number, display: DisplayManager): boolean {
     const isPortrait = display.isPortrait;
     const topH = isPortrait ? 88 : 70;
@@ -161,6 +177,9 @@ export class MenuScene extends BaseScene {
   }
 
   handleTap(x: number, y: number): boolean {
+    if (this.handleArtStudioTap(x, y, this.game.display)) {
+      return true;
+    }
     if (this.handleModeToggleTap(x, y, this.game.display)) {
       return true;
     }

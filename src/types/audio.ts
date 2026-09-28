@@ -36,7 +36,11 @@ export type SFXName =
   | 'maracaShake'
   | 'paintSplat'
   | 'musicBoxStar'
-  | 'sleepyYawn';
+  | 'sleepyYawn'
+  | 'stickerPop'
+  | 'crayonScribble'
+  | 'magicChime'
+  | 'cameraShutter';
 
 export interface SFXOptions {
   playbackRate?: number;

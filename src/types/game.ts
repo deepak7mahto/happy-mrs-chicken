@@ -34,9 +34,14 @@ export type ActiveGameModeId =
   | 'FINGER_PAINT'
   | 'BEDTIME_BARN';
 
-// Full Scene ID Union (including MENU and slug aliases)
+// Canonical Scene Key Union
+export type SceneKey = 'MENU' | 'STUDIO' | ActiveGameModeId;
+
+// Full Scene ID Union (including MENU, STUDIO, and slug aliases)
 export type GameModeId =
   | 'MENU'
+  | 'STUDIO'
+  | 'studio'
   | ActiveGameModeId
   | 'classic'
   | 'egg-tap'

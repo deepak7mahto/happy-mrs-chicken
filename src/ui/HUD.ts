@@ -93,6 +93,9 @@ export class HUD {
             <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}" id="tab-grid-dt">
               🎮 Free Play
             </button>
+            <button type="button" role="tab" class="hud-mode-pill hud-mode-studio" id="tab-studio-dt" style="background: linear-gradient(135deg, #FFB300, #FF7043); color: #FFF; font-weight: bold;">
+              🎨 Art Studio
+            </button>
           </div>
         ` : ''}
 
@@ -128,6 +131,9 @@ export class HUD {
             </button>
             <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}" id="tab-grid-mb">
               🎮 Free Play
+            </button>
+            <button type="button" role="tab" class="hud-mode-pill hud-mode-studio" id="tab-studio-mb" style="background: linear-gradient(135deg, #FFB300, #FF7043); color: #FFF; font-weight: bold;">
+              🎨 Art Studio
             </button>
           </div>
         </div>
@@ -175,6 +181,19 @@ export class HUD {
       if (jMb) jMb.onclick = () => switchMode('journey');
       const gMb = this.el.querySelector('#tab-grid-mb') as HTMLElement | null;
       if (gMb) gMb.onclick = () => switchMode('grid');
+
+      const sDt = this.el.querySelector('#tab-studio-dt') as HTMLElement | null;
+      if (sDt) sDt.onclick = () => {
+        soundEngine.playSFX('click');
+        Haptics.tap();
+        this.engine.changeScene('STUDIO');
+      };
+      const sMb = this.el.querySelector('#tab-studio-mb') as HTMLElement | null;
+      if (sMb) sMb.onclick = () => {
+        soundEngine.playSFX('click');
+        Haptics.tap();
+        this.engine.changeScene('STUDIO');
+      };
 
       const installBtn = this.el.querySelector('#hud-btn-install') as HTMLElement | null;
       if (installBtn) installBtn.onclick = () => this.callbacks.onOpenInstall();

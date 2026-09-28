@@ -49,12 +49,13 @@ import { resolve } from 'node:path';
 // Suite 1: Smoke & Initialization
 // ---------------------------------------------------------------------------
 describe('Tier 1: Smoke & Initialization', () => {
-  test('T1.01: GameEngine instantiates all 21 scenes including MENU and 20 game modes', () => {
+  test('T1.01: GameEngine instantiates all 22 scenes including MENU, STUDIO, and 20 game modes', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(21);
+    expect(engine.scenes.size).toBe(22);
     expect(engine.scenes.has('MENU')).toBe(true);
+    expect(engine.scenes.has('STUDIO')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
     expect(engine.scenes.has('MUDDY_PUDDLES')).toBe(true);
     expect(engine.scenes.has('CHICK_MAZE')).toBe(true);
@@ -678,7 +679,7 @@ describe('Tier 4: Quality Gates & Branding Verification', () => {
     }
   });
 
-  test('T4.05: Zero canvas context save/restore state leaks across all 21 game scenes', () => {
+  test('T4.05: Zero canvas context save/restore state leaks across all 22 game scenes', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
     const ctx = canvas.getContext('2d')!;
