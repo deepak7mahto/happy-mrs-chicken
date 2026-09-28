@@ -1,39 +1,37 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect } from './e2e_runner.mjs';
 import { ColoringLogic } from '../src/games/studio/coloring/ColoringLogic.js';
 import { COLORING_SHEETS } from '../src/games/studio/coloring/ColoringSheets.js';
 
-describe('Coloring Book Logic', () => {
-  it('provides 6 preschool line-art coloring sheets with closed vector regions', () => {
-    assert.equal(COLORING_SHEETS.length, 6);
+describe('Creative Art Studio: Coloring Book Logic', () => {
+  it('T-STU.09: Provides 6 preschool line-art coloring sheets with closed vector regions', () => {
+    expect(COLORING_SHEETS.length).toBe(6);
     for (const sheet of COLORING_SHEETS) {
-      assert.ok(sheet.regions.length >= 5);
+      expect(sheet.regions.length).toBeGreaterThanOrEqual(5);
       for (const r of sheet.regions) {
-        assert.ok(r.polygon.length >= 3);
-        assert.ok(r.colorCanon.startsWith('#'));
+        expect(r.polygon.length).toBeGreaterThanOrEqual(3);
+        expect(r.colorCanon.startsWith('#')).toBe(true);
       }
     }
   });
 
-  it('Magic Color fills regions upon touch intersection', () => {
+  it('T-STU.10: Magic Color fills regions upon touch intersection', () => {
     const logic = new ColoringLogic();
     logic.layout(960, 540);
     logic.clearSheet();
     logic.setToolMode('magic');
 
-    // Pick top-left sky corner (0.1, 0.1) which is only in sky region
     const cx = 0.1 * 960;
     const cy = 0.1 * 540;
     const hitRegion = logic.hitTestRegion(cx, cy);
-    assert.ok(hitRegion);
+    expect(Boolean(hitRegion)).toBe(true);
 
     const revealed = logic.handleTouchMove(cx, cy);
-    assert.equal(revealed, true);
-    assert.equal(logic.isRegionFilled(hitRegion.id), true);
-    assert.equal(logic.getRegionColor(hitRegion.id), hitRegion.colorCanon);
+    expect(revealed).toBe(true);
+    expect(logic.isRegionFilled(hitRegion!.id)).toBe(true);
+    expect(logic.getRegionColor(hitRegion!.id)).toBe(hitRegion!.colorCanon);
   });
 
-  it('Free Crayon records strokes and supports undo', () => {
+  it('T-STU.11: Free Crayon records strokes and supports undo', () => {
     const logic = new ColoringLogic();
     logic.layout(960, 540);
     logic.clearSheet();
@@ -43,34 +41,34 @@ describe('Coloring Book Logic', () => {
     logic.addStrokePoint(110, 110);
     logic.endStroke();
 
-    assert.equal(logic.strokes.length, 1);
+    expect(logic.strokes.length).toBe(1);
     logic.undo();
-    assert.equal(logic.strokes.length, 0);
+    expect(logic.strokes.length).toBe(0);
   });
 
-  it('Tap-to-fill colors clicked region in crayon mode', () => {
+  it('T-STU.12: Tap-to-fill colors clicked region in crayon mode', () => {
     const logic = new ColoringLogic();
     logic.layout(960, 540);
     logic.clearSheet();
     logic.setToolMode('crayon');
     logic.setColor('#42A5F5');
 
-    const region = logic.activeSheet.regions[1]; // comb
+    const region = logic.activeSheet.regions[1];
     const cx = region.polygon.reduce((acc, p) => acc + p.x, 0) / region.polygon.length * 960;
     const cy = region.polygon.reduce((acc, p) => acc + p.y, 0) / region.polygon.length * 540;
 
     const filled = logic.handleTap(cx, cy);
-    assert.equal(filled, true);
-    assert.equal(logic.getRegionColor(region.id), '#42A5F5');
+    expect(filled).toBe(true);
+    expect(logic.getRegionColor(region.id)).toBe('#42A5F5');
   });
 
-  it('cycles sheets and preserves coloring progress', () => {
+  it('T-STU.13: Cycles sheets and preserves coloring progress', () => {
     const logic = new ColoringLogic();
     logic.layout(960, 540);
-    assert.equal(logic.sheetIndex, 0);
+    expect(logic.sheetIndex).toBe(0);
     logic.nextSheet();
-    assert.equal(logic.sheetIndex, 1);
+    expect(logic.sheetIndex).toBe(1);
     logic.prevSheet();
-    assert.equal(logic.sheetIndex, 0);
+    expect(logic.sheetIndex).toBe(0);
   });
 });

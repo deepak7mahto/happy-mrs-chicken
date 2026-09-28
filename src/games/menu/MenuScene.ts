@@ -136,38 +136,40 @@ export class MenuScene extends BaseScene {
     if (this.scrollY < -maxScroll) this.scrollY = -maxScroll;
   }
 
+  private handleArtStudioTap(x: number, y: number, display: DisplayManager): boolean {
+    const isPortrait = display.isPortrait;
+    const btnW = isPortrait ? 150 : 170;
+    const btnH = 34;
+    const btnX = isPortrait ? display.vWidth / 2 - btnW / 2 : display.vWidth - btnW - 20;
+    const btnY = isPortrait ? 8 : 14;
+
+    if (x >= btnX && x <= btnX + btnW && y >= btnY && y <= btnY + btnH) {
+      soundEngine.playSFX('click');
+      Haptics.tap();
+      this.game.changeScene('STUDIO');
+      return true;
+    }
+    return false;
+  }
+
   private handleModeToggleTap(x: number, y: number, display: DisplayManager): boolean {
     const isPortrait = display.isPortrait;
     const topH = isPortrait ? 88 : 70;
     if (y > topH) return false;
 
-    const toggleW = isPortrait ? 330 : 420;
+    const toggleW = isPortrait ? 270 : 310;
     const toggleH = 34;
     const toggleX = display.vWidth / 2 - toggleW / 2;
     const toggleY = isPortrait ? 44 : 32;
 
     if (x >= toggleX && x <= toggleX + toggleW && y >= toggleY && y <= toggleY + toggleH) {
-      const relX = (x - toggleX) / toggleW;
-      if (relX < 0.33) {
-        if (this.game.storyViewMode !== 'journey') {
-          soundEngine.playSFX('click');
-          Haptics.tap();
-          this.game.setStoryViewMode('journey');
-          this.scrollY = 0;
-          this.scrollVy = 0;
-        }
-      } else if (relX < 0.66) {
-        if (this.game.storyViewMode !== 'grid') {
-          soundEngine.playSFX('click');
-          Haptics.tap();
-          this.game.setStoryViewMode('grid');
-          this.scrollY = 0;
-          this.scrollVy = 0;
-        }
-      } else {
+      const clickSide = x < toggleX + toggleW / 2 ? 'journey' : 'grid';
+      if (this.game.storyViewMode !== clickSide) {
         soundEngine.playSFX('click');
         Haptics.tap();
-        this.game.changeScene('STUDIO');
+        this.game.setStoryViewMode(clickSide);
+        this.scrollY = 0;
+        this.scrollVy = 0;
       }
       return true;
     }
@@ -175,6 +177,9 @@ export class MenuScene extends BaseScene {
   }
 
   handleTap(x: number, y: number): boolean {
+    if (this.handleArtStudioTap(x, y, this.game.display)) {
+      return true;
+    }
     if (this.handleModeToggleTap(x, y, this.game.display)) {
       return true;
     }

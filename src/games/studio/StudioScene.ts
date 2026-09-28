@@ -112,8 +112,8 @@ export class StudioScene extends BaseScene {
     if (x <= 110) {
       soundEngine.playSFX('click');
       Haptics.tap();
-      if (this.game && typeof this.game.switchScene === 'function') {
-        this.game.switchScene('MENU');
+      if (this.game && typeof this.game.changeScene === 'function') {
+        this.game.changeScene('MENU');
       }
       return;
     }
@@ -168,7 +168,7 @@ export class StudioScene extends BaseScene {
         if (item.sound) {
           setTimeout(() => soundEngine.playSFX(item.sound as any), 120);
         }
-        this.particles.burst(spawned.x, spawned.y, 14, ['#FFEE58', '#FF80AB', '#80D8FF']);
+        this.particles.spawnSparkles(spawned.x, spawned.y, 14);
         return;
       }
 
@@ -246,7 +246,7 @@ export class StudioScene extends BaseScene {
         if (revealed) {
           soundEngine.playSFX('magicChime');
           Haptics.tap();
-          this.particles.burst(pos.x, pos.y, 16, ['#FFD700', '#FF80AB', '#00E676', '#40C4FF']);
+          this.particles.spawnSparkles(pos.x, pos.y, 16);
         }
       } else {
         // Crayon Mode
@@ -255,7 +255,7 @@ export class StudioScene extends BaseScene {
           if (filled) {
             soundEngine.playSFX('paintSplat');
             Haptics.tap();
-            this.particles.burst(pos.x, pos.y, 12, [this.coloringLogic.selectedColor]);
+            this.particles.emit({ x: pos.x, y: pos.y, count: 12, color: this.coloringLogic.selectedColor });
           } else {
             this.coloringLogic.startStroke(pos.x, pos.y);
           }
@@ -288,7 +288,7 @@ export class StudioScene extends BaseScene {
     Haptics.tap();
     voiceNarrator.speak('Say cheese! Click!');
     this.flashAlpha = 1.0;
-    this.particles.burst(w / 2, 270, 36, ['#FFD700', '#FF1744', '#00E676', '#2979FF', '#FF80AB']);
+    this.particles.spawnConfetti(w / 2, 270, 36);
 
     // Capture canvas
     try {
