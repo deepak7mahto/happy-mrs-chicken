@@ -25,3 +25,4 @@ export * from './animal-feeding';
 export * from './animal-band';
 export * from './finger-paint';
 export * from './bedtime-barn';
+export * from './studio';

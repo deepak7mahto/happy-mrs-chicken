@@ -30,7 +30,8 @@ import {
   AnimalFeedingScene,
   AnimalBandScene,
   FingerPaintScene,
-  BedtimeBarnScene
+  BedtimeBarnScene,
+  StudioScene
 } from '../games';
 
 export class GameEngine {
@@ -73,6 +74,7 @@ export class GameEngine {
     this.scenes.set('ANIMAL_BAND', new AnimalBandScene(this));
     this.scenes.set('FINGER_PAINT', new FingerPaintScene(this));
     this.scenes.set('BEDTIME_BARN', new BedtimeBarnScene(this));
+    this.scenes.set('STUDIO', new StudioScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),

@@ -141,19 +141,33 @@ export class MenuScene extends BaseScene {
     const topH = isPortrait ? 88 : 70;
     if (y > topH) return false;
 
-    const toggleW = isPortrait ? 270 : 310;
+    const toggleW = isPortrait ? 330 : 420;
     const toggleH = 34;
     const toggleX = display.vWidth / 2 - toggleW / 2;
     const toggleY = isPortrait ? 44 : 32;
 
     if (x >= toggleX && x <= toggleX + toggleW && y >= toggleY && y <= toggleY + toggleH) {
-      const clickSide = x < toggleX + toggleW / 2 ? 'journey' : 'grid';
-      if (this.game.storyViewMode !== clickSide) {
+      const relX = (x - toggleX) / toggleW;
+      if (relX < 0.33) {
+        if (this.game.storyViewMode !== 'journey') {
+          soundEngine.playSFX('click');
+          Haptics.tap();
+          this.game.setStoryViewMode('journey');
+          this.scrollY = 0;
+          this.scrollVy = 0;
+        }
+      } else if (relX < 0.66) {
+        if (this.game.storyViewMode !== 'grid') {
+          soundEngine.playSFX('click');
+          Haptics.tap();
+          this.game.setStoryViewMode('grid');
+          this.scrollY = 0;
+          this.scrollVy = 0;
+        }
+      } else {
         soundEngine.playSFX('click');
         Haptics.tap();
-        this.game.setStoryViewMode(clickSide);
-        this.scrollY = 0;
-        this.scrollVy = 0;
+        this.game.changeScene('STUDIO');
       }
       return true;
     }
