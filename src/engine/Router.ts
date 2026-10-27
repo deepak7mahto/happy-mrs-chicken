@@ -17,7 +17,12 @@ const EXTRA_ALIASES: Record<string, ActiveGameModeId> = {
   dinosaurballoon: 'DINOSAUR_BALLOON',
   'dinosaur-balloon': 'DINOSAUR_BALLOON',
   egglaying: 'EGG_LAYING',
-  'egg-laying': 'EGG_LAYING'
+  'egg-laying': 'EGG_LAYING',
+  muddykart: 'MUDDY_KART_3D',
+  'muddy-kart': 'MUDDY_KART_3D',
+  kart3d: 'MUDDY_KART_3D',
+  'kart-3d': 'MUDDY_KART_3D',
+  racing: 'MUDDY_KART_3D'
 };
 
 /**

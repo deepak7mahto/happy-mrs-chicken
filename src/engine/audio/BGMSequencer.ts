@@ -200,12 +200,12 @@ export class BGMSequencer {
   public duckBGM(durationSec: number = 0.8): void {
     if (!this.holder.musicGain || !this.holder.ctx) return;
     const now = this.holder.ctx.currentTime;
-    const currentGain = this.holder.musicGain.gain.value || 0.35;
-    const targetDucked = currentGain * 0.4; // 60% attenuation
+    const baseGain = this.holder.bgmBaseGain || 0.35;
+    const targetDucked = baseGain * 0.4; // 60% attenuation
     this.holder.musicGain.gain.cancelScheduledValues(now);
-    this.holder.musicGain.gain.setValueAtTime(currentGain, now);
+    this.holder.musicGain.gain.setValueAtTime(this.holder.musicGain.gain.value, now);
     this.holder.musicGain.gain.linearRampToValueAtTime(targetDucked, now + 0.05);
-    this.holder.musicGain.gain.linearRampToValueAtTime(currentGain, now + durationSec);
+    this.holder.musicGain.gain.linearRampToValueAtTime(baseGain, now + durationSec);
   }
 
   private scheduler(): void {

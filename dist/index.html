@@ -18,6 +18,39 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="./icons/icon-512.png">
   <title>Adventures of Trishu</title>
+  <script>
+    (function() {
+      function polyfill(proto) {
+        if (!proto || typeof proto.roundRect === 'function') return;
+        proto.roundRect = function(x, y, w, h, radii) {
+          if (w === 0 || h === 0) { this.rect(x, y, w, h); return this; }
+          var rx = x, ry = y, rw = w, rh = h;
+          if (rw < 0) { rx += rw; rw = Math.abs(rw); }
+          if (rh < 0) { ry += rh; rh = Math.abs(rh); }
+          var maxR = Math.min(rw / 2, rh / 2);
+          var tl = 0, tr = 0, br = 0, bl = 0;
+          if (typeof radii === 'number') {
+            tl = tr = br = bl = Math.max(0, Math.min(radii, maxR));
+          } else if (Array.isArray(radii)) {
+            var getR = function(v) { return typeof v === 'number' ? Math.max(0, Math.min(v, maxR)) : (v && typeof v.x === 'number' ? Math.max(0, Math.min(v.x, maxR)) : 0); };
+            if (radii.length === 1) { tl = tr = br = bl = getR(radii[0]); }
+            else if (radii.length === 2) { tl = br = getR(radii[0]); tr = bl = getR(radii[1]); }
+            else if (radii.length === 3) { tl = getR(radii[0]); tr = bl = getR(radii[1]); br = getR(radii[2]); }
+            else if (radii.length >= 4) { tl = getR(radii[0]); tr = getR(radii[1]); br = getR(radii[2]); bl = getR(radii[3]); }
+          }
+          this.moveTo(rx + tl, ry);
+          this.arcTo(rx + rw, ry, rx + rw, ry + rh, tr);
+          this.arcTo(rx + rw, ry + rh, rx, ry + rh, br);
+          this.arcTo(rx, ry + rh, rx, ry, bl);
+          this.arcTo(rx, ry, rx + rw, ry, tl);
+          this.closePath();
+          return this;
+        };
+      }
+      if (typeof CanvasRenderingContext2D !== 'undefined') polyfill(CanvasRenderingContext2D.prototype);
+      if (typeof Path2D !== 'undefined') polyfill(Path2D.prototype);
+    })();
+  </script>
   <style>
     * {
       box-sizing: border-box;
@@ -68,13 +101,13 @@
       touch-action: none;
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-Dred-VO1.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/audio-engine-C0p_yiHv.js">
-  <link rel="modulepreload" crossorigin href="./assets/graphics-engine-DOIr7v_p.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-DM5KVhMt.css">
+  <script type="module" crossorigin src="./assets/index-DFqa9CXy.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/audio-engine-C8XG8Bi0.js">
+  <link rel="modulepreload" crossorigin href="./assets/graphics-engine-DBwyksMG.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-CiP6YxmC.css">
 </head>
 <body>
   <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to main content</a>
-  <div id="root"><main id="main"></main></div>
+  <div id="root"><main id="main"></main></div>
 </body>
 </html>

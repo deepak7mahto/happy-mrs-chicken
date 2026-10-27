@@ -96,7 +96,7 @@ export class MenuScene extends BaseScene {
     const cols = isPortrait ? 2 : 4;
     const gapX = isPortrait ? 16 : 12;
     const gapY = isPortrait ? 12 : 8;
-    const topPad = isPortrait ? 108 : 74;
+    const topPad = isPortrait ? 138 : 74;
     const cardW = isPortrait ? 240 : (vWidth - 40 - 3 * gapX) / 4;
     const cardH = isPortrait ? 144 : (vHeight - topPad - 10 - 3 * gapY) / 4;
     const padX = isPortrait ? Math.round((vWidth - (2 * cardW + gapX)) / 2) : 20;
@@ -118,7 +118,7 @@ export class MenuScene extends BaseScene {
   }
 
   private scrollCardIntoView(card: ModeCardDef, display: DisplayManager): void {
-    const topPad = display.isPortrait ? 108 : 74;
+    const topPad = display.isPortrait ? 138 : 74;
     const vHeight = display.vHeight;
     const contentH = this.getContentHeight(display);
     const maxScroll = Math.max(0, contentH - vHeight);
@@ -225,12 +225,15 @@ export class MenuScene extends BaseScene {
     const maxScroll = Math.max(0, contentH - display.vHeight);
 
     // Continuous keyboard arrow scrolling for accessibility
-    if (input.isKeyDown('ArrowDown')) {
-      this.scrollY -= 350 * dt;
-      this.scrollVy = 0;
-    } else if (input.isKeyDown('ArrowUp')) {
-      this.scrollY += 350 * dt;
-      this.scrollVy = 0;
+    const isArrowJustPressed = input.isKeyJustPressed('ArrowDown') || input.isKeyJustPressed('ArrowUp');
+    if (!isArrowJustPressed) {
+      if (input.isKeyDown('ArrowDown')) {
+        this.scrollY -= 350 * dt;
+        this.scrollVy = 0;
+      } else if (input.isKeyDown('ArrowUp')) {
+        this.scrollY += 350 * dt;
+        this.scrollVy = 0;
+      }
     }
 
     // Keyboard & Gamepad focus navigation

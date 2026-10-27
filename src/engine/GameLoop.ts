@@ -67,12 +67,20 @@ export class GameLoop {
 
     this.accumulator += frameTime;
     while (this.accumulator >= this.fixedDt) {
-      this.updateFn(this.fixedDt, this.isPaused);
+      try {
+        this.updateFn(this.fixedDt, this.isPaused);
+      } catch (err) {
+        console.error('[GameLoop] Update error:', err);
+      }
       this.accumulator -= this.fixedDt;
     }
 
     const alpha = this.accumulator / this.fixedDt;
-    this.renderFn(alpha);
+    try {
+      this.renderFn(alpha);
+    } catch (err) {
+      console.error('[GameLoop] Render error:', err);
+    }
 
     this.rafId = requestAnimationFrame(this.tick);
   }

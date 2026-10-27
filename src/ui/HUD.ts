@@ -42,7 +42,9 @@ export class HUD {
 
     this.el = document.createElement('header');
     this.el.className = 'hud-layer hud-menu-layer';
-    parent.appendChild(this.el);
+    if (parent && typeof parent.appendChild === 'function') {
+      parent.appendChild(this.el);
+    }
 
     this.render();
   }
@@ -144,6 +146,8 @@ export class HUD {
   }
 
   private bindEvents(isMenu: boolean, isToddlerLocked: boolean): void {
+    if (!this.el || typeof this.el.querySelector !== 'function') return;
+
     if (!isMenu) {
       const homeBtn = this.el.querySelector('#hud-btn-home') as HTMLElement;
       if (homeBtn) {

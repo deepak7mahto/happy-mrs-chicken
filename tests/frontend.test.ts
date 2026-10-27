@@ -38,11 +38,14 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     expect(resolveHashToModeId('#little-train')).toBe('LITTLE_TRAIN');
     expect(resolveHashToModeId('#windy-kite')).toBe('WINDY_KITE');
     expect(resolveHashToModeId('#rainbow-garden')).toBe('RAINBOW_GARDEN');
+    expect(resolveHashToModeId('#muddy-kart')).toBe('MUDDY_KART_3D');
+    expect(resolveHashToModeId('#kart-3d')).toBe('MUDDY_KART_3D');
 
     // Stripped forms
     expect(resolveHashToModeId('#egglaying')).toBe('EGG_LAYING');
     expect(resolveHashToModeId('#muddypuddles')).toBe('MUDDY_PUDDLES');
     expect(resolveHashToModeId('#muddycarwash')).toBe('CAR_WASH');
+    expect(resolveHashToModeId('#muddykart')).toBe('MUDDY_KART_3D');
 
     // Invalid or Menu
     expect(resolveHashToModeId('')).toBe(null);
@@ -125,7 +128,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     }
   });
 
-  test('T6.04: GameEngine modesAvailable returns all 20 mode IDs', () => {
+  test('T6.04: GameEngine modesAvailable returns all 21 mode IDs', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
     engine.setupIntrospectionHooks();
@@ -133,7 +136,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     const gameState = (window as any).__GAME_STATE__;
     expect(gameState).toBeDefined();
     const modes = gameState.modesAvailable;
-    expect(modes.length).toBe(20);
+    expect(modes.length).toBe(21);
 
     const expectedModes = [
       'EGG_LAYING',
@@ -155,7 +158,8 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
       'ANIMAL_FEEDING',
       'ANIMAL_BAND',
       'FINGER_PAINT',
-      'BEDTIME_BARN'
+      'BEDTIME_BARN',
+      'MUDDY_KART_3D'
     ];
 
     for (const m of expectedModes) {

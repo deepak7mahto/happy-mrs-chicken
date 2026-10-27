@@ -23,11 +23,11 @@ export function renderMenuCardGrid(
   const isPortrait = display.isPortrait;
   const vWidth = display.vWidth;
   const vHeight = display.vHeight;
-  const topPad = isPortrait ? 62 : 54;
+  const clipTop = isPortrait ? 128 : 54;
 
   ctx.save();
   ctx.beginPath();
-  ctx.rect(0, topPad, vWidth, vHeight - topPad);
+  ctx.rect(0, clipTop, vWidth, vHeight - clipTop);
   ctx.clip();
 
   ctx.save();
@@ -37,7 +37,7 @@ export function renderMenuCardGrid(
     const card = cards[i];
     const cardTop = card.y - card.h / 2 + scrollY;
     const cardBottom = card.y + card.h / 2 + scrollY;
-    if (cardBottom < topPad - 10 || cardTop > vHeight + 10) {
+    if (cardBottom < clipTop - 10 || cardTop > vHeight + 10) {
       continue;
     }
 

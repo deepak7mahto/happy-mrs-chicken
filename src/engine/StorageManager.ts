@@ -32,7 +32,8 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   dinosaurBalloon: 0, pancakeFlipper: 0, vegetableHarvest: 0, hopscotchBubble: 0,
   mixMatch: 0, peekABoo: 0, iceCreamVan: 0, littleTrain: 0,
   carWash: 0, windyKite: 0, rainbowGarden: 0, duckPicnic: 0,
-  animalFeeding: 0, animalBand: 0, fingerPaint: 0, bedtimeBarn: 0
+  animalFeeding: 0, animalBand: 0, fingerPaint: 0, bedtimeBarn: 0,
+  muddyKart: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -57,6 +58,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   ANIMAL_BAND: 'animalBand',
   FINGER_PAINT: 'fingerPaint',
   BEDTIME_BARN: 'bedtimeBarn',
+  MUDDY_KART_3D: 'muddyKart',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -79,6 +81,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'animal-band': 'animalBand',
   'splat-stamp': 'fingerPaint',
   'sleepy-barn': 'bedtimeBarn',
+  'muddy-kart': 'muddyKart',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -100,7 +103,8 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   animalFeeding: 'animalFeeding',
   animalBand: 'animalBand',
   fingerPaint: 'fingerPaint',
-  bedtimeBarn: 'bedtimeBarn'
+  bedtimeBarn: 'bedtimeBarn',
+  muddyKart: 'muddyKart'
 };
 
 export class StorageManager implements IStorageManager {
@@ -144,7 +148,8 @@ export class StorageManager implements IStorageManager {
               animalFeeding: Number(rawScores.animalFeeding) || 0,
               animalBand: Number(rawScores.animalBand) || 0,
               fingerPaint: Number(rawScores.fingerPaint) || 0,
-              bedtimeBarn: Number(rawScores.bedtimeBarn) || 0
+              bedtimeBarn: Number(rawScores.bedtimeBarn) || 0,
+              muddyKart: Number(rawScores.muddyKart) || 0
             };
 
             const rawSettings = parsed.settings || {};

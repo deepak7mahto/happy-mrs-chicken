@@ -24,6 +24,7 @@ export interface HighScores {
   animalBand: number;       // Mode 18: Farmyard Animal Band
   fingerPaint: number;      // Mode 19: Rainbow Splat & Stamp Studio
   bedtimeBarn: number;      // Mode 20: Sleepy Bedtime Barn
+  muddyKart: number;        // Mode 21: Grandpa's Muddy Kart 3D
   [key: string]: number;
 }
 

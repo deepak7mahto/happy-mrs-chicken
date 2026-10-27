@@ -48,7 +48,8 @@ export const MENU_CARDS: MenuCardInfo[] = [
   { id: 'ANIMAL_FEEDING', title: 'Hungry Friends', sub: 'Feed tasty treats!', badge: 'Yum', color: '#FFE0B2', borderColor: '#FF9800', scoreKey: 'animalFeeding' },
   { id: 'ANIMAL_BAND', title: 'Animal Band', sub: 'Make joyful music!', badge: 'Music', color: '#E1BEE7', borderColor: '#AB47BC', scoreKey: 'animalBand' },
   { id: 'FINGER_PAINT', title: 'Splat & Stamp', sub: 'Finger-paint & stamp!', badge: 'Art', color: '#FFCDD2', borderColor: '#EF5350', scoreKey: 'fingerPaint' },
-  { id: 'BEDTIME_BARN', title: 'Sleepy Barn', sub: 'Tuck friends into bed!', badge: 'Bedtime', color: '#C5CAE9', borderColor: '#5C6BC0', scoreKey: 'bedtimeBarn' }
+  { id: 'BEDTIME_BARN', title: 'Sleepy Barn', sub: 'Tuck friends into bed!', badge: 'Bedtime', color: '#C5CAE9', borderColor: '#5C6BC0', scoreKey: 'bedtimeBarn' },
+  { id: 'MUDDY_KART_3D', title: '3D Kart', sub: 'Race & splash mud!', badge: '3D Racing', color: '#FFE082', borderColor: '#FFA000', scoreKey: 'muddyKart' }
 ];
 
 export function renderMenuCharacterPreview(
@@ -345,6 +346,42 @@ export function renderMenuCharacterPreview(
     });
     ctx.font = '20px sans-serif';
     ctx.fillText('⭐', cx + 16, cy - 16);
+    ctx.restore();
+  } else if (modeId === 'MUDDY_KART_3D') {
+    ctx.save();
+    ctx.translate(cx, cy + 6);
+    // Kart shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+    ctx.beginPath();
+    ctx.ellipse(0, 16, 26, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Wheels
+    ctx.fillStyle = '#212121';
+    ctx.beginPath();
+    ctx.roundRect(-26, 2, 8, 14, 2);
+    ctx.roundRect(18, 2, 8, 14, 2);
+    ctx.fill();
+    // Red chassis
+    ctx.fillStyle = '#E53935';
+    ctx.beginPath();
+    ctx.roundRect(-20, -2, 40, 16, 6);
+    ctx.fill();
+    // Yellow hood stripe
+    ctx.fillStyle = '#FFEB3B';
+    ctx.fillRect(-4, -2, 8, 16);
+    // Steering wheel
+    ctx.strokeStyle = '#263238';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 2, 6, 0, Math.PI * 2);
+    ctx.stroke();
+    // Driver head
+    drawGrandpa(ctx, 0, -12, charScale * 0.65, {
+      pulling: false,
+      pullTension: 0,
+      welliesMuddy: false,
+      eyeBlink: Math.sin(time * 2.2) > 0.88
+    });
     ctx.restore();
   }
 }

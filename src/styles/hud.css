@@ -7,12 +7,13 @@
 .hud-layer {
   position: fixed; top: 0; left: 0; right: 0; pointer-events: none; z-index: 40;
   display: flex; flex-direction: column;
-  padding-top: max(8px, calc(env(safe-area-inset-top, 0px) + 6px));
-  padding-left: max(10px, calc(env(safe-area-inset-left, 0px) + 8px));
-  padding-right: max(10px, calc(env(safe-area-inset-right, 0px) + 8px));
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-left: max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
   user-select: none; -webkit-user-select: none; box-sizing: border-box;
+  -webkit-transform: translateZ(0); transform: translateZ(0);
 }
-.hud-top-bar { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; }
+.hud-top-bar { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .hud-brand {
   display: flex; align-items: center; gap: 6px; pointer-events: auto;
   background: rgba(255, 255, 255, 0.94); border: 2.5px solid #FFD54F;
@@ -31,17 +32,17 @@
 .hud-mode-pill {
   padding: 5px 14px; border-radius: 9999px; border: none; background: transparent;
   font-size: 0.82rem; font-weight: 800; color: #546E7A; cursor: pointer; outline: none;
-  transition: all 0.12s ease; font-family: inherit; white-space: nowrap;
+  transition: all 0.12s ease; font-family: inherit; white-space: nowrap; -webkit-tap-highlight-color: transparent;
 }
 .hud-mode-pill.active {
   background: linear-gradient(180deg, #66BB6A 0%, #43A047 100%); color: #FFFFFF;
   box-shadow: 0 2px 0 #2E7D32, 0 2px 6px rgba(0, 0, 0, 0.2); transform: translateY(-1px);
 }
 .hud-mode-pill:active { transform: translateY(1px); }
-.hud-mode-row-mobile { display: flex; justify-content: center; margin-top: 6px; }
+.hud-mode-row-mobile { display: flex; justify-content: center; margin-top: 6px; pointer-events: auto; }
 .hud-mode-toggle-desktop { display: none; }
 
-@media (min-width: 681px) {
+@media (min-width: 600px) {
   .hud-mode-toggle-desktop { display: inline-flex; }
   .hud-mode-row-mobile { display: none; }
 }

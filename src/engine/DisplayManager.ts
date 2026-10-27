@@ -1,3 +1,5 @@
+import './polyfills';
+
 export class DisplayManager {
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
@@ -109,17 +111,31 @@ export class DisplayManager {
 
     this.isPortrait = this._windowHeight > this._windowWidth;
     if (this.isPortrait) {
-      // In portrait: horizontal reference is 540 virtual pixels
-      this._scale = this._windowWidth / 540;
-      this.vWidth = 540;
-      this.vHeight = Math.max(800, Math.round(this._windowHeight / this._scale));
+      if (this._windowHeight / this._windowWidth < 800 / 540) {
+        // Squarish screen: fit 800 vertically to prevent clipping
+        this._scale = this._windowHeight / 800;
+        this.vHeight = 800;
+        this.vWidth = Math.max(540, Math.round(this._windowWidth / this._scale));
+      } else {
+        // Normal or tall portrait: fit 540 horizontally
+        this._scale = this._windowWidth / 540;
+        this.vWidth = 540;
+        this.vHeight = Math.max(800, Math.round(this._windowHeight / this._scale));
+      }
       this._offsetX = 0;
       this._offsetY = 0;
     } else {
-      // In landscape: vertical reference is 540 virtual pixels
-      this._scale = this._windowHeight / 540;
-      this.vHeight = 540;
-      this.vWidth = Math.max(960, Math.round(this._windowWidth / this._scale));
+      if (this._windowWidth / this._windowHeight < 960 / 540) {
+        // Narrow landscape (e.g. 4:3 iPad): fit 960 horizontally to prevent clipping
+        this._scale = this._windowWidth / 960;
+        this.vWidth = 960;
+        this.vHeight = Math.max(540, Math.round(this._windowHeight / this._scale));
+      } else {
+        // Normal or widescreen: fit 540 vertically
+        this._scale = this._windowHeight / 540;
+        this.vHeight = 540;
+        this.vWidth = Math.max(960, Math.round(this._windowWidth / this._scale));
+      }
       this._offsetX = 0;
       this._offsetY = 0;
     }

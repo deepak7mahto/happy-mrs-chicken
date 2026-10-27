@@ -103,7 +103,9 @@ export class PwaManager {
   public isIOS(): boolean {
     if (typeof navigator === 'undefined') return false;
     const ua = navigator.userAgent || '';
-    return /iPad|iPhone|iPod/.test(ua) && !(window as unknown as { MSStream?: unknown })?.MSStream;
+    const isIOSDevice = /iPad|iPhone|iPod/.test(ua) && !(window as unknown as { MSStream?: unknown })?.MSStream;
+    const isIPadOS = (navigator.platform === 'MacIntel' || ua.includes('Macintosh')) && (navigator.maxTouchPoints || 0) > 1;
+    return Boolean(isIOSDevice || isIPadOS);
   }
 
   public isInstallable(): boolean {

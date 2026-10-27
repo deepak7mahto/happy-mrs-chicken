@@ -26,3 +26,12 @@ body {
 button, input, select {
   font-family: var(--font-kids);
 }
+
+#ui-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}

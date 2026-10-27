@@ -18,18 +18,18 @@ import { DuckPicnicScene } from '../src/games/duck-picnic/DuckPicnicScene';
 import { RainbowGardenScene } from '../src/games/rainbow-garden/RainbowGardenScene';
 
 describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () => {
-  test('T7.01: MenuScene produces 2-column portrait layout (cols=2, rows=10) and 4-column landscape layout', () => {
+  test('T7.01: MenuScene produces 2-column portrait layout and 4-column landscape layout', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
     const menu = engine.scenes.get('MENU') as MenuScene;
 
-    // Test Portrait: cols = 2, rows = 10
+    // Test Portrait: cols = 2
     engine.display.isPortrait = true;
     engine.display.vWidth = 540;
     engine.display.vHeight = 960;
     const portraitCards = menu.getModeCards(engine.display);
 
-    expect(portraitCards.length).toBe(20);
+    expect(portraitCards.length).toBe(21);
     expect(portraitCards[0].w).toBe(240);
     expect(portraitCards[0].h).toBe(144);
     // Card 0 and 1 are on row 0, same y
@@ -38,14 +38,16 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     expect(portraitCards[2].y).toBeGreaterThan(portraitCards[0].y);
     // Card 18 and 19 are on row 9, same y
     expect(portraitCards[18].y).toBe(portraitCards[19].y);
+    // Card 20 is on row 10
+    expect(portraitCards[20].y).toBeGreaterThan(portraitCards[18].y);
 
-    // Test Landscape: cols = 4, rows = 5
+    // Test Landscape: cols = 4
     engine.display.isPortrait = false;
     engine.display.vWidth = 960;
     engine.display.vHeight = 540;
     const landscapeCards = menu.getModeCards(engine.display);
 
-    expect(landscapeCards.length).toBe(20);
+    expect(landscapeCards.length).toBe(21);
     // Row 0 has 4 cards with same y
     expect(landscapeCards[0].y).toBe(landscapeCards[1].y);
     expect(landscapeCards[1].y).toBe(landscapeCards[2].y);
@@ -56,6 +58,8 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     expect(landscapeCards[16].y).toBe(landscapeCards[17].y);
     expect(landscapeCards[17].y).toBe(landscapeCards[18].y);
     expect(landscapeCards[18].y).toBe(landscapeCards[19].y);
+    // Card 20 is on row 5
+    expect(landscapeCards[20].y).toBeGreaterThan(landscapeCards[16].y);
   });
 
   test('T7.02: MenuScene caches card layout to avoid per-frame GC allocations', () => {

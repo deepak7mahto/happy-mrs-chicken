@@ -243,9 +243,12 @@ export class HopscotchLogic {
 
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
       const b = this.bubbles[i];
+      if (b.popped || b.y < -b.radius - 20) {
+        this.bubbles.splice(i, 1);
+        continue;
+      }
       b.y += b.vy * dt;
       b.x += Math.sin(this.time * 2.5 + b.wobbleOffset) * 26 * dt;
-      if (b.y < -b.radius - 20) this.bubbles.splice(i, 1);
     }
 
     const reachedGroundChicks: ParachutingChickDef[] = [];

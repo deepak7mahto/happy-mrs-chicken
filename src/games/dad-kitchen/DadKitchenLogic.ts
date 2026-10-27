@@ -98,6 +98,7 @@ export class DadKitchenLogic {
       if (this.celebrationTimer <= 0) {
         this.fever = 0;
         this.feastBites = 0;
+        this.layers = [{ type: 'BREAD', color: '#BCAAA4', w: 100, h: 14 }];
       }
     } else {
       this.fever = Math.max(0, this.fever - 2.5 * dt);

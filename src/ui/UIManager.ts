@@ -16,6 +16,7 @@ import { PwaUI } from './PwaModal';
 import { TapFeedback } from './TapFeedback';
 import { GameModeId } from '../types/game';
 import { STORY_STOPS } from '../story/storyData';
+import { soundEngine } from '../engine/SoundEngine';
 
 export class UIManager {
   public hud: HUD;
@@ -49,6 +50,7 @@ export class UIManager {
         onToggleMute: () => {
           const newMute = !this.engine.storage.isMuted();
           this.engine.storage.setMuted(newMute);
+          soundEngine.setMuted(newMute);
           this.hud.render();
         },
         onToggleFullscreen: () => this.engine.toggleFullscreen(),

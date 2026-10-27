@@ -1,3 +1,4 @@
+import './polyfills';
 import { DisplayManager } from './DisplayManager';
 import { InputManager } from './InputManager';
 import { StorageManager, storageManager } from './StorageManager';
@@ -31,7 +32,8 @@ import {
   AnimalBandScene,
   FingerPaintScene,
   BedtimeBarnScene,
-  StudioScene
+  StudioScene,
+  MuddyKartScene
 } from '../games';
 
 export class GameEngine {
@@ -75,6 +77,7 @@ export class GameEngine {
     this.scenes.set('FINGER_PAINT', new FingerPaintScene(this));
     this.scenes.set('BEDTIME_BARN', new BedtimeBarnScene(this));
     this.scenes.set('STUDIO', new StudioScene(this));
+    this.scenes.set('MUDDY_KART_3D', new MuddyKartScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),
@@ -227,7 +230,7 @@ export class GameEngine {
       get scene() { return self.currentSceneId; },
       set scene(v: GameModeId) { self.changeScene(v); },
       get modesAvailable() {
-        return [...GAME_MODES_LIST];
+        return Array.from(GAME_MODES_LIST);
       },
       get subState() {
         if (!self.activeScene) return 'IDLE';

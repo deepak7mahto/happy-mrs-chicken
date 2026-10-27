@@ -5,6 +5,7 @@
  * Strictly under 500 lines
  */
 
+import './engine/polyfills';
 import './styles/main.css';
 import { GameEngine } from './engine/GameEngine';
 import { UIManager } from './ui/UIManager';

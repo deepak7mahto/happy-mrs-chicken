@@ -275,6 +275,11 @@ export class EggLayingLogic {
 
     this.eggs = this.eggs.filter(e => e.state !== 'HATCH_BURST');
 
+    // Cap active baby chicks to prevent O(N^2) boids frame drops during extended play
+    if (this.chicks.length > 24) {
+      this.chicks = this.chicks.slice(this.chicks.length - 24);
+    }
+
     // Update baby chicks roaming & boids separation
     const minChickX = 25;
     const maxChickX = vWidth - 25;

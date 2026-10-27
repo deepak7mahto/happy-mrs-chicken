@@ -32,7 +32,8 @@ export type ActiveGameModeId =
   | 'ANIMAL_FEEDING'
   | 'ANIMAL_BAND'
   | 'FINGER_PAINT'
-  | 'BEDTIME_BARN';
+  | 'BEDTIME_BARN'
+  | 'MUDDY_KART_3D';
 
 // Canonical Scene Key Union
 export type SceneKey = 'MENU' | 'STUDIO' | ActiveGameModeId;
@@ -62,7 +63,8 @@ export type GameModeId =
   | 'hungry-friends'
   | 'animal-band'
   | 'splat-stamp'
-  | 'sleepy-barn';
+  | 'sleepy-barn'
+  | 'muddy-kart';
 
 export type GameModeSlug =
   | 'classic'
@@ -84,7 +86,8 @@ export type GameModeSlug =
   | 'hungry-friends'
   | 'animal-band'
   | 'splat-stamp'
-  | 'sleepy-barn';
+  | 'sleepy-barn'
+  | 'muddy-kart';
 
 export interface GameModeMetadata {
   id: ActiveGameModeId;
@@ -120,7 +123,8 @@ export const GAME_MODES_LIST: readonly ActiveGameModeId[] = [
   'ANIMAL_FEEDING',
   'ANIMAL_BAND',
   'FINGER_PAINT',
-  'BEDTIME_BARN'
+  'BEDTIME_BARN',
+  'MUDDY_KART_3D'
 ] as const;
 
 export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
@@ -143,7 +147,8 @@ export const MODE_ID_TO_SLUG: Record<ActiveGameModeId, GameModeSlug> = {
   ANIMAL_FEEDING: 'hungry-friends',
   ANIMAL_BAND: 'animal-band',
   FINGER_PAINT: 'splat-stamp',
-  BEDTIME_BARN: 'sleepy-barn'
+  BEDTIME_BARN: 'sleepy-barn',
+  MUDDY_KART_3D: 'muddy-kart'
 };
 
 export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
@@ -166,7 +171,8 @@ export const SLUG_TO_MODE_ID: Record<GameModeSlug, ActiveGameModeId> = {
   'hungry-friends': 'ANIMAL_FEEDING',
   'animal-band': 'ANIMAL_BAND',
   'splat-stamp': 'FINGER_PAINT',
-  'sleepy-barn': 'BEDTIME_BARN'
+  'sleepy-barn': 'BEDTIME_BARN',
+  'muddy-kart': 'MUDDY_KART_3D'
 };
 
 export interface MiniGame {

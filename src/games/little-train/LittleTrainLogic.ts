@@ -134,6 +134,7 @@ export class LittleTrainLogic {
       for (const st of this.stations) {
         st.pickedUp = false;
       }
+      this.passengers = ['trishu'];
     }
 
     return { pickedUpPassenger, enteredTunnel };

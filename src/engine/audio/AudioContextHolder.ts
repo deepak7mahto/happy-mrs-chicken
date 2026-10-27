@@ -13,6 +13,7 @@ export class AudioContextHolder {
   public isUnlocked = false;
   public isMuted = false;
   public volume = 1.0;
+  public bgmBaseGain = 0.35;
 
   constructor() {
     if (typeof window === 'undefined') return;
@@ -88,8 +89,9 @@ export class AudioContextHolder {
 
   public setBgmVolume(volume: number): void {
     const v = Math.max(0, Math.min(1, volume));
+    this.bgmBaseGain = v * 0.45;
     if (this.musicGain && this.ctx) {
-      this.musicGain.gain.setValueAtTime(v * 0.45, this.ctx.currentTime);
+      this.musicGain.gain.setValueAtTime(this.bgmBaseGain, this.ctx.currentTime);
     }
   }
 

@@ -158,11 +158,8 @@ export class MixMatchScene extends BaseScene {
     if (this.isShuffling) return;
 
     const pointers: Array<{ x: number; y: number }> = [];
-    if (input.isActionJustPressed()) {
+    if (input.isActionJustPressed() && input.primaryPointer.inside) {
       pointers.push({ x: input.primaryPointer.x, y: input.primaryPointer.y });
-    }
-    for (const ptr of input.pointers.values()) {
-      if (ptr.justPressed) pointers.push({ x: ptr.x, y: ptr.y });
     }
 
     const isPortrait = this.game.display.isPortrait;

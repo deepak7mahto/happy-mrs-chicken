@@ -72,11 +72,11 @@ export class MuddyPuddlesLogic {
     this.spawnPuddle(startX + 120, groundY);
   }
 
-  public spawnPuddle(customX?: number, groundY: number = 410): void {
+  public spawnPuddle(customX?: number, groundY: number = 410, vWidth: number = 540): void {
     if (this.puddles.length >= 6) return;
     const isGolden = Math.random() < 0.25;
     const minX = 70;
-    const maxX = 470;
+    const maxX = Math.max(470, vWidth - 70);
     const px = customX !== undefined ? customX : minX + Math.random() * (maxX - minX);
 
     this.puddles.push({
@@ -123,7 +123,7 @@ export class MuddyPuddlesLogic {
     this.spawnTimer += dt;
     if (this.spawnTimer >= 1.5) {
       this.spawnTimer = 0;
-      this.spawnPuddle(undefined, groundY);
+      this.spawnPuddle(undefined, groundY, vWidth);
     }
 
     // Footprints fade

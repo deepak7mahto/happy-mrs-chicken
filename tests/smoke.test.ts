@@ -53,7 +53,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(22);
+    expect(engine.scenes.size).toBe(23);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('STUDIO')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
@@ -63,6 +63,7 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('DINOSAUR_BALLOON')).toBe(true);
     expect(engine.scenes.has('PANCAKE_FLIPPER')).toBe(true);
     expect(engine.scenes.has('VEGETABLE_HARVEST')).toBe(true);
+    expect(engine.scenes.has('MUDDY_KART_3D')).toBe(true);
     expect(engine.scenes.has('HOPSCOTCH_BUBBLE')).toBe(true);
     expect(engine.scenes.has('MIX_MATCH')).toBe(true);
     expect(engine.scenes.has('PEEK_A_BOO')).toBe(true);
@@ -196,6 +197,32 @@ describe('Tier 1: Smoke & Initialization', () => {
     menu.update(0.1, engine.input);
     expect(menu.scrollY).toBeLessThan(0);
     engine.input.keysDown.delete('ArrowDown');
+  });
+
+  test('T1.08: CanvasRenderingContext2D roundRect polyfill handles all radii and renders safely on older Safari/WebKit', () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    expect(typeof ctx.roundRect).toBe('function');
+
+    // Test with number radius
+    ctx.beginPath();
+    ctx.roundRect(10, 10, 100, 50, 8);
+    expect(() => ctx.fill()).not.toThrow();
+
+    // Test with 2-element array [tl_br, tr_bl]
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 50, 50, [10, 5]);
+    expect(() => ctx.stroke()).not.toThrow();
+
+    // Test with 4-element array [tl, tr, br, bl]
+    ctx.beginPath();
+    ctx.roundRect(5, 5, 80, 40, [15, 15, 6, 6]);
+    expect(() => ctx.fill()).not.toThrow();
+
+    // Test with negative dimensions
+    ctx.beginPath();
+    ctx.roundRect(100, 100, -50, -30, 5);
+    expect(() => ctx.fill()).not.toThrow();
   });
 });
 
