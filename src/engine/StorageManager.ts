@@ -33,7 +33,7 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   mixMatch: 0, peekABoo: 0, iceCreamVan: 0, littleTrain: 0,
   carWash: 0, windyKite: 0, rainbowGarden: 0, duckPicnic: 0,
   animalFeeding: 0, animalBand: 0, fingerPaint: 0, bedtimeBarn: 0,
-  muddyKart: 0
+  muddyKart: 0, emojis: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -59,6 +59,7 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   FINGER_PAINT: 'fingerPaint',
   BEDTIME_BARN: 'bedtimeBarn',
   MUDDY_KART_3D: 'muddyKart',
+  EMOJIS: 'emojis',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -104,7 +105,8 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   animalBand: 'animalBand',
   fingerPaint: 'fingerPaint',
   bedtimeBarn: 'bedtimeBarn',
-  muddyKart: 'muddyKart'
+  muddyKart: 'muddyKart',
+  emojis: 'emojis'
 };
 
 export class StorageManager implements IStorageManager {
@@ -149,7 +151,8 @@ export class StorageManager implements IStorageManager {
               animalBand: Number(rawScores.animalBand) || 0,
               fingerPaint: Number(rawScores.fingerPaint) || 0,
               bedtimeBarn: Number(rawScores.bedtimeBarn) || 0,
-              muddyKart: Number(rawScores.muddyKart) || 0
+              muddyKart: Number(rawScores.muddyKart) || 0,
+              emojis: Number(rawScores.emojis) || 0
             };
 
             const rawSettings = parsed.settings || {};

@@ -25,6 +25,7 @@ export interface HighScores {
   fingerPaint: number;      // Mode 19: Rainbow Splat & Stamp Studio
   bedtimeBarn: number;      // Mode 20: Sleepy Bedtime Barn
   muddyKart: number;        // Mode 21: Grandpa's Muddy Kart 3D
+  emojis: number;           // Mode 22: Emojis
   [key: string]: number;
 }
 

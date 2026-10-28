@@ -27,3 +27,4 @@ export * from './finger-paint';
 export * from './bedtime-barn';
 export * from './studio';
 export * from './muddy-kart';
+export * from './emojis';

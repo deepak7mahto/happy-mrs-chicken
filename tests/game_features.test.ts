@@ -29,7 +29,7 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.display.vHeight = 960;
     const portraitCards = menu.getModeCards(engine.display);
 
-    expect(portraitCards.length).toBe(21);
+    expect(portraitCards.length).toBe(22);
     expect(portraitCards[0].w).toBe(240);
     expect(portraitCards[0].h).toBe(144);
     // Card 0 and 1 are on row 0, same y
@@ -38,8 +38,9 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     expect(portraitCards[2].y).toBeGreaterThan(portraitCards[0].y);
     // Card 18 and 19 are on row 9, same y
     expect(portraitCards[18].y).toBe(portraitCards[19].y);
-    // Card 20 is on row 10
+    // Card 20 and 21 are on row 10, same y
     expect(portraitCards[20].y).toBeGreaterThan(portraitCards[18].y);
+    expect(portraitCards[20].y).toBe(portraitCards[21].y);
 
     // Test Landscape: cols = 4
     engine.display.isPortrait = false;
@@ -47,7 +48,7 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.display.vHeight = 540;
     const landscapeCards = menu.getModeCards(engine.display);
 
-    expect(landscapeCards.length).toBe(21);
+    expect(landscapeCards.length).toBe(22);
     // Row 0 has 4 cards with same y
     expect(landscapeCards[0].y).toBe(landscapeCards[1].y);
     expect(landscapeCards[1].y).toBe(landscapeCards[2].y);
@@ -58,8 +59,9 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     expect(landscapeCards[16].y).toBe(landscapeCards[17].y);
     expect(landscapeCards[17].y).toBe(landscapeCards[18].y);
     expect(landscapeCards[18].y).toBe(landscapeCards[19].y);
-    // Card 20 is on row 5
+    // Card 20 and 21 are on row 5, same y
     expect(landscapeCards[20].y).toBeGreaterThan(landscapeCards[16].y);
+    expect(landscapeCards[20].y).toBe(landscapeCards[21].y);
   });
 
   test('T7.02: MenuScene caches card layout to avoid per-frame GC allocations', () => {

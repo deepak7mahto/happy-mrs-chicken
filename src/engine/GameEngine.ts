@@ -33,7 +33,8 @@ import {
   FingerPaintScene,
   BedtimeBarnScene,
   StudioScene,
-  MuddyKartScene
+  MuddyKartScene,
+  EmojisScene
 } from '../games';
 
 export class GameEngine {
@@ -78,6 +79,7 @@ export class GameEngine {
     this.scenes.set('BEDTIME_BARN', new BedtimeBarnScene(this));
     this.scenes.set('STUDIO', new StudioScene(this));
     this.scenes.set('MUDDY_KART_3D', new MuddyKartScene(this));
+    this.scenes.set('EMOJIS', new EmojisScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),

@@ -22,7 +22,9 @@ const EXTRA_ALIASES: Record<string, ActiveGameModeId> = {
   'muddy-kart': 'MUDDY_KART_3D',
   kart3d: 'MUDDY_KART_3D',
   'kart-3d': 'MUDDY_KART_3D',
-  racing: 'MUDDY_KART_3D'
+  racing: 'MUDDY_KART_3D',
+  emoji: 'EMOJIS',
+  emojis: 'EMOJIS'
 };
 
 /**

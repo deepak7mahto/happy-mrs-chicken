@@ -49,7 +49,8 @@ export const MENU_CARDS: MenuCardInfo[] = [
   { id: 'ANIMAL_BAND', title: 'Animal Band', sub: 'Make joyful music!', badge: 'Music', color: '#E1BEE7', borderColor: '#AB47BC', scoreKey: 'animalBand' },
   { id: 'FINGER_PAINT', title: 'Splat & Stamp', sub: 'Finger-paint & stamp!', badge: 'Art', color: '#FFCDD2', borderColor: '#EF5350', scoreKey: 'fingerPaint' },
   { id: 'BEDTIME_BARN', title: 'Sleepy Barn', sub: 'Tuck friends into bed!', badge: 'Bedtime', color: '#C5CAE9', borderColor: '#5C6BC0', scoreKey: 'bedtimeBarn' },
-  { id: 'MUDDY_KART_3D', title: '3D Kart', sub: 'Race & splash mud!', badge: '3D Racing', color: '#FFE082', borderColor: '#FFA000', scoreKey: 'muddyKart' }
+  { id: 'MUDDY_KART_3D', title: '3D Kart', sub: 'Race & splash mud!', badge: '3D Racing', color: '#FFE082', borderColor: '#FFA000', scoreKey: 'muddyKart' },
+  { id: 'EMOJIS', title: 'Emojis', sub: 'Animated feelings & emojis!', badge: 'Emojis', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'emojis' }
 ];
 
 export function renderMenuCharacterPreview(
@@ -382,6 +383,19 @@ export function renderMenuCharacterPreview(
       welliesMuddy: false,
       eyeBlink: Math.sin(time * 2.2) > 0.88
     });
+    ctx.restore();
+  } else if (modeId === 'EMOJIS') {
+    ctx.save();
+    ctx.translate(cx, cy + 2);
+    const bounce = Math.abs(Math.sin(time * 5)) * 4;
+    const emotions = ['😊', '😢', '😡', '😲'];
+    const activeEmoji = emotions[Math.floor((time * 0.8) % emotions.length)];
+    ctx.font = '34px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(activeEmoji, 0, -bounce);
+    ctx.font = '14px sans-serif';
+    ctx.fillText('✨', 18, -14 - bounce);
     ctx.restore();
   }
 }
