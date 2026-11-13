@@ -89,10 +89,7 @@ export class HUD {
 
         ${isMenu ? `
           <div class="hud-mode-toggle hud-mode-toggle-desktop" role="tablist" aria-label="Game Mode">
-            <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'journey' ? 'active' : ''}" id="tab-journey-dt">
-              🗺️ Story Journey
-            </button>
-            <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}" id="tab-grid-dt">
+            <button type="button" role="tab" class="hud-mode-pill active" id="tab-grid-dt">
               🎮 Free Play
             </button>
             <button type="button" role="tab" class="hud-mode-pill hud-mode-studio" id="tab-studio-dt" style="background: linear-gradient(135deg, #FFB300, #FF7043); color: #FFF; font-weight: bold;">
@@ -128,10 +125,7 @@ export class HUD {
       ${isMenu ? `
         <div class="hud-mode-row-mobile">
           <div class="hud-mode-toggle" role="tablist" aria-label="Game Mode">
-            <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'journey' ? 'active' : ''}" id="tab-journey-mb">
-              🗺️ Story Journey
-            </button>
-            <button type="button" role="tab" class="hud-mode-pill ${viewMode === 'grid' ? 'active' : ''}" id="tab-grid-mb">
+            <button type="button" role="tab" class="hud-mode-pill active" id="tab-grid-mb">
               🎮 Free Play
             </button>
             <button type="button" role="tab" class="hud-mode-pill hud-mode-studio" id="tab-studio-mb" style="background: linear-gradient(135deg, #FFB300, #FF7043); color: #FFF; font-weight: bold;">
@@ -177,12 +171,8 @@ export class HUD {
         this.render();
       };
 
-      const jDt = this.el.querySelector('#tab-journey-dt') as HTMLElement | null;
-      if (jDt) jDt.onclick = () => switchMode('journey');
       const gDt = this.el.querySelector('#tab-grid-dt') as HTMLElement | null;
       if (gDt) gDt.onclick = () => switchMode('grid');
-      const jMb = this.el.querySelector('#tab-journey-mb') as HTMLElement | null;
-      if (jMb) jMb.onclick = () => switchMode('journey');
       const gMb = this.el.querySelector('#tab-grid-mb') as HTMLElement | null;
       if (gMb) gMb.onclick = () => switchMode('grid');
 

@@ -51,25 +51,13 @@ export class MenuScene extends BaseScene {
         soundEngine.sequencer.start();
       }
     });
-
-    // In journey mode, auto-scroll to keep active stop in view
-    if (this.game.storyViewMode === 'journey') {
-      const activeIdx = this.game.storyProgress.currentStopIndex;
-      if (activeIdx > 2) {
-        const stepY = this.game.display.isPortrait ? 155 : 140;
-        this.scrollY = -Math.max(0, (activeIdx - 1) * stepY);
-      }
-    }
   }
 
   get viewMode(): 'journey' | 'grid' {
-    return this.game.storyViewMode;
+    return 'grid';
   }
 
   private getContentHeight(display: DisplayManager): number {
-    if (this.viewMode === 'journey') {
-      return this.storyMap.getTotalContentHeight(display);
-    }
     const cards = this.getModeCards(display);
     if (cards.length > 0) {
       const last = cards[cards.length - 1];
@@ -152,49 +140,13 @@ export class MenuScene extends BaseScene {
     return false;
   }
 
-  private handleModeToggleTap(x: number, y: number, display: DisplayManager): boolean {
-    const isPortrait = display.isPortrait;
-    const topH = isPortrait ? 88 : 70;
-    if (y > topH) return false;
-
-    const toggleW = isPortrait ? 270 : 310;
-    const toggleH = 34;
-    const toggleX = display.vWidth / 2 - toggleW / 2;
-    const toggleY = isPortrait ? 44 : 32;
-
-    if (x >= toggleX && x <= toggleX + toggleW && y >= toggleY && y <= toggleY + toggleH) {
-      const clickSide = x < toggleX + toggleW / 2 ? 'journey' : 'grid';
-      if (this.game.storyViewMode !== clickSide) {
-        soundEngine.playSFX('click');
-        Haptics.tap();
-        this.game.setStoryViewMode(clickSide);
-        this.scrollY = 0;
-        this.scrollVy = 0;
-      }
-      return true;
-    }
-    return false;
-  }
-
   handleTap(x: number, y: number): boolean {
     if (this.handleArtStudioTap(x, y, this.game.display)) {
-      return true;
-    }
-    if (this.handleModeToggleTap(x, y, this.game.display)) {
       return true;
     }
 
     const titleAreaH = this.game.display.isPortrait ? 88 : 64;
     if (y < titleAreaH) return false;
-
-    if (this.viewMode === 'journey') {
-      if (this.storyMap.handleTap(x, y, this.game.display, this.game, this.scrollY)) {
-        soundEngine.playSFX('click');
-        Haptics.medium();
-        return true;
-      }
-      return false;
-    }
 
     // Grid tap handling
     const cards = this.getModeCards(this.game.display);
@@ -266,9 +218,7 @@ export class MenuScene extends BaseScene {
     }
 
     if (input.isKeyJustPressed('Enter') || input.isKeyJustPressed('Space')) {
-      if (this.viewMode === 'journey') {
-        this.game.launchStoryStop(this.game.storyProgress.currentStopIndex, true);
-      } else if (cards[this.focusedCardIndex]) {
+      if (cards[this.focusedCardIndex]) {
         soundEngine.playSFX('click');
         Haptics.medium();
         this.game.changeScene(cards[this.focusedCardIndex].id);
@@ -334,13 +284,9 @@ export class MenuScene extends BaseScene {
     const isPortrait = display.isPortrait;
     const contentH = this.getContentHeight(display);
 
-    if (this.viewMode === 'journey') {
-      this.storyMap.render(ctx, display, this.game, this.scrollY, this.time);
-    } else {
-      drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
-      const cards = this.getModeCards(display);
-      renderMenuCardGrid(ctx, cards, this.scrollY, display, this.game, this.time, this.focusedCardIndex);
-    }
+    drawLandscapeSkyHills(ctx, vWidth, vHeight, this.time);
+    const cards = this.getModeCards(display);
+    renderMenuCardGrid(ctx, cards, this.scrollY, display, this.game, this.time, this.focusedCardIndex);
 
     // Scroll Indicator Pill (Right Edge)
     const maxScrollPill = Math.max(0, contentH - vHeight);

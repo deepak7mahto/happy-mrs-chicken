@@ -199,7 +199,7 @@ describe('Tier 10: Story Journey Narrative & Adventure Map', () => {
     engine.destroy();
   });
 
-  test('T10.07: MenuScene - Dual-mode switching, toggle tap hit-testing, and story map vs grid delegation', () => {
+  test('T10.07: MenuScene - Free Play grid is permanent and kid-friendly with adventure mode removed', () => {
     localStorage.clear();
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
@@ -210,18 +210,10 @@ describe('Tier 10: Story Journey Narrative & Adventure Map', () => {
     expect(menu.viewMode).toBe('grid');
     expect(engine.storyViewMode).toBe('grid');
 
-    // Tap toggle switch to switch to journey
+    // Tapping old toggle coordinates stays on Free Play
     const vWidth = engine.display.vWidth;
-    // Left tab is Story Journey: x ~ vWidth / 2 - 65, y ~ 52
     menu.handleTap(vWidth / 2 - 65, 52);
-    expect(menu.viewMode).toBe('journey');
-    expect(engine.storyViewMode).toBe('journey');
-
-    // Tap toggle switch back to grid
-    // Right tab is Free Play: x ~ vWidth / 2 + 65, y ~ 52
-    menu.handleTap(vWidth / 2 + 65, 52);
     expect(menu.viewMode).toBe('grid');
-    expect(engine.storyViewMode).toBe('grid');
 
     engine.destroy();
   });

@@ -12,17 +12,8 @@ export default defineConfig({
           if (id.includes('node_modules/pixi.js')) {
             return 'vendor-pixi';
           }
-          if (id.includes('src/graphics/')) {
-            return 'graphics-engine';
-          }
           if (id.includes('src/engine/audio') || id.includes('src/engine/SoundEngine')) {
             return 'audio-engine';
-          }
-          if (id.includes('src/ui/')) {
-            return 'ui-layer';
-          }
-          if (id.includes('src/games/')) {
-            return 'games-suite';
           }
         }
       }

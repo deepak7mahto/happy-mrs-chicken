@@ -137,27 +137,31 @@ def run_e2e_tests():
             assert_test("Returned to MENU scene via mobile Home button", menu_scene == "MENU")
 
             # -------------------------------------------------------------
-            # TEST 3: Mobile Mode Switching (Free Play <-> Story Journey)
+            # TEST 3: Kid-Friendly Permanent Free Play & Art Studio
             # -------------------------------------------------------------
-            print("\n▶ Test 3: Mobile Mode Switching")
+            print("\n▶ Test 3: Kid-Friendly Permanent Free Play & Art Studio")
 
-            # Switch to Story Journey
-            journey_pill = page_m.locator(".hud-mode-row-mobile .hud-mode-pill", has_text="Story Journey")
-            journey_pill.click()
-            page_m.wait_for_timeout(500)
-            journey_active = page_m.evaluate("() => window.__GAME_ENGINE__?.storyViewMode === 'journey'")
-            assert_test("Switched to Story Journey mode on mobile", journey_active)
-
-            screenshot_journey = os.path.join(ARTIFACTS_DIR, "screenshot_mobile_story_journey.png")
-            page_m.screenshot(path=screenshot_journey)
-            print(f"  [i] Saved screenshot: {screenshot_journey}")
-
-            # Switch back to Free Play
-            free_pill = page_m.locator(".hud-mode-row-mobile .hud-mode-pill", has_text="Free Play")
-            free_pill.click()
-            page_m.wait_for_timeout(500)
             free_active = page_m.evaluate("() => window.__GAME_ENGINE__?.storyViewMode === 'grid'")
-            assert_test("Switched back to Free Play mode on mobile", free_active)
+            assert_test("Free Play mode is permanently active on mobile", free_active)
+
+            # Test opening Art Studio shortcut
+            studio_pill = page_m.locator(".hud-mode-row-mobile .hud-mode-pill", has_text="Art Studio")
+            assert_test("Art Studio shortcut pill exists on mobile", studio_pill.is_visible())
+            studio_pill.click()
+            page_m.wait_for_timeout(500)
+            studio_active = page_m.evaluate("() => window.__GAME_ENGINE__?.currentSceneId === 'STUDIO'")
+            assert_test("Art Studio launched via mobile pill", studio_active)
+
+            screenshot_studio = os.path.join(ARTIFACTS_DIR, "screenshot_mobile_art_studio.png")
+            page_m.screenshot(path=screenshot_studio)
+            print(f"  [i] Saved screenshot: {screenshot_studio}")
+
+            # Return to Home
+            home_btn = page_m.locator(".hud-btn-home")
+            home_btn.click()
+            page_m.wait_for_timeout(500)
+            menu_scene = page_m.evaluate("() => window.__GAME_ENGINE__?.currentSceneId")
+            assert_test("Returned to MENU scene from Art Studio", menu_scene == "MENU")
 
             # -------------------------------------------------------------
             # TEST 4: Mobile Action Buttons & Modals Interaction
@@ -185,7 +189,8 @@ def run_e2e_tests():
             page_m.wait_for_timeout(500)
             assert_test("Avatar modal closed after confirmation", not avatar_modal.is_visible())
 
-            # 4b. Settings Modal
+            # 4b. Settings Modal (Parental Gate unlocked for test)
+            page_m.evaluate("() => { if (window.__UI_MANAGER__?.settingsModal) { window.__UI_MANAGER__.settingsModal.isUnlocked = true; } }")
             settings_btn = page_m.locator(".hud-btn-settings")
             assert_test("Settings button exists", settings_btn.is_visible())
             settings_btn.click()
