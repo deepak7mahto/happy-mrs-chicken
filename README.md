@@ -1,12 +1,33 @@
-# 🌟 Adventures of Trishu — 16-Game Kids Mini-Game Suite
+# 🌟 Adventures of Trishu — 25-Game Kids Mini-Game Suite
 
-A joyful, interactive, zero-dependency browser mini-game suite featuring **Trishu**, her family, and friends! Packed with **16 distinct playable mini-game modes**, original procedural vector character art, procedural Web Audio sound synthesis, fluid Canvas animations, responsive dual-orientation viewport, and offline Heavy PWA support.
+A joyful, interactive, zero-dependency browser mini-game suite featuring **Trishu**, her family, and friends! Packed with **25 distinct playable mini-game modes**, original procedural vector character art, procedural Web Audio sound synthesis, fluid Canvas animations, responsive dual-orientation viewport, offline Heavy PWA support, and top-of-menu creative coloring games.
 
 🎮 **Play Online**: [https://deepak7mahto.github.io/happy-mrs-chicken/](https://deepak7mahto.github.io/happy-mrs-chicken/)
 
 ---
 
-## 🕹️ 16 Playable Mini-Game Modes
+## 🎨 Featured Coloring Games (Top of Menu)
+
+1. **Coloring Book (`COLORING_BOOK`)**
+   * Dedicated tap-to-fill & freehand crayon coloring book with closed vector polygon regions.
+   * 6 preschool line-art sheets (`Happy Mrs Clucky`, `Muddy Puddle Fun`, `Chick in Garden`, `Dad in Kitchen`, `Leo & Dinosaur`, `Family Picnic`).
+   * Magic Wand auto-fill mode, 12 jumbo crayons, undo stack, and sparkling finish celebrations.
+
+2. **Magic Scratch (`MAGIC_SCRATCH`)**
+   * Tactile rub-and-swipe scratch foil card that reveals hidden vibrant rainbow illustrations.
+   * 5 collectible pictures (`Rainbow Castle`, `Happy Mrs Clucky`, `Friendly Dino`, `Space Rocket`, `Ocean Whale`).
+   * High-performance dual offscreen canvas caching (`destination-out` blending), O(1) grid coverage tracking, and fanfare celebration at $\ge 75\%$ reveal.
+
+3. **Shape Painter (`COLOR_BY_SHAPE`)**
+   * Early-learning color-by-shape matching across 4 cute picture puzzles (`Choo-Choo Train`, `Sunny House`, `Space Rocket`, `Happy Butterfly`).
+   * 5 shapes & colors (Circle, Square, Triangle, Star, Diamond) with bounce animations and helpful color-pot hints.
+
+4. **Splat & Stamp (`FINGER_PAINT`)**
+   * Tactile rainbow finger-paint studio with colorful splats, squeegee wipe cleaning, and bubbly effects.
+
+---
+
+## 🕹️ All Playable Mini-Game Modes
 
 1. **Happy Mrs Clucky (Classic Egg-Laying Mode)**
    * Tap screen or press **Spacebar** to make Mrs. Clucky lay eggs with squash-and-stretch animation.

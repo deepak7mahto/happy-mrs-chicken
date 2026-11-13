@@ -33,7 +33,7 @@ const DEFAULT_HIGH_SCORES: HighScores = {
   mixMatch: 0, peekABoo: 0, iceCreamVan: 0, littleTrain: 0,
   carWash: 0, windyKite: 0, rainbowGarden: 0, duckPicnic: 0,
   animalFeeding: 0, animalBand: 0, fingerPaint: 0, bedtimeBarn: 0,
-  muddyKart: 0, emojis: 0
+  muddyKart: 0, emojis: 0, coloringBook: 0, magicScratch: 0, colorByShape: 0
 };
 
 const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
@@ -60,6 +60,9 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   BEDTIME_BARN: 'bedtimeBarn',
   MUDDY_KART_3D: 'muddyKart',
   EMOJIS: 'emojis',
+  COLORING_BOOK: 'coloringBook',
+  MAGIC_SCRATCH: 'magicScratch',
+  COLOR_BY_SHAPE: 'colorByShape',
 
   // Kebab-case Slugs
   'classic': 'eggLaying',
@@ -83,6 +86,9 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   'splat-stamp': 'fingerPaint',
   'sleepy-barn': 'bedtimeBarn',
   'muddy-kart': 'muddyKart',
+  'coloring-book': 'coloringBook',
+  'magic-scratch': 'magicScratch',
+  'color-by-shape': 'colorByShape',
 
   // CamelCase Keys
   eggLaying: 'eggLaying',
@@ -106,7 +112,10 @@ const MODE_TO_SCORE_KEY: Record<string, keyof HighScores> = {
   fingerPaint: 'fingerPaint',
   bedtimeBarn: 'bedtimeBarn',
   muddyKart: 'muddyKart',
-  emojis: 'emojis'
+  emojis: 'emojis',
+  coloringBook: 'coloringBook',
+  magicScratch: 'magicScratch',
+  colorByShape: 'colorByShape'
 };
 
 export class StorageManager implements IStorageManager {
@@ -152,7 +161,10 @@ export class StorageManager implements IStorageManager {
               fingerPaint: Number(rawScores.fingerPaint) || 0,
               bedtimeBarn: Number(rawScores.bedtimeBarn) || 0,
               muddyKart: Number(rawScores.muddyKart) || 0,
-              emojis: Number(rawScores.emojis) || 0
+              emojis: Number(rawScores.emojis) || 0,
+              coloringBook: Number(rawScores.coloringBook) || 0,
+              magicScratch: Number(rawScores.magicScratch) || 0,
+              colorByShape: Number(rawScores.colorByShape) || 0
             };
 
             const rawSettings = parsed.settings || {};

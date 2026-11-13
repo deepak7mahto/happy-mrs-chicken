@@ -1,13 +1,22 @@
-# Project: Adventures of Trishu — 16-Game Mini-Game Suite
+# Project: Adventures of Trishu — 25-Game Mini-Game Suite
 
 ## Architecture
 A modular, high-performance HTML5 Canvas 2D game engine built with Pure Vanilla TypeScript, PixiJS v8 readiness, and Vite (Zero React footprint).
 - **Engine Core (`src/engine/`)**: 60 FPS fixed-timestep game loop (`GameEngine.ts`), dual-orientation dynamic viewport manager (`DisplayManager.ts`), multi-touch gesture input manager (`InputManager.ts`), URL hash router (`Router.ts`), particle pool (`ParticleEngine.ts`), local storage persistence (`StorageManager.ts`), and procedural audio suite (`src/engine/audio/`).
-- **3-Tier Game Modularity Pattern (`src/games/`)**: All 16 mini-games decomposed into clean, maintainable modules:
+- **Performance & Rendering Optimizations**:
+  - Menu gradient caching via `WeakMap` avoids allocating `CanvasGradient` objects every frame during scrolling.
+  - High-DPR capping ($\le 2.0$) and removal of redundant layout check calls from hot-path coordinate getters.
+  - Granular Vite chunk splitting (`ui-layer`, `games-suite`, `graphics-engine`, `audio-engine`) shrinking entry chunk to under 30 kB.
+- **3-Tier Game Modularity Pattern (`src/games/`)**: All 25 mini-games decomposed into clean, maintainable modules:
   - `types.ts`: Domain models, entities, and constants.
   - `[Game]Logic.ts`: 100% headless, DOM-free simulation, math, physics, collision detection, and score/combo rules.
   - `[Game]Renderer.ts`: Pure Canvas 2D vector drawing routines with strict `ctx.save()` / `ctx.restore()` integrity.
   - `[Game]Scene.ts`: Lightweight coordinator (<200 LOC average) integrating engine systems, particles, audio, and inputs.
+- **Top-of-Menu Creative Coloring Suite**:
+  - `COLORING_BOOK`: Tap-to-fill vector coloring pages with crayon mode and magic fill.
+  - `MAGIC_SCRATCH`: Rub-to-reveal scratch foil with offscreen canvas compositing.
+  - `COLOR_BY_SHAPE`: Educational shape-and-color matching with bouncing hints.
+  - `FINGER_PAINT`: Rainbow finger splat studio with squeegee wipe.
 - **Shared Core Game Infrastructure (`src/games/common/`)**: Reusable building blocks for score multiplier scaling (`ScoreComboTracker.ts`), multi-round progression & fanfare delays (`RoundManager.ts`), and boundary clamping / autonomous steering (`BoundaryPhysics.ts`).
 - **Procedural Web Audio (`src/engine/audio/`)**: Zero-asset audio synthesis using native Web Audio API oscillators, noise buffers, biquad filters, dynamic volume ducking, background hardware suspension/resumption (`visibilitychange` / `pagehide`), an algorithmic 128 BPM multi-track nursery BGM sequencer, and 24 procedural SFX recipes.
 - **Vector Character Rendering (`src/graphics/characters/`)**: Procedural Canvas 2D vector art for 15 characters (Trishu family, Mimi the Bunny, Mrs Clucky, Baby Chicks, Yellow Ducks, and Peppa Pig & Friends roster) with shared animation controllers for blinking, squashing, wobbling, and facial expressions.

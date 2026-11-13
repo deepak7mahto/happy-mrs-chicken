@@ -60,40 +60,22 @@ export class DisplayManager {
     };
   }
 
-  get scale(): number {
-    this.checkDimensionChange();
-    return this._scale;
-  }
+  get scale(): number { return this._scale; }
   set scale(v: number) { this._scale = v; }
 
-  get offsetX(): number {
-    this.checkDimensionChange();
-    return this._offsetX;
-  }
+  get offsetX(): number { return this._offsetX; }
   set offsetX(v: number) { this._offsetX = v; }
 
-  get offsetY(): number {
-    this.checkDimensionChange();
-    return this._offsetY;
-  }
+  get offsetY(): number { return this._offsetY; }
   set offsetY(v: number) { this._offsetY = v; }
 
-  get dpr(): number {
-    this.checkDimensionChange();
-    return this._dpr;
-  }
+  get dpr(): number { return this._dpr; }
   set dpr(v: number) { this._dpr = v; }
 
-  get windowWidth(): number {
-    this.checkDimensionChange();
-    return this._windowWidth;
-  }
+  get windowWidth(): number { return this._windowWidth; }
   set windowWidth(v: number) { this._windowWidth = v; }
 
-  get windowHeight(): number {
-    this.checkDimensionChange();
-    return this._windowHeight;
-  }
+  get windowHeight(): number { return this._windowHeight; }
   set windowHeight(v: number) { this._windowHeight = v; }
 
   checkDimensionChange(): void {
@@ -107,7 +89,7 @@ export class DisplayManager {
     const dims = this.getViewportDims();
     this._windowWidth = dims.w;
     this._windowHeight = dims.h;
-    this._dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2.5);
+    this._dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2);
 
     this.isPortrait = this._windowHeight > this._windowWidth;
     if (this.isPortrait) {

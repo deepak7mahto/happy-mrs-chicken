@@ -11,6 +11,30 @@ import { ModeCardDef } from '../../types/game';
 import { MENU_CARDS, renderMenuCharacterPreview } from './menuData';
 import { FONTS } from '../../graphics/typography';
 
+const cardGradientCache = new WeakMap<CanvasRenderingContext2D, Map<string, CanvasGradient>>();
+
+function getCachedCardGradient(
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  cardH: number
+): CanvasGradient {
+  let ctxCache = cardGradientCache.get(ctx);
+  if (!ctxCache) {
+    ctxCache = new Map();
+    cardGradientCache.set(ctx, ctxCache);
+  }
+  const key = `${color}:${Math.round(cardH)}`;
+  let grad = ctxCache.get(key);
+  if (!grad) {
+    grad = ctx.createLinearGradient(0, -cardH / 2, 0, cardH / 2);
+    grad.addColorStop(0, '#FFFFFF');
+    grad.addColorStop(0.18, color);
+    grad.addColorStop(1, color);
+    ctxCache.set(key, grad);
+  }
+  return grad;
+}
+
 export function renderMenuCardGrid(
   ctx: CanvasRenderingContext2D,
   cards: ModeCardDef[],
@@ -54,12 +78,8 @@ export function renderMenuCardGrid(
     ctx.roundRect(-card.w / 2, -card.h / 2 + 5, card.w, card.h, 20);
     ctx.fill();
 
-    // 2. Card surface with soft vertical gradient for depth
-    const cardGrad = ctx.createLinearGradient(0, -card.h / 2, 0, card.h / 2);
-    cardGrad.addColorStop(0, '#FFFFFF');
-    cardGrad.addColorStop(0.18, card.color);
-    cardGrad.addColorStop(1, card.color);
-    ctx.fillStyle = cardGrad;
+    // 2. Card surface with cached vertical gradient for depth
+    ctx.fillStyle = getCachedCardGradient(ctx, card.color, card.h);
     ctx.strokeStyle = bevelColor;
     ctx.lineWidth = 3.5;
 

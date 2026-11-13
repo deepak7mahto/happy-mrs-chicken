@@ -28,3 +28,6 @@ export * from './bedtime-barn';
 export * from './studio';
 export * from './muddy-kart';
 export * from './emojis';
+export * from './coloring-book';
+export * from './magic-scratch';
+export * from './color-by-shape';

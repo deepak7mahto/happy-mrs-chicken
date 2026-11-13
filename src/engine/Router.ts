@@ -24,7 +24,13 @@ const EXTRA_ALIASES: Record<string, ActiveGameModeId> = {
   'kart-3d': 'MUDDY_KART_3D',
   racing: 'MUDDY_KART_3D',
   emoji: 'EMOJIS',
-  emojis: 'EMOJIS'
+  emojis: 'EMOJIS',
+  coloring: 'COLORING_BOOK',
+  coloringbook: 'COLORING_BOOK',
+  scratch: 'MAGIC_SCRATCH',
+  magicscratch: 'MAGIC_SCRATCH',
+  shapes: 'COLOR_BY_SHAPE',
+  colorbyshape: 'COLOR_BY_SHAPE'
 };
 
 /**

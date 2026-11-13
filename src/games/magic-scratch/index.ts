@@ -1,0 +1,1 @@
+export { MagicScratchScene } from './MagicScratchScene';

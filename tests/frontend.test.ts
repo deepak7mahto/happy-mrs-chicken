@@ -128,7 +128,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     }
   });
 
-  test('T6.04: GameEngine modesAvailable returns all 22 mode IDs', () => {
+  test('T6.04: GameEngine modesAvailable returns all 25 mode IDs', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
     engine.setupIntrospectionHooks();
@@ -136,7 +136,7 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
     const gameState = (window as any).__GAME_STATE__;
     expect(gameState).toBeDefined();
     const modes = gameState.modesAvailable;
-    expect(modes.length).toBe(22);
+    expect(modes.length).toBe(25);
 
     const expectedModes = [
       'EGG_LAYING',
@@ -160,7 +160,10 @@ describe('Tier 6: Frontend Architecture, Deep Linking & Controls', () => {
       'FINGER_PAINT',
       'BEDTIME_BARN',
       'MUDDY_KART_3D',
-      'EMOJIS'
+      'EMOJIS',
+      'COLORING_BOOK',
+      'MAGIC_SCRATCH',
+      'COLOR_BY_SHAPE'
     ];
 
     for (const m of expectedModes) {

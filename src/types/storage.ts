@@ -26,6 +26,9 @@ export interface HighScores {
   bedtimeBarn: number;      // Mode 20: Sleepy Bedtime Barn
   muddyKart: number;        // Mode 21: Grandpa's Muddy Kart 3D
   emojis: number;           // Mode 22: Emojis
+  coloringBook: number;     // Mode 23: Coloring Book
+  magicScratch: number;     // Mode 24: Magic Scratch
+  colorByShape: number;     // Mode 25: Shape Painter
   [key: string]: number;
 }
 

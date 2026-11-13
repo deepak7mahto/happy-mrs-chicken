@@ -18,6 +18,12 @@ export default defineConfig({
           if (id.includes('src/engine/audio') || id.includes('src/engine/SoundEngine')) {
             return 'audio-engine';
           }
+          if (id.includes('src/ui/')) {
+            return 'ui-layer';
+          }
+          if (id.includes('src/games/')) {
+            return 'games-suite';
+          }
         }
       }
     }

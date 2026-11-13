@@ -1,0 +1,1 @@
+export { ColorByShapeScene } from './ColorByShapeScene';

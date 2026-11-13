@@ -29,6 +29,10 @@ export interface MenuCardInfo {
 }
 
 export const MENU_CARDS: MenuCardInfo[] = [
+  { id: 'COLORING_BOOK', title: 'Coloring Book', sub: 'Tap & color cute pages!', badge: 'Coloring', color: '#FCE4EC', borderColor: '#EC407A', scoreKey: 'coloringBook' },
+  { id: 'MAGIC_SCRATCH', title: 'Magic Scratch', sub: 'Rub to reveal rainbow art!', badge: 'Magic', color: '#EDE7F6', borderColor: '#7E57C2', scoreKey: 'magicScratch' },
+  { id: 'COLOR_BY_SHAPE', title: 'Shape Painter', sub: 'Match colors to shapes!', badge: 'Shapes', color: '#E8F5E9', borderColor: '#66BB6A', scoreKey: 'colorByShape' },
+  { id: 'FINGER_PAINT', title: 'Splat & Stamp', sub: 'Finger-paint & stamp!', badge: 'Art', color: '#FFCDD2', borderColor: '#EF5350', scoreKey: 'fingerPaint' },
   { id: 'EGG_LAYING', title: 'Mrs Clucky', sub: 'Lay & hatch eggs!', badge: 'Classic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'eggLaying' },
   { id: 'MUDDY_PUDDLES', title: 'Puddle Splash', sub: 'Jump & splash!', badge: 'Splash', color: '#FFCDD2', borderColor: '#E57373', scoreKey: 'muddyPuddles' },
   { id: 'CHICK_MAZE', title: 'Chick Trail', sub: 'Guide lost chicks!', badge: 'Puzzle', color: '#C8E6C9', borderColor: '#81C784', scoreKey: 'chickMaze' },
@@ -47,7 +51,6 @@ export const MENU_CARDS: MenuCardInfo[] = [
   { id: 'DUCK_PICNIC', title: 'Picnic Ducks', sub: 'Feed & dance with ducks!', badge: 'Picnic', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'duckPicnic' },
   { id: 'ANIMAL_FEEDING', title: 'Hungry Friends', sub: 'Feed tasty treats!', badge: 'Yum', color: '#FFE0B2', borderColor: '#FF9800', scoreKey: 'animalFeeding' },
   { id: 'ANIMAL_BAND', title: 'Animal Band', sub: 'Make joyful music!', badge: 'Music', color: '#E1BEE7', borderColor: '#AB47BC', scoreKey: 'animalBand' },
-  { id: 'FINGER_PAINT', title: 'Splat & Stamp', sub: 'Finger-paint & stamp!', badge: 'Art', color: '#FFCDD2', borderColor: '#EF5350', scoreKey: 'fingerPaint' },
   { id: 'BEDTIME_BARN', title: 'Sleepy Barn', sub: 'Tuck friends into bed!', badge: 'Bedtime', color: '#C5CAE9', borderColor: '#5C6BC0', scoreKey: 'bedtimeBarn' },
   { id: 'MUDDY_KART_3D', title: '3D Kart', sub: 'Race & splash mud!', badge: '3D Racing', color: '#FFE082', borderColor: '#FFA000', scoreKey: 'muddyKart' },
   { id: 'EMOJIS', title: 'Emojis', sub: 'Animated feelings & emojis!', badge: 'Emojis', color: '#FFF9C4', borderColor: '#FBC02D', scoreKey: 'emojis' }
@@ -396,6 +399,68 @@ export function renderMenuCharacterPreview(
     ctx.fillText(activeEmoji, 0, -bounce);
     ctx.font = '14px sans-serif';
     ctx.fillText('✨', 18, -14 - bounce);
+    ctx.restore();
+  } else if (modeId === 'COLORING_BOOK') {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const tilt = Math.sin(time * 3.5) * 0.12;
+    ctx.rotate(tilt);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#EC407A';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(-18, -22, 36, 44, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#FF7043';
+    ctx.beginPath();
+    ctx.arc(-6, -4, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#42A5F5';
+    ctx.beginPath();
+    ctx.arc(7, 8, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🖍️', 14, -14);
+    ctx.restore();
+  } else if (modeId === 'MAGIC_SCRATCH') {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const rainbow = ['#EF5350', '#FF9800', '#FFEB3B', '#66BB6A', '#29B6F6', '#AB47BC'];
+    for (let i = 0; i < rainbow.length; i++) {
+      ctx.strokeStyle = rainbow[i];
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(0, 10, 22 - i * 3, Math.PI, 0);
+      ctx.stroke();
+    }
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const bob = Math.sin(time * 5) * 3;
+    ctx.fillText('🪄', 14, -12 + bob);
+    ctx.fillText('✨', -16, -12 - bob);
+    ctx.restore();
+  } else if (modeId === 'COLOR_BY_SHAPE') {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const pulse = 1 + Math.sin(time * 4) * 0.08;
+    ctx.scale(pulse, pulse);
+    ctx.fillStyle = '#EF5350';
+    ctx.beginPath();
+    ctx.arc(-11, -10, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#42A5F5';
+    ctx.fillRect(3, -18, 16, 16);
+    ctx.fillStyle = '#FFCA28';
+    ctx.beginPath();
+    ctx.moveTo(0, 2);
+    ctx.lineTo(13, 22);
+    ctx.lineTo(-13, 22);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
   }
 }

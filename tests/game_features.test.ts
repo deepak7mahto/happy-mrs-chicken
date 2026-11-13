@@ -29,7 +29,11 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.display.vHeight = 960;
     const portraitCards = menu.getModeCards(engine.display);
 
-    expect(portraitCards.length).toBe(22);
+    expect(portraitCards.length).toBe(25);
+    expect(portraitCards[0].id).toBe('COLORING_BOOK');
+    expect(portraitCards[1].id).toBe('MAGIC_SCRATCH');
+    expect(portraitCards[2].id).toBe('COLOR_BY_SHAPE');
+    expect(portraitCards[3].id).toBe('FINGER_PAINT');
     expect(portraitCards[0].w).toBe(240);
     expect(portraitCards[0].h).toBe(144);
     // Card 0 and 1 are on row 0, same y
@@ -48,7 +52,7 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.display.vHeight = 540;
     const landscapeCards = menu.getModeCards(engine.display);
 
-    expect(landscapeCards.length).toBe(22);
+    expect(landscapeCards.length).toBe(25);
     // Row 0 has 4 cards with same y
     expect(landscapeCards[0].y).toBe(landscapeCards[1].y);
     expect(landscapeCards[1].y).toBe(landscapeCards[2].y);
@@ -124,10 +128,10 @@ describe('Tier 7: Menu 2-Column Portrait, Gamepad, BGM Moods & Snapshots', () =>
     engine.input.keysJustPressed.clear();
 
     // Enter / Space launches focused card
-    menu.focusedCardIndex = 1; // MUDDY_PUDDLES
+    menu.focusedCardIndex = 1; // MAGIC_SCRATCH
     engine.input.keysJustPressed.add('Enter');
     menu.update(0.016, engine.input);
-    expect(engine.currentSceneId).toBe('MUDDY_PUDDLES');
+    expect(engine.currentSceneId).toBe('MAGIC_SCRATCH');
     engine.storage.setStoryViewMode('grid');
     engine.changeScene('MENU');
     delete (window as any).__GAME_STATE__;

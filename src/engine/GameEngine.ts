@@ -34,7 +34,10 @@ import {
   BedtimeBarnScene,
   StudioScene,
   MuddyKartScene,
-  EmojisScene
+  EmojisScene,
+  ColoringBookScene,
+  MagicScratchScene,
+  ColorByShapeScene
 } from '../games';
 
 export class GameEngine {
@@ -80,6 +83,9 @@ export class GameEngine {
     this.scenes.set('STUDIO', new StudioScene(this));
     this.scenes.set('MUDDY_KART_3D', new MuddyKartScene(this));
     this.scenes.set('EMOJIS', new EmojisScene(this));
+    this.scenes.set('COLORING_BOOK', new ColoringBookScene(this));
+    this.scenes.set('MAGIC_SCRATCH', new MagicScratchScene(this));
+    this.scenes.set('COLOR_BY_SHAPE', new ColorByShapeScene(this));
 
     this.gameLoop = new GameLoop(
       (dt, isPaused) => this.update(dt, isPaused),

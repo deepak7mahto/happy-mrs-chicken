@@ -49,11 +49,11 @@ import { resolve } from 'node:path';
 // Suite 1: Smoke & Initialization
 // ---------------------------------------------------------------------------
 describe('Tier 1: Smoke & Initialization', () => {
-  test('T1.01: GameEngine instantiates all 24 scenes including MENU, STUDIO, and 21 game modes', () => {
+  test('T1.01: GameEngine instantiates all 27 scenes including MENU, STUDIO, and 25 game modes', () => {
     const canvas = document.createElement('canvas');
     const engine = new GameEngine(canvas);
 
-    expect(engine.scenes.size).toBe(24);
+    expect(engine.scenes.size).toBe(27);
     expect(engine.scenes.has('MENU')).toBe(true);
     expect(engine.scenes.has('STUDIO')).toBe(true);
     expect(engine.scenes.has('EGG_LAYING')).toBe(true);
@@ -78,6 +78,9 @@ describe('Tier 1: Smoke & Initialization', () => {
     expect(engine.scenes.has('FINGER_PAINT')).toBe(true);
     expect(engine.scenes.has('BEDTIME_BARN')).toBe(true);
     expect(engine.scenes.has('EMOJIS')).toBe(true);
+    expect(engine.scenes.has('COLORING_BOOK')).toBe(true);
+    expect(engine.scenes.has('MAGIC_SCRATCH')).toBe(true);
+    expect(engine.scenes.has('COLOR_BY_SHAPE')).toBe(true);
     expect(engine.currentSceneId).toBe('MENU');
   });
 
