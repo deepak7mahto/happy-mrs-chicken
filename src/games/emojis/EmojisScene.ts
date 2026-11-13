@@ -35,7 +35,7 @@ export class EmojisScene extends BaseScene {
     const w = this.game.display ? this.game.display.vWidth : 960;
     const h = this.game.display ? this.game.display.vHeight : 540;
     this.logic.reset(w, h);
-    voiceNarrator.speak('Tap the feeling faces and watch emojis bounce!');
+    this.speakEmotionWord(this.logic.currentEmotion);
   }
 
   public override exit(): void {
@@ -63,6 +63,8 @@ export class EmojisScene extends BaseScene {
         const emotionHit = this.logic.findMajorButtonAt(pos.x, pos.y);
         if (emotionHit) {
           this.handleEmotionTap(emotionHit);
+        } else if (this.logic.isWordBannerHit(pos.x, pos.y)) {
+          this.handleStageTap(pos.x, pos.y);
         } else {
           // 3. Check Small Emoji Tray
           const smallIdx = this.logic.findSmallEmojiAt(pos.x, pos.y);
@@ -88,6 +90,23 @@ export class EmojisScene extends BaseScene {
     this.score = this.logic.score;
   }
 
+  public speakEmotionWord(emotion: EmotionType): void {
+    switch (emotion) {
+      case 'HAPPY':
+        voiceNarrator.speakKids('Happy', { pitch: 1.48, rate: 0.95 });
+        break;
+      case 'SAD':
+        voiceNarrator.speakKids('Sad', { pitch: 1.35, rate: 0.88 });
+        break;
+      case 'ANGRY':
+        voiceNarrator.speakKids('Angry', { pitch: 1.40, rate: 0.95 });
+        break;
+      case 'SURPRISE':
+        voiceNarrator.speakKids('Surprise', { pitch: 1.50, rate: 0.98 });
+        break;
+    }
+  }
+
   private handleEmotionTap(emotion: EmotionType): void {
     this.logic.selectEmotion(emotion);
     Haptics.success();
@@ -96,24 +115,22 @@ export class EmojisScene extends BaseScene {
       case 'HAPPY':
         soundEngine.playSFX('toddlerGiggle');
         soundEngine.playTone(659.25, 0.15, 'sine', 0.18);
-        voiceNarrator.speak('Happy!');
         break;
       case 'SAD':
         soundEngine.playSFX('sleepyYawn');
         soundEngine.playTone(392.0, 0.25, 'triangle', 0.15);
-        voiceNarrator.speak('Sad');
         break;
       case 'ANGRY':
         soundEngine.playSFX('drumThump');
         soundEngine.playSFX('mudThud');
-        voiceNarrator.speak('Grrr, angry!');
         break;
       case 'SURPRISE':
         soundEngine.playSFX('whoosh');
         soundEngine.playSFX('bubblePop', { pitch: 1.4 });
-        voiceNarrator.speak('Surprise!');
         break;
     }
+
+    this.speakEmotionWord(emotion);
 
     this.particles.emit({
       x: this.logic.stageCenterX,
@@ -155,7 +172,10 @@ export class EmojisScene extends BaseScene {
   }
 
   private handleStageTap(x: number, y: number): void {
-    // Stage tap spawns an emoji matching the active emotion
+    if (this.logic.isWordBannerHit(x, y) || this.logic.isStageFaceHit(x, y)) {
+      this.logic.emotionReactionTimer = 1.0;
+      this.speakEmotionWord(this.logic.currentEmotion);
+    }
     const emojiMap: Record<EmotionType, string> = {
       HAPPY: '😊',
       SAD: '😢',

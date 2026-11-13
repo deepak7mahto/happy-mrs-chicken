@@ -7,6 +7,13 @@
 
 import { soundEngine } from './index';
 
+export interface VoiceNarratorOptions {
+  pitch?: number;
+  rate?: number;
+  volume?: number;
+  kidVoice?: boolean;
+}
+
 export class VoiceNarrator {
   private enabled: boolean = true;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
@@ -15,6 +22,15 @@ export class VoiceNarrator {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         window.speechSynthesis.getVoices?.();
+        if (typeof window.speechSynthesis.addEventListener === 'function') {
+          window.speechSynthesis.addEventListener('voiceschanged', () => {
+            try {
+              window.speechSynthesis.getVoices?.();
+            } catch {
+              // Safe fallback
+            }
+          });
+        }
       } catch {
         // Safe fallback
       }
@@ -36,7 +52,26 @@ export class VoiceNarrator {
     }
   }
 
-  public speak(phrase: string, options: { pitch?: number; rate?: number; volume?: number } = {}): void {
+  private findKidVoice(): SpeechSynthesisVoice | null {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+    try {
+      const voices = window.speechSynthesis.getVoices?.();
+      if (!voices || voices.length === 0) return null;
+      const en = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+      const pool = en.length > 0 ? en : voices;
+      const matched = pool.find(v => {
+        const n = (v.name || '').toLowerCase();
+        return n.includes('child') || n.includes('kid') || n.includes('junior') ||
+               n.includes('samantha') || n.includes('victoria') || n.includes('karen') ||
+               n.includes('moira') || n.includes('tessa') || n.includes('female');
+      });
+      return matched || pool[0] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  public speak(phrase: string, options: VoiceNarratorOptions = {}): void {
     if (!this.enabled || !phrase) return;
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
@@ -49,8 +84,17 @@ export class VoiceNarrator {
       if (!SpeechCtor) return;
 
       const utterance = new SpeechCtor(phrase);
-      utterance.pitch = options.pitch ?? 1.15;
-      utterance.rate = options.rate ?? 0.92;
+      if (options.kidVoice) {
+        utterance.pitch = options.pitch ?? 1.45;
+        utterance.rate = options.rate ?? 0.95;
+        const voice = this.findKidVoice();
+        if (voice) {
+          utterance.voice = voice;
+        }
+      } else {
+        utterance.pitch = options.pitch ?? 1.15;
+        utterance.rate = options.rate ?? 0.92;
+      }
       utterance.volume = options.volume ?? (soundEngine.holder ? soundEngine.holder.volume : 1.0);
 
       // Duck BGM while speaking
@@ -71,6 +115,13 @@ export class VoiceNarrator {
     } catch {
       soundEngine.duckBGM(1.0);
     }
+  }
+
+  public speakKids(word: string, options: VoiceNarratorOptions = {}): void {
+    this.speak(word, {
+      ...options,
+      kidVoice: true
+    });
   }
 
   public stop(): void {

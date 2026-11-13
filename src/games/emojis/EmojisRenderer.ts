@@ -12,6 +12,7 @@ export class EmojisRenderer {
     ctx.save();
     this.renderBackground(ctx, w, h, logic.currentEmotion);
     this.renderEmotionStage(ctx, logic);
+    this.renderEmotionWordBanner(ctx, logic);
     this.renderMajorButtons(ctx, logic);
     this.renderSmallEmojiTray(ctx, logic, w, h);
     this.renderBouncingEmojis(ctx, logic);
@@ -108,6 +109,67 @@ export class EmojisRenderer {
     else if (logic.currentEmotion === 'SAD') this.renderSad(ctx, r, t);
     else if (logic.currentEmotion === 'ANGRY') this.renderAngry(ctx, r, t);
     else this.renderSurprise(ctx, r, t);
+
+    ctx.restore();
+  }
+
+  private renderEmotionWordBanner(ctx: CanvasRenderingContext2D, logic: EmojisLogic): void {
+    const rect = logic.getWordBannerRect();
+    const emotion = logic.currentEmotion;
+    const react = logic.emotionReactionTimer;
+    const bounce = react > 0 ? Math.sin(react * Math.PI) * 7 : 0;
+    const scale = 1.0 + (react > 0 ? react * 0.08 : 0) + Math.sin(logic.emotionTimer * 3) * 0.015;
+
+    const cx = rect.x + rect.w * 0.5;
+    const cy = rect.y + rect.h * 0.5 - bounce;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    const cfg = {
+      HAPPY: { bg: '#FFF9C4', border: '#FBC02D', text: '#E65100', symbol: '😊', word: 'Happy' },
+      SAD: { bg: '#E1F5FE', border: '#0288D1', text: '#01579B', symbol: '😢', word: 'Sad' },
+      ANGRY: { bg: '#FFEBEE', border: '#D32F2F', text: '#B71C1C', symbol: '😡', word: 'Angry' },
+      SURPRISE: { bg: '#F3E5F5', border: '#7B1FA2', text: '#4A148C', symbol: '😲', word: 'Surprise' }
+    }[emotion];
+
+    // Shadow & pill body
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+    ctx.beginPath();
+    ctx.roundRect(-rect.w * 0.5, -rect.h * 0.5 + 4, rect.w, rect.h, 24);
+    ctx.fill();
+
+    ctx.fillStyle = cfg.bg;
+    ctx.beginPath();
+    ctx.roundRect(-rect.w * 0.5, -rect.h * 0.5, rect.w, rect.h, 24);
+    ctx.fill();
+    ctx.strokeStyle = cfg.border;
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+
+    // Gloss
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+    ctx.beginPath();
+    ctx.roundRect(-rect.w * 0.5 + 4, -rect.h * 0.5 + 3, rect.w - 8, rect.h * 0.44, [20, 20, 8, 8]);
+    ctx.fill();
+
+    // Emoji icon on left
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(cfg.symbol, -rect.w * 0.35, 1);
+
+    // Big bold emotion word
+    ctx.font = 'bold 24px "Fredoka", sans-serif';
+    ctx.fillStyle = cfg.text;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(cfg.word, 4, 1);
+
+    // Kid voice speaker audio icon on right
+    ctx.font = '16px sans-serif';
+    ctx.fillText('🔊', rect.w * 0.36, 1);
 
     ctx.restore();
   }
@@ -287,11 +349,11 @@ export class EmojisRenderer {
       ctx.fillText(btn.emoji, offX, 1);
 
       ctx.textAlign = 'left';
-      ctx.font = 'bold 16px "Fredoka", sans-serif';
-      ctx.fillStyle = '#212121';
+      ctx.font = '800 17px "Fredoka", sans-serif';
+      ctx.fillStyle = isActive ? '#000000' : '#263238';
       ctx.fillText(btn.label, offX + 22, -6);
-      ctx.font = '10px "Fredoka", sans-serif';
-      ctx.fillStyle = '#616161';
+      ctx.font = '700 11px "Fredoka", sans-serif';
+      ctx.fillStyle = isActive ? '#37474F' : '#78909C';
       ctx.fillText(btn.subLabel, offX + 22, 10);
       ctx.restore();
     }

@@ -312,6 +312,24 @@ export class EmojisLogic {
     return x >= this.partyBtnX && x <= this.partyBtnX + this.partyBtnW && y >= this.partyBtnY && y <= this.partyBtnY + this.partyBtnH;
   }
 
+  public getWordBannerRect(): { x: number; y: number; w: number; h: number } {
+    const isPortrait = this.height > this.width;
+    const w = isPortrait ? Math.min(this.width * 0.62, 230) : 230;
+    const h = 48;
+    const x = this.stageCenterX - w * 0.5;
+    const y = this.stageCenterY + this.stageRadius + 14;
+    return { x, y, w, h };
+  }
+
+  public isWordBannerHit(x: number, y: number): boolean {
+    const rect = this.getWordBannerRect();
+    return x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h;
+  }
+
+  public isStageFaceHit(x: number, y: number): boolean {
+    return Math.hypot(x - this.stageCenterX, y - this.stageCenterY) <= this.stageRadius * 1.1;
+  }
+
   public update(dt: number): void {
     const clampedDt = Math.min(dt, 0.1);
     this.emotionTimer += clampedDt;
