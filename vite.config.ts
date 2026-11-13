@@ -9,9 +9,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/pixi.js')) {
-            return 'vendor-pixi';
-          }
           if (id.includes('src/engine/audio') || id.includes('src/engine/SoundEngine')) {
             return 'audio-engine';
           }

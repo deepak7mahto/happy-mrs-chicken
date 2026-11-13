@@ -15,6 +15,7 @@ export class DisplayManager {
   private _windowWidth: number = window.innerWidth;
   private _windowHeight: number = window.innerHeight;
   public letterboxColor: string = '#0f172a';
+  private _dimCheckFrame: number = 0;
 
   private resizeHandler: () => void;
 
@@ -136,7 +137,10 @@ export class DisplayManager {
   }
 
   beginFrame(): void {
-    this.checkDimensionChange();
+    if (++this._dimCheckFrame >= 30) {
+      this._dimCheckFrame = 0;
+      this.checkDimensionChange();
+    }
     const ctx = this.ctx;
     ctx.save();
     ctx.scale(this._dpr, this._dpr);
@@ -148,7 +152,6 @@ export class DisplayManager {
   }
 
   screenToVirtual(screenX: number, screenY: number): { x: number; y: number; inside: boolean } {
-    this.checkDimensionChange();
     if (this.canvas && typeof this.canvas.getBoundingClientRect === 'function') {
       const rect = this.canvas.getBoundingClientRect();
       const clientX = screenX - rect.left;
@@ -165,7 +168,6 @@ export class DisplayManager {
   }
 
   virtualToScreen(vx: number, vy: number): { screenX: number; screenY: number } {
-    this.checkDimensionChange();
     if (this.canvas && typeof this.canvas.getBoundingClientRect === 'function') {
       const rect = this.canvas.getBoundingClientRect();
       return {

@@ -12,6 +12,7 @@ import { MENU_CARDS, renderMenuCharacterPreview } from './menuData';
 import { FONTS } from '../../graphics/typography';
 
 const cardGradientCache = new WeakMap<CanvasRenderingContext2D, Map<string, CanvasGradient>>();
+const previewCanvasCache = new Map<string, HTMLCanvasElement>();
 
 function getCachedCardGradient(
   ctx: CanvasRenderingContext2D,
@@ -33,6 +34,49 @@ function getCachedCardGradient(
     ctxCache.set(key, grad);
   }
   return grad;
+}
+
+function drawCachedMenuPreview(
+  ctx: CanvasRenderingContext2D,
+  modeId: any,
+  cx: number,
+  cy: number,
+  previewSize: number,
+  time: number,
+  cardIndex: number
+): void {
+  if (typeof document === 'undefined' || typeof document.createElement !== 'function') {
+    renderMenuCharacterPreview(ctx, modeId, cx, cy, previewSize, time);
+    return;
+  }
+
+  const roundedSize = Math.round(previewSize);
+  const cacheKey = `${modeId}:${roundedSize}`;
+  let cvs = previewCanvasCache.get(cacheKey);
+
+  if (!cvs) {
+    try {
+      const side = 160;
+      cvs = document.createElement('canvas');
+      cvs.width = side;
+      cvs.height = side;
+      const offCtx = cvs.getContext('2d');
+      if (offCtx) {
+        renderMenuCharacterPreview(offCtx, modeId, side / 2, side / 2, previewSize, 0);
+        previewCanvasCache.set(cacheKey, cvs);
+      }
+    } catch {
+      cvs = undefined;
+    }
+  }
+
+  if (cvs && cvs.width > 0) {
+    const floatY = Math.sin(time * 3 + cardIndex * 0.7) * 2;
+    const side = cvs.width;
+    ctx.drawImage(cvs, cx - side / 2, cy - side / 2 + floatY, side, side);
+  } else {
+    renderMenuCharacterPreview(ctx, modeId, cx, cy, previewSize, time);
+  }
 }
 
 export function renderMenuCardGrid(
@@ -96,10 +140,10 @@ export function renderMenuCardGrid(
 
     if (isPortrait) {
       // --- 2-COLUMN PORTRAIT (MOBILE) LAYOUT ---
-      // Left Center: Character Vector Preview (scaled and centered vertically)
+      // Left Center: Character Vector Preview (cached offscreen bitmap with floating idle)
       const previewX = -card.w * 0.28;
       const previewSize = Math.min(card.w * 0.44, card.h * 0.72);
-      renderMenuCharacterPreview(ctx, card.id, previewX, 2, previewSize, time);
+      drawCachedMenuPreview(ctx, card.id, previewX, 2, previewSize, time, i);
 
       // Dynamic right side bounds
       const rightStartX = -card.w * 0.05;
@@ -171,7 +215,7 @@ export function renderMenuCardGrid(
       }
     } else {
       // --- 4-COLUMN LANDSCAPE LAYOUT ---
-      renderMenuCharacterPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, time);
+      drawCachedMenuPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, time, i);
 
       // Badges
       const badgeY = -card.h / 2 + 15;

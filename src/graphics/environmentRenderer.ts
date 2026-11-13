@@ -184,6 +184,25 @@ function drawFlower(
   ctx.restore();
 }
 
+const skyGradientCache = new WeakMap<CanvasRenderingContext2D, Map<number, CanvasGradient>>();
+
+function getCachedSkyGradient(ctx: CanvasRenderingContext2D, height: number): CanvasGradient {
+  let cache = skyGradientCache.get(ctx);
+  if (!cache) {
+    cache = new Map();
+    skyGradientCache.set(ctx, cache);
+  }
+  const roundedH = Math.round(height * 0.7);
+  let grad = cache.get(roundedH);
+  if (!grad) {
+    grad = ctx.createLinearGradient(0, 0, 0, roundedH);
+    grad.addColorStop(0, PALETTE.SKY_TOP);
+    grad.addColorStop(1, PALETTE.SKY_BOTTOM);
+    cache.set(roundedH, grad);
+  }
+  return grad;
+}
+
 export function drawLandscapeSkyHills(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -192,11 +211,8 @@ export function drawLandscapeSkyHills(
 ): void {
   ctx.save();
 
-  // Sky Gradient
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.7);
-  skyGrad.addColorStop(0, PALETTE.SKY_TOP);
-  skyGrad.addColorStop(1, PALETTE.SKY_BOTTOM);
-  ctx.fillStyle = skyGrad;
+  // Sky Gradient (cached to eliminate per-frame allocations)
+  ctx.fillStyle = getCachedSkyGradient(ctx, height);
   ctx.fillRect(0, 0, width, height);
 
   // Drifting Cartoon Clouds
