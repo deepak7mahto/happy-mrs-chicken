@@ -43,26 +43,29 @@ function drawCachedMenuPreview(
   cy: number,
   previewSize: number,
   time: number,
-  cardIndex: number
+  cardIndex: number,
+  display: DisplayManager
 ): void {
   if (typeof document === 'undefined' || typeof document.createElement !== 'function') {
     renderMenuCharacterPreview(ctx, modeId, cx, cy, previewSize, time);
     return;
   }
 
+  const pixelScale = Math.max(2, Math.min(4, Math.ceil(display.scale * display.dpr)));
+  const logicalSide = 160;
   const roundedSize = Math.round(previewSize);
-  const cacheKey = `${modeId}:${roundedSize}`;
+  const cacheKey = `${modeId}:${roundedSize}:${pixelScale}`;
   let cvs = previewCanvasCache.get(cacheKey);
 
   if (!cvs) {
     try {
-      const side = 160;
       cvs = document.createElement('canvas');
-      cvs.width = side;
-      cvs.height = side;
+      cvs.width = logicalSide * pixelScale;
+      cvs.height = logicalSide * pixelScale;
       const offCtx = cvs.getContext('2d');
       if (offCtx) {
-        renderMenuCharacterPreview(offCtx, modeId, side / 2, side / 2, previewSize, 0);
+        offCtx.scale(pixelScale, pixelScale);
+        renderMenuCharacterPreview(offCtx, modeId, logicalSide / 2, logicalSide / 2, previewSize, 0);
         previewCanvasCache.set(cacheKey, cvs);
       }
     } catch {
@@ -72,8 +75,7 @@ function drawCachedMenuPreview(
 
   if (cvs && cvs.width > 0) {
     const floatY = Math.sin(time * 3 + cardIndex * 0.7) * 2;
-    const side = cvs.width;
-    ctx.drawImage(cvs, cx - side / 2, cy - side / 2 + floatY, side, side);
+    ctx.drawImage(cvs, cx - logicalSide / 2, cy - logicalSide / 2 + floatY, logicalSide, logicalSide);
   } else {
     renderMenuCharacterPreview(ctx, modeId, cx, cy, previewSize, time);
   }
@@ -143,7 +145,7 @@ export function renderMenuCardGrid(
       // Left Center: Character Vector Preview (cached offscreen bitmap with floating idle)
       const previewX = -card.w * 0.28;
       const previewSize = Math.min(card.w * 0.44, card.h * 0.72);
-      drawCachedMenuPreview(ctx, card.id, previewX, 2, previewSize, time, i);
+      drawCachedMenuPreview(ctx, card.id, previewX, 2, previewSize, time, i, display);
 
       // Dynamic right side bounds
       const rightStartX = -card.w * 0.05;
@@ -215,7 +217,7 @@ export function renderMenuCardGrid(
       }
     } else {
       // --- 4-COLUMN LANDSCAPE LAYOUT ---
-      drawCachedMenuPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, time, i);
+      drawCachedMenuPreview(ctx, card.id, -card.w * 0.28, 0, card.w * 0.55, time, i, display);
 
       // Badges
       const badgeY = -card.h / 2 + 15;
