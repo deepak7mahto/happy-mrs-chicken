@@ -279,8 +279,8 @@ export class BedtimeBarnRenderer {
     _h: number
   ): void {
     ctx.save();
-    const jarX = 36;
-    const jarY = 32;
+    const jarX = w < 700 ? 176 : 140;
+    const jarY = 16;
 
     // Glass jar pill HUD
     ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';

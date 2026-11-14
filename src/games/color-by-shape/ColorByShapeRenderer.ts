@@ -42,7 +42,8 @@ export class ColorByShapeRenderer {
     ctx.fillStyle = '#E8F5E9';
     ctx.fillRect(0, 0, w, h);
 
-    // Header
+    // Header (shifted below DOM Home button on portrait)
+    const isPortrait = h > w;
     ctx.fillStyle = '#1B5E20';
     ctx.font = 'bold 20px sans-serif';
     ctx.textAlign = 'center';
@@ -50,7 +51,7 @@ export class ColorByShapeRenderer {
     ctx.fillText(
       `🔷 ${logic.activePicture.title} (${logic.pictureIndex + 1}/${SHAPE_PICTURES.length})`,
       w / 2,
-      28
+      isPortrait ? 74 : 28
     );
 
     // Paper sheet

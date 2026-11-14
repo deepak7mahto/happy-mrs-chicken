@@ -34,8 +34,10 @@ export class ColoringRenderer {
     ctx.fillStyle = '#E0F2F1';
     ctx.fillRect(0, 0, w, h);
 
-    // Paper page
-    const px = 20, py = 48, pw = w - 40, ph = h - 132;
+    // Paper page (leave extra top clearance on portrait for DOM Home button)
+    const isPortrait = h > w;
+    const py = isPortrait ? 78 : 54;
+    const px = 20, pw = w - 40, ph = h - py - 84;
     // Paper shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.beginPath();
@@ -57,12 +59,14 @@ export class ColoringRenderer {
     const arrowY = h * 0.42;
     const bounce = Math.sin(time * 4) * 3;
 
-    // Title banner
+    // Title banner (placed in top bar to the right of DOM Home button on portrait, centered on landscape)
+    const isPortrait = h > w;
+    const titleX = isPortrait ? (172 + w - 16) / 2 : w / 2;
     ctx.fillStyle = '#37474F';
-    ctx.font = 'bold 18px sans-serif';
+    ctx.font = isPortrait ? 'bold 17px sans-serif' : 'bold 18px sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`${sheet.title} (${logic.sheetIndex + 1}/6)`, w / 2, 54);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${sheet.title} (${logic.sheetIndex + 1}/6)`, titleX, 28);
 
     // Left Page Arrow
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';

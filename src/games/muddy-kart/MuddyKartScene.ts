@@ -171,30 +171,34 @@ export class MuddyKartScene extends BaseScene {
     }
   }
 
-  private renderHUD(ctx: CanvasRenderingContext2D, w: number, _h: number): void {
+  private renderHUD(ctx: CanvasRenderingContext2D, w: number, h: number): void {
     ctx.save();
 
-    // Top Bar Container: Mud Splashes & Golden Stars
-    const pillY = 18;
+    // Top Bar Container: Mud Splashes & Golden Stars (offset right of DOM Home button)
+    const isPortrait = h > w;
+    const pillY = 16;
+    const leftStart = isPortrait ? 176 : 140;
+    const statW = isPortrait ? 92 : 110;
 
     // Mud Splashes Pill
     ctx.fillStyle = 'rgba(93, 64, 55, 0.88)';
     ctx.beginPath();
-    ctx.roundRect(16, pillY, 110, 38, 19);
+    ctx.roundRect(leftStart, pillY, statW, 38, 19);
     ctx.fill();
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 17px Fredoka, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`💦 ${this.logic.stats.mudSplashes}`, 28, pillY + 25);
+    ctx.fillText(`💦 ${this.logic.stats.mudSplashes}`, leftStart + 12, pillY + 25);
 
     // Golden Stars Pill
+    const starX = leftStart + statW + 8;
     ctx.fillStyle = 'rgba(251, 192, 45, 0.92)';
     ctx.beginPath();
-    ctx.roundRect(134, pillY, 105, 38, 19);
+    ctx.roundRect(starX, pillY, statW, 38, 19);
     ctx.fill();
     ctx.fillStyle = '#3E2723';
     ctx.font = 'bold 17px Fredoka, sans-serif';
-    ctx.fillText(`⭐ ${this.logic.stats.starsCollected}`, 146, pillY + 25);
+    ctx.fillText(`⭐ ${this.logic.stats.starsCollected}`, starX + 12, pillY + 25);
 
     // Score Pill (Top Right)
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';

@@ -107,24 +107,24 @@ export class StudioScene extends BaseScene {
     }
   }
 
-  private handleHeaderTap(x: number, y: number, w: number): void {
-    // Back to Menu Button
-    if (x <= 110) {
-      soundEngine.playSFX('click');
-      Haptics.tap();
-      if (this.game && typeof this.game.changeScene === 'function') {
-        this.game.changeScene('MENU');
-      }
-      return;
+  private getTabRects(w: number): { sX: number; cX: number; tabW: number } {
+    if (w < 700) {
+      const startX = 174;
+      const avail = Math.max(200, w - 126 - startX);
+      const tabW = Math.floor((avail - 8) / 2);
+      return { sX: startX, cX: startX + tabW + 8, tabW };
     }
-
-    // Tabs
     const midX = w / 2;
-    if (x >= midX - 170 && x <= midX - 10) {
+    return { sX: midX - 165, cX: midX + 10, tabW: 155 };
+  }
+
+  private handleHeaderTap(x: number, _y: number, w: number): void {
+    const { sX, cX, tabW } = this.getTabRects(w);
+    if (x >= sX && x <= sX + tabW) {
       this.switchTab('stickers');
       return;
     }
-    if (x >= midX + 10 && x <= midX + 170) {
+    if (x >= cX && x <= cX + tabW) {
       this.switchTab('coloring');
       return;
     }
@@ -339,36 +339,30 @@ export class StudioScene extends BaseScene {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 1. Back Button
-    ctx.fillStyle = '#FF5252';
-    ctx.beginPath();
-    ctx.roundRect(18, 10, 84, 36, 12);
-    ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 15px sans-serif';
+    // Center Tabs Switcher (positioned to clear DOM Home button on left and action buttons on right)
+    const { sX, cX, tabW } = this.getTabRects(w);
+    const isStickers = this.activeTab === 'stickers';
+    const isCompact = w < 700;
+
+    ctx.font = isCompact ? 'bold 13px sans-serif' : 'bold 15px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('◀ Back', 60, 28);
-
-    // 2. Center Tabs Switcher
-    const midX = w / 2;
-    const isStickers = this.activeTab === 'stickers';
 
     // Stickers tab
     ctx.fillStyle = isStickers ? '#4B88FF' : '#ECEFF1';
     ctx.beginPath();
-    ctx.roundRect(midX - 165, 10, 155, 36, 12);
+    ctx.roundRect(sX, 10, tabW, 36, 12);
     ctx.fill();
     ctx.fillStyle = isStickers ? '#FFFFFF' : '#546E7A';
-    ctx.fillText('🌟 Sticker World', midX - 88, 28);
+    ctx.fillText(isCompact ? '🌟 Stickers' : '🌟 Sticker World', sX + tabW / 2, 28);
 
     // Coloring tab
     ctx.fillStyle = !isStickers ? '#9C27B0' : '#ECEFF1';
     ctx.beginPath();
-    ctx.roundRect(midX + 10, 10, 155, 36, 12);
+    ctx.roundRect(cX, 10, tabW, 36, 12);
     ctx.fill();
     ctx.fillStyle = !isStickers ? '#FFFFFF' : '#546E7A';
-    ctx.fillText('🖍️ Coloring Book', midX + 88, 28);
+    ctx.fillText(isCompact ? '🖍️ Coloring' : '🖍️ Coloring Book', cX + tabW / 2, 28);
 
     // 3. Camera Snapshot Button
     ctx.fillStyle = '#FFB300';

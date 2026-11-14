@@ -138,10 +138,10 @@ export class DadKitchenRenderer {
     vWidth: number
   ): void {
     ctx.save();
-    const barW = Math.min(260, vWidth - 140);
-    const barH = 20;
-    const barX = 70;
-    const barY = 24;
+    const barX = vWidth < 700 ? 176 : 140;
+    const barW = Math.min(260, Math.max(120, vWidth - barX - 135));
+    const barH = 22;
+    const barY = 22;
 
     // Background track
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';

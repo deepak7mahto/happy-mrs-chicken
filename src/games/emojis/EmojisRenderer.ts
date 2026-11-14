@@ -430,27 +430,24 @@ export class EmojisRenderer {
     }
   }
 
-  private renderHUD(ctx: CanvasRenderingContext2D, logic: EmojisLogic, _w: number, _h: number): void {
+  private renderHUD(ctx: CanvasRenderingContext2D, logic: EmojisLogic, w: number, h: number): void {
     ctx.save();
-    // Title
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+    const isPortrait = h > w;
+    // Place score pill cleanly to the right of the DOM Home button
+    const scoreX = isPortrait ? 176 : 140;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.beginPath();
-    ctx.roundRect(16, 14, 140, 38, 14);
-    ctx.roundRect(166, 14, 120, 38, 14);
+    ctx.roundRect(scoreX, 14, 110, 38, 16);
     ctx.fill();
     ctx.strokeStyle = '#FBC02D';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.font = 'bold 17px "Fredoka", sans-serif';
-    ctx.fillStyle = '#E65100';
+    ctx.font = 'bold 16px "Fredoka", sans-serif';
+    ctx.fillStyle = '#F57F17';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Emojis ✨', 86, 33);
-
-    ctx.font = 'bold 15px "Fredoka", sans-serif';
-    ctx.fillStyle = '#F57F17';
-    ctx.fillText(`⭐ ${logic.score}`, 226, 33);
+    ctx.fillText(`⭐ ${logic.score}`, scoreX + 55, 33);
 
     // Party Button
     ctx.save();

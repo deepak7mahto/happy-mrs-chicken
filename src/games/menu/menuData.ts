@@ -90,7 +90,7 @@ export function renderMenuCharacterPreview(
     ctx.fill();
     ctx.stroke();
 
-    drawMrsClucky(ctx, cx - 4, cy, charScale * 0.95, {
+    drawMrsClucky(ctx, cx + 2, cy, charScale * 0.78, {
       squash: 1.0 + Math.sin(time * 4) * 0.1,
       flap: Math.sin(time * 6) * 0.22,
       headBob: Math.sin(time * 3) * 2,

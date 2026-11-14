@@ -69,8 +69,10 @@ export class IceCreamVanRenderer {
     });
     ctx.restore();
 
-    // Customer Order Speech Bubble
-    this.renderSpeechBubble(ctx, custX - 28, custY - 48, logic.scoops.length, logic.requestedFlavor);
+    // Customer Order Speech Bubble (placed below awning on portrait to avoid overlapping awning title)
+    const bubbleX = isPortrait ? custX - 42 : custX - 28;
+    const bubbleY = isPortrait ? awningY + 124 : custY - 48;
+    this.renderSpeechBubble(ctx, bubbleX, bubbleY, logic.scoops.length, logic.requestedFlavor);
 
     // Big Waffle Cone in Center
     const coneX = vWidth / 2;

@@ -139,11 +139,13 @@ export class ColorByShapeLogic {
   }
 
   public getPaperBounds(): { x: number; y: number; w: number; h: number } {
+    const isPortrait = this.height > this.width;
+    const top = isPortrait ? 96 : 56;
     return {
       x: 24,
-      y: 56,
+      y: top,
       w: Math.max(200, this.width - 48),
-      h: Math.max(160, this.height - 144)
+      h: Math.max(160, this.height - top - 88)
     };
   }
 
